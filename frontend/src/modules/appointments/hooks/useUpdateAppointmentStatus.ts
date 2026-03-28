@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { appointmentsApi } from '../services/appointments.api';
+import { appointmentsApi } from '../requests/appointments.api';
 import type { AppointmentStatus } from '../types/appointment.types';
 import { STATUS_CONFIG } from '../types/appointment.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
 export function useUpdateAppointmentStatus(id: string) {
   const queryClient = useQueryClient();

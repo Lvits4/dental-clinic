@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { treatmentsApi } from '../services/treatments.api';
-import { HttpError } from '../../../shared/utils/http';
+import { treatmentsApi } from '../requests/treatments.api';
+import { HttpError } from '../../../common/utils/http';
 
 export function useToggleTreatment() {
   const queryClient = useQueryClient();

@@ -25,7 +25,7 @@ export class ClinicalEvolutionsController {
   constructor(private readonly evolutionsService: ClinicalEvolutionsService) {}
 
   @Post()
-  @Roles(Role.DOCTOR)
+  @Roles(Role.DOCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Register a clinical evolution' })
   create(@Body() createDto: CreateClinicalEvolutionDto) {
     return this.evolutionsService.create(createDto);

@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { patientsApi } from '../services/patients.api';
+import { patientsApi } from '../requests/patients.api';
 import type { UpdatePatientDto } from '../types/patient.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
-export function useUpdatePatient(id: string) {
+export const useUpdatePatient = (id: string) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -26,4 +26,4 @@ export function useUpdatePatient(id: string) {
       }
     },
   });
-}
+};

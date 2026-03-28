@@ -2,17 +2,17 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useClinicalEvolutionsList } from '../hooks/useClinicalEvolutions';
 import { useClinicalRecord } from '../../clinical-records/hooks/useClinicalRecord';
-import Table, { type Column } from '../../../shared/components/ui/Table';
-import Pagination from '../../../shared/components/ui/Pagination';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Table, { type Column } from '../../../common/components/Table/Table';
+import Pagination from '../../../common/components/Pagination/Pagination';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 import type { ClinicalEvolution } from '../types/clinical-evolution.types';
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function ClinicalEvolutionsListView() {
+const ClinicalEvolutionsListView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -82,10 +82,12 @@ export default function ClinicalEvolutionsListView() {
             emptyMessage="No hay evoluciones registradas"
           />
           {data && (
-            <Pagination page={data.page} totalPages={data.totalPages} total={data.total} limit={data.limit} onPageChange={setPage} />
+            <Pagination page={data.meta.page} totalPages={data.meta.totalPages} total={data.meta.totalItems} limit={data.meta.limit} onPageChange={setPage} />
           )}
         </>
       )}
     </div>
   );
-}
+};
+
+export default ClinicalEvolutionsListView;

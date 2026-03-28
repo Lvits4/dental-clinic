@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDoctorDetail } from '../hooks/useDoctorDetail';
 import { useDeleteDoctor } from '../hooks/useDeleteDoctor';
-import Badge from '../../../shared/components/ui/Badge';
-import Button from '../../../shared/components/ui/Button';
-import ConfirmDialog from '../../../shared/components/ui/ConfirmDialog';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Badge from '../../../common/components/Badge/Badge';
+import Button from '../../../common/components/Button/Button';
+import ConfirmDialog from '../../../common/components/ConfirmDialog/ConfirmDialog';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function DoctorDetailView() {
+const DoctorDetailView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: doctor, isLoading } = useDoctorDetail(id!);
@@ -114,4 +114,6 @@ export default function DoctorDetailView() {
       />
     </div>
   );
-}
+};
+
+export default DoctorDetailView;

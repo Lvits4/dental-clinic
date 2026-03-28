@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { appointmentsApi } from '../services/appointments.api';
+import { appointmentsApi } from '../requests/appointments.api';
 import type { CreateAppointmentDto } from '../types/appointment.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
 export function useCreateAppointment() {
   const queryClient = useQueryClient();

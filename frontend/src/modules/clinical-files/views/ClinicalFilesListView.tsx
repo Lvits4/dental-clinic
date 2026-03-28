@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useClinicalFilesList, useUploadClinicalFile, useDeleteClinicalFile } from '../hooks/useClinicalFiles';
-import { API_BASE_URL } from '../../../shared/constants/api';
-import Pagination from '../../../shared/components/ui/Pagination';
-import Button from '../../../shared/components/ui/Button';
-import ConfirmDialog from '../../../shared/components/ui/ConfirmDialog';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import { API_BASE_URL } from '../../../common/constants/api';
+import Pagination from '../../../common/components/Pagination/Pagination';
+import Button from '../../../common/components/Button/Button';
+import ConfirmDialog from '../../../common/components/ConfirmDialog/ConfirmDialog';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -17,7 +17,7 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function ClinicalFilesListView() {
+const ClinicalFilesListView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const [page, setPage] = useState(1);
   const limit = 12;
@@ -109,7 +109,7 @@ export default function ClinicalFilesListView() {
         </div>
       )}
 
-      {data && <Pagination page={data.page} totalPages={data.totalPages} total={data.total} limit={data.limit} onPageChange={setPage} />}
+      {data && <Pagination page={data.meta.page} totalPages={data.meta.totalPages} total={data.meta.totalItems} limit={data.meta.limit} onPageChange={setPage} />}
 
       <ConfirmDialog
         isOpen={!!deleteId}
@@ -122,4 +122,6 @@ export default function ClinicalFilesListView() {
       />
     </div>
   );
-}
+};
+
+export default ClinicalFilesListView;

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { treatmentsApi } from '../services/treatments.api';
+import { treatmentsApi } from '../requests/treatments.api';
 
 export function useTreatmentsList() {
   return useQuery({

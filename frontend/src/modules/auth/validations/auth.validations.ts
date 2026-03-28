@@ -9,7 +9,7 @@ export const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 // Email básico
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function validateLogin(username: string, password: string): LoginFormErrors {
+const validateLogin = (username: string, password: string): LoginFormErrors => {
   const errors: LoginFormErrors = {};
 
   if (!username.trim()) {
@@ -23,14 +23,14 @@ export function validateLogin(username: string, password: string): LoginFormErro
   }
 
   return errors;
-}
+};
 
-export function validateRegister(
+const validateRegister = (
   fullName: string,
   username: string,
   email: string,
   password: string,
-): RegisterFormErrors {
+): RegisterFormErrors => {
   const errors: RegisterFormErrors = {};
 
   if (!fullName.trim()) {
@@ -62,4 +62,6 @@ export function validateRegister(
   }
 
   return errors;
-}
+};
+
+export { validateLogin, validateRegister };

@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { appointmentsApi } from '../services/appointments.api';
+import { appointmentsApi } from '../requests/appointments.api';
 import { useDoctorsList } from '../../doctors/hooks/useDoctorsList';
-import AppointmentStatusBadge from '../components/AppointmentStatusBadge';
-import Select from '../../../shared/components/ui/Select';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import AppointmentStatusBadge from '../components/AppointmentStatusBadge/AppointmentStatusBadge';
+import Select from '../../../common/components/Select/Select';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 import type { Appointment } from '../types/appointment.types';
 
 function getWeekRange(date: Date): { from: string; to: string } {
@@ -30,7 +30,7 @@ function formatDateShort(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-export default function AppointmentAgendaView() {
+const AppointmentAgendaView = () => {
   const [baseDate, setBaseDate] = useState(new Date());
   const [doctorId, setDoctorId] = useState('');
 
@@ -189,4 +189,6 @@ export default function AppointmentAgendaView() {
       )}
     </div>
   );
-}
+};
+
+export default AppointmentAgendaView;

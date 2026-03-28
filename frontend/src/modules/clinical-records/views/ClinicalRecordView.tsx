@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useClinicalRecord, useCreateClinicalRecord, useUpdateClinicalRecord } from '../hooks/useClinicalRecord';
-import Textarea from '../../../shared/components/ui/Textarea';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Textarea from '../../../common/components/Textarea/Textarea';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function ClinicalRecordView() {
+const ClinicalRecordView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const { data: record, isLoading, error } = useClinicalRecord(patientId!);
   const createMutation = useCreateClinicalRecord();
@@ -113,4 +113,6 @@ export default function ClinicalRecordView() {
       )}
     </div>
   );
-}
+};
+
+export default ClinicalRecordView;

@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { useLogin } from '../hooks/useLogin';
+import useLogin from '../hooks/useLogin';
 import { validateLogin } from '../validations/auth.validations';
 import type { LoginFormErrors } from '../types/auth.types';
-import Button from '../../../shared/components/ui/Button';
-import Input from '../../../shared/components/ui/Input';
-import PasswordInput from '../../../shared/components/ui/PasswordInput';
+import Button from '../../../common/components/Button/Button';
+import Input from '../../../common/components/Input/Input';
+import PasswordInput from '../../../common/components/PasswordInput/PasswordInput';
 
-export default function LoginView() {
+const LoginView = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<LoginFormErrors>({});
@@ -77,4 +77,6 @@ export default function LoginView() {
       </p>
     </div>
   );
-}
+};
+
+export default LoginView;

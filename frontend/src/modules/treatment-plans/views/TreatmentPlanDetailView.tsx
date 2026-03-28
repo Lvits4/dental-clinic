@@ -2,13 +2,13 @@ import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTreatmentPlanDetail } from '../hooks/useTreatmentPlans';
-import { treatmentPlansApi } from '../services/treatment-plans.api';
+import { treatmentPlansApi } from '../requests/treatment-plans.api';
 import { PLAN_STATUS_CONFIG, TreatmentPlanStatus } from '../types/treatment-plan.types';
-import Badge from '../../../shared/components/ui/Badge';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Badge from '../../../common/components/Badge/Badge';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function TreatmentPlanDetailView() {
+const TreatmentPlanDetailView = () => {
   const { id } = useParams<{ id: string }>();
   const { data: plan, isLoading } = useTreatmentPlanDetail(id!);
   const queryClient = useQueryClient();
@@ -108,4 +108,6 @@ export default function TreatmentPlanDetailView() {
       </div>
     </div>
   );
-}
+};
+
+export default TreatmentPlanDetailView;

@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { performedProceduresApi } from '../services/performed-procedures.api';
+import { performedProceduresApi } from '../requests/performed-procedures.api';
 import type { CreatePerformedProcedureDto, PerformedProcedureFilters } from '../types/performed-procedure.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
-export function usePerformedProceduresList(filters: PerformedProcedureFilters = {}) {
+export const usePerformedProceduresList = (filters: PerformedProcedureFilters = {}) => {
   return useQuery({
     queryKey: ['performed-procedures', filters],
     queryFn: () => performedProceduresApi.getAll(filters),
   });
-}
+};
 
-export function usePerformedProcedureDetail(id: string) {
+export const usePerformedProcedureDetail = (id: string) => {
   return useQuery({
     queryKey: ['performed-procedures', id],
     queryFn: () => performedProceduresApi.getById(id),
     enabled: !!id,
   });
-}
+};
 
-export function useCreatePerformedProcedure() {
+export const useCreatePerformedProcedure = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -41,4 +41,4 @@ export function useCreatePerformedProcedure() {
       }
     },
   });
-}
+};

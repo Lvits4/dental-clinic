@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import AppointmentForm from '../components/AppointmentForm';
+import AppointmentForm from '../components/AppointmentForm/AppointmentForm';
 import { useCreateAppointment } from '../hooks/useCreateAppointment';
 import { usePatientsList } from '../../patients/hooks/usePatientsList';
 import { useDoctorsList } from '../../doctors/hooks/useDoctorsList';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function AppointmentCreateView() {
+const AppointmentCreateView = () => {
   const createMutation = useCreateAppointment();
   const { data: patientsData, isLoading: loadingPatients } = usePatientsList({ limit: 500 });
   const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
@@ -43,4 +43,6 @@ export default function AppointmentCreateView() {
       </div>
     </div>
   );
-}
+};
+
+export default AppointmentCreateView;

@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { treatmentsApi } from '../services/treatments.api';
+import { treatmentsApi } from '../requests/treatments.api';
 import type { UpdateTreatmentDto } from '../types/treatment.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
 export function useUpdateTreatment(id: string) {
   const queryClient = useQueryClient();

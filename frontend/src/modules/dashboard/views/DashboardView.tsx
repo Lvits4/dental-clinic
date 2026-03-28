@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { dashboardApi } from '../services/dashboard.api';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import { dashboardApi } from '../requests/dashboard.api';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
 const STATUS_LABELS: Record<string, string> = {
   SCHEDULED: 'Programada',
@@ -15,16 +15,16 @@ const STATUS_LABELS: Record<string, string> = {
   COMPLETED: 'Completado',
 };
 
-function formatDateTime(dateStr: string): string {
+const formatDateTime = (dateStr: string): string => {
   return new Date(dateStr).toLocaleDateString('es', {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
   });
-}
+};
 
-export default function DashboardView() {
+const DashboardView = () => {
   const { data: summary, isLoading: ls } = useQuery({
     queryKey: ['dashboard', 'summary'],
     queryFn: () => dashboardApi.getSummary(),
@@ -139,4 +139,6 @@ export default function DashboardView() {
       </div>
     </div>
   );
-}
+};
+
+export default DashboardView;

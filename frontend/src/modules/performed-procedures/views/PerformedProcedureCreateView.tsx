@@ -4,13 +4,13 @@ import { useCreatePerformedProcedure } from '../hooks/usePerformedProcedures';
 import { usePatientsList } from '../../patients/hooks/usePatientsList';
 import { useDoctorsList } from '../../doctors/hooks/useDoctorsList';
 import { useTreatmentsList } from '../../treatments/hooks/useTreatmentsList';
-import Select from '../../../shared/components/ui/Select';
-import Input from '../../../shared/components/ui/Input';
-import Textarea from '../../../shared/components/ui/Textarea';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Select from '../../../common/components/Select/Select';
+import Input from '../../../common/components/Input/Input';
+import Textarea from '../../../common/components/Textarea/Textarea';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function PerformedProcedureCreateView() {
+const PerformedProcedureCreateView = () => {
   const createMutation = useCreatePerformedProcedure();
   const { data: patientsData, isLoading: lp } = usePatientsList({ limit: 500 });
   const { data: doctors, isLoading: ld } = useDoctorsList();
@@ -69,4 +69,6 @@ export default function PerformedProcedureCreateView() {
       </form>
     </div>
   );
-}
+};
+
+export default PerformedProcedureCreateView;

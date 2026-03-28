@@ -1,10 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
-import DoctorForm from '../components/DoctorForm';
+import DoctorForm from '../components/DoctorForm/DoctorForm';
 import { useDoctorDetail } from '../hooks/useDoctorDetail';
 import { useUpdateDoctor } from '../hooks/useUpdateDoctor';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function DoctorEditView() {
+const DoctorEditView = () => {
   const { id } = useParams<{ id: string }>();
   const { data: doctor, isLoading } = useDoctorDetail(id!);
   const updateMutation = useUpdateDoctor(id!);
@@ -51,4 +51,6 @@ export default function DoctorEditView() {
       </div>
     </div>
   );
-}
+};
+
+export default DoctorEditView;

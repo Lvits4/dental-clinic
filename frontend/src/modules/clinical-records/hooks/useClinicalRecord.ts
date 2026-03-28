@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { clinicalRecordsApi } from '../services/clinical-records.api';
+import { clinicalRecordsApi } from '../requests/clinical-records.api';
 import type { CreateClinicalRecordDto, UpdateClinicalRecordDto } from '../types/clinical-record.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
-export function useClinicalRecord(patientId: string) {
+export const useClinicalRecord = (patientId: string) => {
   return useQuery({
     queryKey: ['clinical-records', patientId],
     queryFn: () => clinicalRecordsApi.getByPatientOrId(patientId),
     enabled: !!patientId,
     retry: false,
   });
-}
+};
 
-export function useCreateClinicalRecord() {
+export const useCreateClinicalRecord = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -31,9 +31,9 @@ export function useCreateClinicalRecord() {
       }
     },
   });
-}
+};
 
-export function useUpdateClinicalRecord(id: string, patientId: string) {
+export const useUpdateClinicalRecord = (id: string, patientId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -51,4 +51,4 @@ export function useUpdateClinicalRecord(id: string, patientId: string) {
       }
     },
   });
-}
+};

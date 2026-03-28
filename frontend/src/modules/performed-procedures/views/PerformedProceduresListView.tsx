@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePerformedProceduresList } from '../hooks/usePerformedProcedures';
-import Table, { type Column } from '../../../shared/components/ui/Table';
-import Pagination from '../../../shared/components/ui/Pagination';
-import Button from '../../../shared/components/ui/Button';
+import Table, { type Column } from '../../../common/components/Table/Table';
+import Pagination from '../../../common/components/Pagination/Pagination';
+import Button from '../../../common/components/Button/Button';
 import type { PerformedProcedure } from '../types/performed-procedure.types';
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export default function PerformedProceduresListView() {
+const PerformedProceduresListView = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
   const { data, isLoading } = usePerformedProceduresList({ page, limit });
@@ -41,7 +41,9 @@ export default function PerformedProceduresListView() {
         </Link>
       </div>
       <Table<PerformedProcedure> columns={columns} data={data?.data || []} keyExtractor={(p) => p.id} loading={isLoading} emptyMessage="No hay procedimientos registrados" />
-      {data && <Pagination page={data.page} totalPages={data.totalPages} total={data.total} limit={data.limit} onPageChange={setPage} />}
+      {data && <Pagination page={data.meta.page} totalPages={data.meta.totalPages} total={data.meta.totalItems} limit={data.meta.limit} onPageChange={setPage} />}
     </div>
   );
-}
+};
+
+export default PerformedProceduresListView;

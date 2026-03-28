@@ -3,11 +3,11 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAppointmentDetail } from '../hooks/useAppointmentDetail';
 import { useUpdateAppointmentStatus } from '../hooks/useUpdateAppointmentStatus';
 import { useCancelAppointment } from '../hooks/useCancelAppointment';
-import AppointmentStatusBadge from '../components/AppointmentStatusBadge';
+import AppointmentStatusBadge from '../components/AppointmentStatusBadge/AppointmentStatusBadge';
 import { AppointmentStatus, STATUS_OPTIONS } from '../types/appointment.types';
-import Button from '../../../shared/components/ui/Button';
-import ConfirmDialog from '../../../shared/components/ui/ConfirmDialog';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Button from '../../../common/components/Button/Button';
+import ConfirmDialog from '../../../common/components/ConfirmDialog/ConfirmDialog';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
 function formatDateTime(dateStr: string): string {
   const date = new Date(dateStr);
@@ -21,7 +21,7 @@ function formatDateTime(dateStr: string): string {
   });
 }
 
-export default function AppointmentDetailView() {
+const AppointmentDetailView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: appointment, isLoading } = useAppointmentDetail(id!);
@@ -164,4 +164,6 @@ export default function AppointmentDetailView() {
       />
     </div>
   );
-}
+};
+
+export default AppointmentDetailView;

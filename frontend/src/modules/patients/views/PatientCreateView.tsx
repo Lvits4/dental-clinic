@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import PatientForm from '../components/PatientForm';
+import PatientForm from '../components/PatientForm/PatientForm';
 import { useCreatePatient } from '../hooks/useCreatePatient';
 
-export default function PatientCreateView() {
+const PatientCreateView = () => {
   const createMutation = useCreatePatient();
 
   return (
@@ -28,4 +28,6 @@ export default function PatientCreateView() {
       </div>
     </div>
   );
-}
+};
+
+export default PatientCreateView;

@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../../../shared/components/feedback/Toast';
-import { authApi } from '../services/auth.api';
+import { useToast } from '../../../common/components/Toast/Toast';
+import { authApi } from '../requests/auth.api';
 import type { RegisterDto } from '../types/auth.types';
 
-export function useRegister() {
+export const useRegister = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -18,4 +18,4 @@ export function useRegister() {
       toast.error(error.message || 'Error al crear la cuenta');
     },
   });
-}
+};

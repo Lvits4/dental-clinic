@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { appointmentsApi } from '../services/appointments.api';
-import { HttpError } from '../../../shared/utils/http';
+import { appointmentsApi } from '../requests/appointments.api';
+import { HttpError } from '../../../common/utils/http';
 
 export function useCancelAppointment() {
   const queryClient = useQueryClient();

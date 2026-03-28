@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useDoctorsList } from '../hooks/useDoctorsList';
-import DoctorsTable from '../components/DoctorsTable';
-import Button from '../../../shared/components/ui/Button';
+import DoctorsTable from '../components/DoctorsTable/DoctorsTable';
+import Button from '../../../common/components/Button/Button';
 
-export default function DoctorsListView() {
+const DoctorsListView = () => {
   const { data, isLoading } = useDoctorsList();
 
   return (
@@ -23,4 +23,6 @@ export default function DoctorsListView() {
       <DoctorsTable data={data || []} loading={isLoading} />
     </div>
   );
-}
+};
+
+export default DoctorsListView;

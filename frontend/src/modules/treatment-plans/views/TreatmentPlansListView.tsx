@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useTreatmentPlansList } from '../hooks/useTreatmentPlans';
-import Table, { type Column } from '../../../shared/components/ui/Table';
-import Badge from '../../../shared/components/ui/Badge';
-import Button from '../../../shared/components/ui/Button';
+import Table, { type Column } from '../../../common/components/Table/Table';
+import Badge from '../../../common/components/Badge/Badge';
+import Button from '../../../common/components/Button/Button';
 import type { TreatmentPlan } from '../types/treatment-plan.types';
 import { PLAN_STATUS_CONFIG } from '../types/treatment-plan.types';
 
-export default function TreatmentPlansListView() {
+const TreatmentPlansListView = () => {
   const { data, isLoading } = useTreatmentPlansList();
 
   const columns: Column<TreatmentPlan>[] = [
@@ -58,4 +58,6 @@ export default function TreatmentPlansListView() {
       />
     </div>
   );
-}
+};
+
+export default TreatmentPlansListView;

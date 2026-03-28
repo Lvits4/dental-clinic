@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { useRegister } from '../hooks/useRegister';
+import useRegister from '../hooks/useRegister';
 import { validateRegister, TEXT_ONLY_REGEX, USERNAME_REGEX } from '../validations/auth.validations';
 import type { RegisterFormErrors } from '../types/auth.types';
-import Button from '../../../shared/components/ui/Button';
-import Input from '../../../shared/components/ui/Input';
-import PasswordInput from '../../../shared/components/ui/PasswordInput';
+import Button from '../../../common/components/Button/Button';
+import Input from '../../../common/components/Input/Input';
+import PasswordInput from '../../../common/components/PasswordInput/PasswordInput';
 
-export default function RegisterView() {
+const RegisterView = () => {
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -111,4 +111,6 @@ export default function RegisterView() {
       </p>
     </div>
   );
-}
+};
+
+export default RegisterView;

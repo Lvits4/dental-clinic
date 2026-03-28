@@ -1,17 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { clinicalFilesApi } from '../services/clinical-files.api';
+import { clinicalFilesApi } from '../requests/clinical-files.api';
 import type { ClinicalFileFilters } from '../types/clinical-file.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
-export function useClinicalFilesList(filters: ClinicalFileFilters = {}) {
+export const useClinicalFilesList = (filters: ClinicalFileFilters = {}) => {
   return useQuery({
     queryKey: ['clinical-files', filters],
     queryFn: () => clinicalFilesApi.getAll(filters),
   });
-}
+};
 
-export function useUploadClinicalFile(patientId: string) {
+export const useUploadClinicalFile = (patientId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -30,9 +30,9 @@ export function useUploadClinicalFile(patientId: string) {
       }
     },
   });
-}
+};
 
-export function useDeleteClinicalFile() {
+export const useDeleteClinicalFile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -43,4 +43,4 @@ export function useDeleteClinicalFile() {
     },
     onError: () => toast.error('Error al eliminar archivo'),
   });
-}
+};

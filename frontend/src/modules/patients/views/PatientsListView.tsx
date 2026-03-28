@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePatientsList } from '../hooks/usePatientsList';
-import PatientsTable from '../components/PatientsTable';
-import PatientFilters from '../components/PatientFilters';
-import Pagination from '../../../shared/components/ui/Pagination';
-import Button from '../../../shared/components/ui/Button';
+import PatientsTable from '../components/PatientsTable/PatientsTable';
+import PatientFilters from '../components/PatientFilters/PatientFilters';
+import Pagination from '../../../common/components/Pagination/Pagination';
+import Button from '../../../common/components/Button/Button';
 
-export default function PatientsListView() {
+const PatientsListView = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const limit = 10;
@@ -42,13 +42,15 @@ export default function PatientsListView() {
 
       {data && (
         <Pagination
-          page={data.page}
-          totalPages={data.totalPages}
-          total={data.total}
-          limit={data.limit}
+          page={data.meta.page}
+          totalPages={data.meta.totalPages}
+          total={data.meta.totalItems}
+          limit={data.meta.limit}
           onPageChange={setPage}
         />
       )}
     </div>
   );
-}
+};
+
+export default PatientsListView;

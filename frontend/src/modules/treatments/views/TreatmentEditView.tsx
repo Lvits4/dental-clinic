@@ -1,11 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import TreatmentForm from '../components/TreatmentForm';
+import TreatmentForm from '../components/TreatmentForm/TreatmentForm';
 import { useUpdateTreatment } from '../hooks/useUpdateTreatment';
-import { treatmentsApi } from '../services/treatments.api';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import { treatmentsApi } from '../requests/treatments.api';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function TreatmentEditView() {
+const TreatmentEditView = () => {
   const { id } = useParams<{ id: string }>();
   const { data: treatment, isLoading } = useQuery({
     queryKey: ['treatments', id],
@@ -37,4 +37,6 @@ export default function TreatmentEditView() {
       </div>
     </div>
   );
-}
+};
+
+export default TreatmentEditView;

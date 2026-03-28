@@ -3,13 +3,13 @@ import { Link, useParams } from 'react-router-dom';
 import { useCreateClinicalEvolution } from '../hooks/useClinicalEvolutions';
 import { useClinicalRecord } from '../../clinical-records/hooks/useClinicalRecord';
 import { useDoctorsList } from '../../doctors/hooks/useDoctorsList';
-import Input from '../../../shared/components/ui/Input';
-import Select from '../../../shared/components/ui/Select';
-import Textarea from '../../../shared/components/ui/Textarea';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Input from '../../../common/components/Input/Input';
+import Select from '../../../common/components/Select/Select';
+import Textarea from '../../../common/components/Textarea/Textarea';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function ClinicalEvolutionCreateView() {
+const ClinicalEvolutionCreateView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId!);
   const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
@@ -76,4 +76,6 @@ export default function ClinicalEvolutionCreateView() {
       </form>
     </div>
   );
-}
+};
+
+export default ClinicalEvolutionCreateView;

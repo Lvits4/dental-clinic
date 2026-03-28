@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import TreatmentForm from '../components/TreatmentForm';
+import TreatmentForm from '../components/TreatmentForm/TreatmentForm';
 import { useCreateTreatment } from '../hooks/useCreateTreatment';
 
-export default function TreatmentCreateView() {
+const TreatmentCreateView = () => {
   const createMutation = useCreateTreatment();
 
   return (
@@ -24,4 +24,6 @@ export default function TreatmentCreateView() {
       </div>
     </div>
   );
-}
+};
+
+export default TreatmentCreateView;

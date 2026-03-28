@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { doctorsApi } from '../services/doctors.api';
-import { HttpError } from '../../../shared/utils/http';
+import { doctorsApi } from '../requests/doctors.api';
+import { HttpError } from '../../../common/utils/http';
 
-export function useDeleteDoctor() {
+export const useDeleteDoctor = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -21,4 +21,4 @@ export function useDeleteDoctor() {
       }
     },
   });
-}
+};

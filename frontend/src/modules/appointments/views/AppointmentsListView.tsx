@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppointmentsList } from '../hooks/useAppointmentsList';
 import { useDoctorsList } from '../../doctors/hooks/useDoctorsList';
-import AppointmentsTable from '../components/AppointmentsTable';
-import AppointmentFilters from '../components/AppointmentFilters';
-import Pagination from '../../../shared/components/ui/Pagination';
-import Button from '../../../shared/components/ui/Button';
+import AppointmentsTable from '../components/AppointmentsTable/AppointmentsTable';
+import AppointmentFilters from '../components/AppointmentFilters/AppointmentFilters';
+import Pagination from '../../../common/components/Pagination/Pagination';
+import Button from '../../../common/components/Button/Button';
 import type { AppointmentStatus } from '../types/appointment.types';
 
-export default function AppointmentsListView() {
+const AppointmentsListView = () => {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
   const [doctorId, setDoctorId] = useState('');
@@ -84,13 +84,15 @@ export default function AppointmentsListView() {
 
       {data && (
         <Pagination
-          page={data.page}
-          totalPages={data.totalPages}
-          total={data.total}
-          limit={data.limit}
+          page={data.meta.page}
+          totalPages={data.meta.totalPages}
+          total={data.meta.totalItems}
+          limit={data.meta.limit}
           onPageChange={setPage}
         />
       )}
     </div>
   );
-}
+};
+
+export default AppointmentsListView;

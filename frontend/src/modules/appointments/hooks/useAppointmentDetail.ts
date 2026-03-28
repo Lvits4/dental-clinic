@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { appointmentsApi } from '../services/appointments.api';
+import { appointmentsApi } from '../requests/appointments.api';
 
 export function useAppointmentDetail(id: string) {
   return useQuery({

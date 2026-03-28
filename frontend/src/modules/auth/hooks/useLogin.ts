@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../app/providers/AuthProvider';
-import { useToast } from '../../../shared/components/feedback/Toast';
-import { authApi } from '../services/auth.api';
+import { useAuth } from '../../../common/global-context/AuthContext';
+import { useToast } from '../../../common/components/Toast/Toast';
+import { authApi } from '../requests/auth.api';
 import type { LoginDto } from '../types/auth.types';
 
-export function useLogin() {
+export const useLogin = () => {
   const { setSession } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
@@ -21,4 +21,4 @@ export function useLogin() {
       toast.error(error.message || 'Credenciales inválidas');
     },
   });
-}
+};

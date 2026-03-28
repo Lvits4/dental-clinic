@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { clinicalEvolutionsApi } from '../services/clinical-evolutions.api';
+import { clinicalEvolutionsApi } from '../requests/clinical-evolutions.api';
 import type { CreateClinicalEvolutionDto, ClinicalEvolutionFilters } from '../types/clinical-evolution.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
-export function useClinicalEvolutionsList(filters: ClinicalEvolutionFilters = {}) {
+export const useClinicalEvolutionsList = (filters: ClinicalEvolutionFilters = {}) => {
   return useQuery({
     queryKey: ['clinical-evolutions', filters],
     queryFn: () => clinicalEvolutionsApi.getAll(filters),
   });
-}
+};
 
-export function useClinicalEvolutionDetail(id: string) {
+export const useClinicalEvolutionDetail = (id: string) => {
   return useQuery({
     queryKey: ['clinical-evolutions', id],
     queryFn: () => clinicalEvolutionsApi.getById(id),
     enabled: !!id,
   });
-}
+};
 
-export function useCreateClinicalEvolution(patientId: string) {
+export const useCreateClinicalEvolution = (patientId: string) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -40,4 +40,4 @@ export function useCreateClinicalEvolution(patientId: string) {
       }
     },
   });
-}
+};

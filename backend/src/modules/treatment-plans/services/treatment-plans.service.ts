@@ -7,7 +7,6 @@ import { CreateTreatmentPlanDto } from '../dto/create-treatment-plan.dto';
 import { UpdateTreatmentPlanDto } from '../dto/update-treatment-plan.dto';
 import { CreatePlanItemDto } from '../dto/create-plan-item.dto';
 import { UpdatePlanItemDto } from '../dto/update-plan-item.dto';
-import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
 
 @Injectable()
 export class TreatmentPlansService {
@@ -19,8 +18,18 @@ export class TreatmentPlansService {
   ) {}
 
   async create(createDto: CreateTreatmentPlanDto): Promise<TreatmentPlan> {
-    const plan = this.planRepository.create(createDto);
-    return this.planRepository.save(plan);
+    const { items, ...planData } = createDto;
+    const plan = this.planRepository.create(planData);
+    const savedPlan = await this.planRepository.save(plan);
+
+    if (items?.length) {
+      const planItems = items.map((item) =>
+        this.itemRepository.create({ ...item, treatmentPlanId: savedPlan.id }),
+      );
+      await this.itemRepository.save(planItems);
+    }
+
+    return this.findOne(savedPlan.id);
   }
 
   async findAll(): Promise<TreatmentPlan[]> {
@@ -47,12 +56,6 @@ export class TreatmentPlansService {
   async update(id: string, updateDto: UpdateTreatmentPlanDto): Promise<TreatmentPlan> {
     const plan = await this.findOne(id);
     Object.assign(plan, updateDto);
-    return this.planRepository.save(plan);
-  }
-
-  async updateStatus(id: string, status: TreatmentPlanStatus): Promise<TreatmentPlan> {
-    const plan = await this.findOne(id);
-    plan.status = status;
     return this.planRepository.save(plan);
   }
 

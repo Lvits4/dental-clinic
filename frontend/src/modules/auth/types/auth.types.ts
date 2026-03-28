@@ -1,4 +1,4 @@
-import type { User } from '../../../shared/types/common';
+import type { User } from '../../../common/types/common';
 
 // Credenciales de login
 export interface LoginDto {

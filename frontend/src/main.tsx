@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from './app/providers/ThemeProvider';
-import { AuthProvider } from './app/providers/AuthProvider';
-import './shared/styles/globals.css';
+import { ThemeProvider } from './common/global-context/ThemeContext';
+import { AuthProvider } from './common/global-context/AuthContext';
+import './common/styles/globals.css';
 import App from './App';
 
 const queryClient = new QueryClient({

@@ -13,7 +13,6 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TreatmentPlansService } from '../services/treatment-plans.service';
 import { CreateTreatmentPlanDto } from '../dto/create-treatment-plan.dto';
 import { UpdateTreatmentPlanDto } from '../dto/update-treatment-plan.dto';
-import { UpdatePlanStatusDto } from '../dto/update-plan-status.dto';
 import { CreatePlanItemDto } from '../dto/create-plan-item.dto';
 import { UpdatePlanItemDto } from '../dto/update-plan-item.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
@@ -55,16 +54,6 @@ export class TreatmentPlansController {
     @Body() updateDto: UpdateTreatmentPlanDto,
   ) {
     return this.plansService.update(id, updateDto);
-  }
-
-  @Patch(':id/status')
-  @Roles(Role.DOCTOR, Role.ADMIN)
-  @ApiOperation({ summary: 'Change treatment plan status' })
-  updateStatus(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() statusDto: UpdatePlanStatusDto,
-  ) {
-    return this.plansService.updateStatus(id, statusDto.status);
   }
 
   @Post(':id/items')

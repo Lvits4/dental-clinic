@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { usePatientDetail } from '../hooks/usePatientDetail';
 import { useDeletePatient } from '../hooks/useDeletePatient';
-import PatientCard from '../components/PatientCard';
-import Button from '../../../shared/components/ui/Button';
-import ConfirmDialog from '../../../shared/components/ui/ConfirmDialog';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import PatientCard from '../components/PatientCard/PatientCard';
+import Button from '../../../common/components/Button/Button';
+import ConfirmDialog from '../../../common/components/ConfirmDialog/ConfirmDialog';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function PatientDetailView() {
+const PatientDetailView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: patient, isLoading } = usePatientDetail(id!);
@@ -87,4 +87,6 @@ export default function PatientDetailView() {
       />
     </div>
   );
-}
+};
+
+export default PatientDetailView;

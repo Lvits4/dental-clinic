@@ -1,10 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
-import PatientForm from '../components/PatientForm';
+import PatientForm from '../components/PatientForm/PatientForm';
 import { usePatientDetail } from '../hooks/usePatientDetail';
 import { useUpdatePatient } from '../hooks/useUpdatePatient';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function PatientEditView() {
+const PatientEditView = () => {
   const { id } = useParams<{ id: string }>();
   const { data: patient, isLoading } = usePatientDetail(id!);
   const updateMutation = useUpdatePatient(id!);
@@ -51,4 +51,6 @@ export default function PatientEditView() {
       </div>
     </div>
   );
-}
+};
+
+export default PatientEditView;

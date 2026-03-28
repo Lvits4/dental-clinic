@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useTreatmentsList } from '../hooks/useTreatmentsList';
 import { useToggleTreatment } from '../hooks/useToggleTreatment';
-import Table, { type Column } from '../../../shared/components/ui/Table';
-import Badge from '../../../shared/components/ui/Badge';
-import Button from '../../../shared/components/ui/Button';
+import Table, { type Column } from '../../../common/components/Table/Table';
+import Badge from '../../../common/components/Badge/Badge';
+import Button from '../../../common/components/Button/Button';
 import type { Treatment } from '../types/treatment.types';
 
-export default function TreatmentsListView() {
+const TreatmentsListView = () => {
   const { data, isLoading } = useTreatmentsList();
   const toggleMutation = useToggleTreatment();
 
@@ -80,4 +80,6 @@ export default function TreatmentsListView() {
       />
     </div>
   );
-}
+};
+
+export default TreatmentsListView;

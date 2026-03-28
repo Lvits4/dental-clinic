@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { useCreateTreatmentPlan } from '../hooks/useTreatmentPlans';
 import { usePatientsList } from '../../patients/hooks/usePatientsList';
 import { useDoctorsList } from '../../doctors/hooks/useDoctorsList';
-import Select from '../../../shared/components/ui/Select';
-import Textarea from '../../../shared/components/ui/Textarea';
-import Button from '../../../shared/components/ui/Button';
-import Spinner from '../../../shared/components/feedback/Spinner';
+import Select from '../../../common/components/Select/Select';
+import Textarea from '../../../common/components/Textarea/Textarea';
+import Button from '../../../common/components/Button/Button';
+import Spinner from '../../../common/components/Spinner/Spinner';
 
-export default function TreatmentPlanCreateView() {
+const TreatmentPlanCreateView = () => {
   const createMutation = useCreateTreatmentPlan();
   const { data: patientsData, isLoading: lp } = usePatientsList({ limit: 500 });
   const { data: doctors, isLoading: ld } = useDoctorsList();
@@ -53,4 +53,6 @@ export default function TreatmentPlanCreateView() {
       </form>
     </div>
   );
-}
+};
+
+export default TreatmentPlanCreateView;

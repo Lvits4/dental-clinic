@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { treatmentPlansApi } from '../services/treatment-plans.api';
+import { treatmentPlansApi } from '../requests/treatment-plans.api';
 import type { CreateTreatmentPlanDto } from '../types/treatment-plan.types';
-import { HttpError } from '../../../shared/utils/http';
+import { HttpError } from '../../../common/utils/http';
 
-export function useTreatmentPlansList() {
+export const useTreatmentPlansList = () => {
   return useQuery({
     queryKey: ['treatment-plans'],
     queryFn: () => treatmentPlansApi.getAll(),
   });
-}
+};
 
-export function useTreatmentPlanDetail(id: string) {
+export const useTreatmentPlanDetail = (id: string) => {
   return useQuery({
     queryKey: ['treatment-plans', id],
     queryFn: () => treatmentPlansApi.getById(id),
     enabled: !!id,
   });
-}
+};
 
-export function useCreateTreatmentPlan() {
+export const useCreateTreatmentPlan = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -40,4 +40,4 @@ export function useCreateTreatmentPlan() {
       }
     },
   });
-}
+};
