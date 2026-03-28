@@ -1,0 +1,43 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { clinicalEvolutionsApi } from '../services/clinical-evolutions.api';
+import type { CreateClinicalEvolutionDto, ClinicalEvolutionFilters } from '../types/clinical-evolution.types';
+import { HttpError } from '../../../shared/utils/http';
+
+export function useClinicalEvolutionsList(filters: ClinicalEvolutionFilters = {}) {
+  return useQuery({
+    queryKey: ['clinical-evolutions', filters],
+    queryFn: () => clinicalEvolutionsApi.getAll(filters),
+  });
+}
+
+export function useClinicalEvolutionDetail(id: string) {
+  return useQuery({
+    queryKey: ['clinical-evolutions', id],
+    queryFn: () => clinicalEvolutionsApi.getById(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateClinicalEvolution(patientId: string) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (data: CreateClinicalEvolutionDto) => clinicalEvolutionsApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clinical-evolutions'] });
+      toast.success('Evolución clínica registrada');
+      navigate(`/patients/${patientId}/evolutions`);
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al registrar evolución');
+      }
+    },
+  });
+}

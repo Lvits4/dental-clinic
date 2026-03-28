@@ -3,9 +3,16 @@ import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import ProtectedRoute from './ProtectedRoute';
 import { authRoutes } from '../../modules/auth/routes/auth.routes';
+import { dashboardRoutes } from '../../modules/dashboard/routes/dashboard.routes';
 import { patientsRoutes } from '../../modules/patients/routes/patients.routes';
 import { doctorsRoutes } from '../../modules/doctors/routes/doctors.routes';
 import { appointmentsRoutes } from '../../modules/appointments/routes/appointments.routes';
+import { treatmentsRoutes } from '../../modules/treatments/routes/treatments.routes';
+import { treatmentPlansRoutes } from '../../modules/treatment-plans/routes/treatment-plans.routes';
+import { performedProceduresRoutes } from '../../modules/performed-procedures/routes/performed-procedures.routes';
+import { clinicalRecordsRoutes } from '../../modules/clinical-records/routes/clinical-records.routes';
+import { clinicalEvolutionsRoutes } from '../../modules/clinical-evolutions/routes/clinical-evolutions.routes';
+import { clinicalFilesRoutes } from '../../modules/clinical-files/routes/clinical-files.routes';
 
 // Placeholder temporal para módulos pendientes
 const Placeholder = ({ title }: { title: string }) => (
@@ -30,15 +37,13 @@ export const routes: RouteObject[] = [
         element: <MainLayout />,
         children: [
           // Dashboard
-          { path: '/', element: <Placeholder title="Dashboard" /> },
+          ...dashboardRoutes,
 
           // Pacientes
           ...patientsRoutes,
-          { path: '/patients/:id/clinical-record', element: <Placeholder title="Expediente Clínico" /> },
-          { path: '/patients/:id/evolutions', element: <Placeholder title="Evoluciones Clínicas" /> },
-          { path: '/patients/:id/evolutions/new', element: <Placeholder title="Nueva Evolución" /> },
-          { path: '/patients/:id/evolutions/:evoId', element: <Placeholder title="Detalle de Evolución" /> },
-          { path: '/patients/:id/files', element: <Placeholder title="Archivos Clínicos" /> },
+          ...clinicalRecordsRoutes,
+          ...clinicalEvolutionsRoutes,
+          ...clinicalFilesRoutes,
           { path: '/patients/:id/treatment-plans', element: <Placeholder title="Planes del Paciente" /> },
 
           // Doctores
@@ -48,19 +53,13 @@ export const routes: RouteObject[] = [
           ...appointmentsRoutes,
 
           // Tratamientos (catálogo)
-          { path: '/treatments', element: <Placeholder title="Catálogo de Tratamientos" /> },
-          { path: '/treatments/new', element: <Placeholder title="Nuevo Tratamiento" /> },
-          { path: '/treatments/:id/edit', element: <Placeholder title="Editar Tratamiento" /> },
+          ...treatmentsRoutes,
 
           // Planes de tratamiento
-          { path: '/treatment-plans', element: <Placeholder title="Planes de Tratamiento" /> },
-          { path: '/treatment-plans/new', element: <Placeholder title="Nuevo Plan" /> },
-          { path: '/treatment-plans/:id', element: <Placeholder title="Detalle de Plan" /> },
+          ...treatmentPlansRoutes,
 
           // Procedimientos realizados
-          { path: '/performed-procedures', element: <Placeholder title="Procedimientos Realizados" /> },
-          { path: '/performed-procedures/new', element: <Placeholder title="Nuevo Procedimiento" /> },
-          { path: '/performed-procedures/:id', element: <Placeholder title="Detalle de Procedimiento" /> },
+          ...performedProceduresRoutes,
 
           // Auditoría
           { path: '/audit', element: <Placeholder title="Registro de Auditoría" /> },
