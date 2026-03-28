@@ -39,22 +39,22 @@ export class AppointmentsService {
       .leftJoinAndSelect('appointment.doctor', 'doctor');
 
     if (doctorId) {
-      query.andWhere('appointment.doctor_id = :doctorId', { doctorId });
+      query.andWhere('appointment.doctorId = :doctorId', { doctorId });
     }
     if (patientId) {
-      query.andWhere('appointment.patient_id = :patientId', { patientId });
+      query.andWhere('appointment.patientId = :patientId', { patientId });
     }
     if (status) {
       query.andWhere('appointment.status = :status', { status });
     }
     if (dateFrom) {
-      query.andWhere('appointment.date_time >= :dateFrom', { dateFrom });
+      query.andWhere('appointment.dateTime >= :dateFrom', { dateFrom });
     }
     if (dateTo) {
-      query.andWhere('appointment.date_time <= :dateTo', { dateTo });
+      query.andWhere('appointment.dateTime <= :dateTo', { dateTo });
     }
 
-    query.orderBy('appointment.date_time', 'ASC');
+    query.orderBy('appointment.dateTime', 'ASC');
     query.skip((page - 1) * limit).take(limit);
 
     const [data, totalItems] = await query.getManyAndCount();
@@ -125,16 +125,16 @@ export class AppointmentsService {
       });
 
     if (doctorId) {
-      query.andWhere('appointment.doctor_id = :doctorId', { doctorId });
+      query.andWhere('appointment.doctorId = :doctorId', { doctorId });
     }
     if (dateFrom) {
-      query.andWhere('appointment.date_time >= :dateFrom', { dateFrom });
+      query.andWhere('appointment.dateTime >= :dateFrom', { dateFrom });
     }
     if (dateTo) {
-      query.andWhere('appointment.date_time <= :dateTo', { dateTo });
+      query.andWhere('appointment.dateTime <= :dateTo', { dateTo });
     }
 
-    query.orderBy('appointment.date_time', 'ASC');
+    query.orderBy('appointment.dateTime', 'ASC');
     return query.getMany();
   }
 
@@ -148,12 +148,12 @@ export class AppointmentsService {
 
     const query = this.appointmentRepository
       .createQueryBuilder('appointment')
-      .where('appointment.doctor_id = :doctorId', { doctorId })
+      .where('appointment.doctorId = :doctorId', { doctorId })
       .andWhere('appointment.status NOT IN (:...excludedStatuses)', {
         excludedStatuses: [AppointmentStatus.CANCELLED, AppointmentStatus.NO_SHOW],
       })
       .andWhere(
-        '(appointment.date_time < :endTime AND appointment.date_time + (appointment.duration_minutes || \' minutes\')::interval > :startTime)',
+        '(appointment.dateTime < :endTime AND appointment.dateTime + (appointment.durationMinutes || \' minutes\')::interval > :startTime)',
         { startTime: dateTime, endTime },
       );
 
