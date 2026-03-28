@@ -1,0 +1,100 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  ParseUUIDPipe,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { TreatmentPlansService } from '../services/treatment-plans.service';
+import { CreateTreatmentPlanDto } from '../dto/create-treatment-plan.dto';
+import { UpdateTreatmentPlanDto } from '../dto/update-treatment-plan.dto';
+import { UpdatePlanStatusDto } from '../dto/update-plan-status.dto';
+import { CreatePlanItemDto } from '../dto/create-plan-item.dto';
+import { UpdatePlanItemDto } from '../dto/update-plan-item.dto';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../common/guards/roles.guard';
+import { Roles } from '../../../common/decorators/roles.decorator';
+import { Role } from '../../../common/enums/role.enum';
+
+@ApiTags('Treatment Plans')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('treatment-plans')
+export class TreatmentPlansController {
+  constructor(private readonly plansService: TreatmentPlansService) {}
+
+  @Post()
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Create treatment plan' })
+  create(@Body() createDto: CreateTreatmentPlanDto) {
+    return this.plansService.create(createDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'List all treatment plans' })
+  findAll() {
+    return this.plansService.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get treatment plan with items' })
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.plansService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Update treatment plan' })
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDto: UpdateTreatmentPlanDto,
+  ) {
+    return this.plansService.update(id, updateDto);
+  }
+
+  @Patch(':id/status')
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Change treatment plan status' })
+  updateStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() statusDto: UpdatePlanStatusDto,
+  ) {
+    return this.plansService.updateStatus(id, statusDto.status);
+  }
+
+  @Post(':id/items')
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Add item to treatment plan' })
+  addItem(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() createItemDto: CreatePlanItemDto,
+  ) {
+    return this.plansService.addItem(id, createItemDto);
+  }
+
+  @Patch(':id/items/:itemId')
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Update treatment plan item' })
+  updateItem(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+    @Body() updateItemDto: UpdatePlanItemDto,
+  ) {
+    return this.plansService.updateItem(id, itemId, updateItemDto);
+  }
+
+  @Delete(':id/items/:itemId')
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Remove item from treatment plan' })
+  removeItem(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('itemId', ParseUUIDPipe) itemId: string,
+  ) {
+    return this.plansService.removeItem(id, itemId);
+  }
+}

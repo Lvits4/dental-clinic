@@ -1,0 +1,65 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Patient } from '../../patients/entities/patient.entity';
+import { Doctor } from '../../doctors/entities/doctor.entity';
+import { Treatment } from '../../treatments/entities/treatment.entity';
+import { TreatmentPlanItem } from '../../treatment-plans/entities/treatment-plan-item.entity';
+
+@Entity('performed_procedures')
+export class PerformedProcedure {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ name: 'patient_id' })
+  patientId: string;
+
+  @ManyToOne(() => Patient)
+  @JoinColumn({ name: 'patient_id' })
+  patient: Patient;
+
+  @Column({ name: 'doctor_id' })
+  doctorId: string;
+
+  @ManyToOne(() => Doctor)
+  @JoinColumn({ name: 'doctor_id' })
+  doctor: Doctor;
+
+  @Column({ name: 'treatment_id' })
+  treatmentId: string;
+
+  @ManyToOne(() => Treatment)
+  @JoinColumn({ name: 'treatment_id' })
+  treatment: Treatment;
+
+  @Column({ name: 'treatment_plan_item_id', nullable: true })
+  treatmentPlanItemId: string;
+
+  @ManyToOne(() => TreatmentPlanItem, { nullable: true })
+  @JoinColumn({ name: 'treatment_plan_item_id' })
+  treatmentPlanItem: TreatmentPlanItem;
+
+  @Column({ nullable: true })
+  tooth: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @Column({ name: 'performed_at', type: 'timestamp' })
+  performedAt: Date;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+}
