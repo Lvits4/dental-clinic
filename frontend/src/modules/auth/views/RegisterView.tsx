@@ -4,21 +4,25 @@ import { useToast } from '../../../shared/components/feedback/Toast';
 import { authApi } from '../services/auth.api';
 import Button from '../../../shared/components/ui/Button';
 import Input from '../../../shared/components/ui/Input';
+import PasswordInput from '../../../shared/components/ui/PasswordInput';
 
 interface FormErrors {
   fullName?: string;
   username?: string;
   email?: string;
   password?: string;
-  confirmPassword?: string;
 }
+
+// Solo letras, espacios y acentos
+const TEXT_ONLY_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+// Username: letras, números, guiones y guion bajo
+const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 
 export default function RegisterView() {
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -28,19 +32,33 @@ export default function RegisterView() {
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!fullName.trim()) newErrors.fullName = 'El nombre es obligatorio';
-    else if (fullName.trim().length < 3) newErrors.fullName = 'Mínimo 3 caracteres';
+    if (!fullName.trim()) {
+      newErrors.fullName = 'El nombre es obligatorio';
+    } else if (fullName.trim().length < 3) {
+      newErrors.fullName = 'Mínimo 3 caracteres';
+    } else if (!TEXT_ONLY_REGEX.test(fullName.trim())) {
+      newErrors.fullName = 'Solo se permiten letras y espacios';
+    }
 
-    if (!username.trim()) newErrors.username = 'El usuario es obligatorio';
-    else if (username.trim().length < 3) newErrors.username = 'Mínimo 3 caracteres';
+    if (!username.trim()) {
+      newErrors.username = 'El usuario es obligatorio';
+    } else if (username.trim().length < 3) {
+      newErrors.username = 'Mínimo 3 caracteres';
+    } else if (!USERNAME_REGEX.test(username.trim())) {
+      newErrors.username = 'Solo letras, números, guiones y guion bajo';
+    }
 
-    if (!email.trim()) newErrors.email = 'El correo es obligatorio';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = 'Correo inválido';
+    if (!email.trim()) {
+      newErrors.email = 'El correo es obligatorio';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      newErrors.email = 'Formato de correo inválido';
+    }
 
-    if (!password) newErrors.password = 'La contraseña es obligatoria';
-    else if (password.length < 6) newErrors.password = 'Mínimo 6 caracteres';
-
-    if (password !== confirmPassword) newErrors.confirmPassword = 'Las contraseñas no coinciden';
+    if (!password) {
+      newErrors.password = 'La contraseña es obligatoria';
+    } else if (password.length < 6) {
+      newErrors.password = 'Mínimo 6 caracteres';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -58,7 +76,7 @@ export default function RegisterView() {
     try {
       await authApi.register({
         fullName: fullName.trim(),
-        username: username.trim(),
+        username: username.trim().toLowerCase(),
         email: email.trim().toLowerCase(),
         password,
       });
@@ -85,7 +103,14 @@ export default function RegisterView() {
           type="text"
           placeholder="Juan Pérez"
           value={fullName}
-          onChange={(e) => { setFullName(e.target.value); clearError('fullName'); }}
+          onChange={(e) => {
+            const val = e.target.value;
+            // Solo permitir letras, espacios y acentos
+            if (val === '' || TEXT_ONLY_REGEX.test(val)) {
+              setFullName(val);
+            }
+            clearError('fullName');
+          }}
           error={errors.fullName}
           autoFocus
         />
@@ -95,7 +120,13 @@ export default function RegisterView() {
           type="text"
           placeholder="juan_perez"
           value={username}
-          onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === '' || USERNAME_REGEX.test(val)) {
+              setUsername(val);
+            }
+            clearError('username');
+          }}
           error={errors.username}
           autoComplete="username"
         />
@@ -110,23 +141,12 @@ export default function RegisterView() {
           autoComplete="email"
         />
 
-        <Input
+        <PasswordInput
           label="Contraseña"
-          type="password"
           placeholder="••••••••"
           value={password}
           onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
           error={errors.password}
-          autoComplete="new-password"
-        />
-
-        <Input
-          label="Confirmar contraseña"
-          type="password"
-          placeholder="••••••••"
-          value={confirmPassword}
-          onChange={(e) => { setConfirmPassword(e.target.value); clearError('confirmPassword'); }}
-          error={errors.confirmPassword}
           autoComplete="new-password"
         />
 

@@ -8,7 +8,7 @@ export const authApi = {
   },
 
   register(data: RegisterDto): Promise<User> {
-    return http.post<User>('/auth/register', data);
+    return http.post<User>(ENDPOINTS.REGISTER, data);
   },
 
   getProfile(): Promise<User> {

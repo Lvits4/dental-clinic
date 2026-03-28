@@ -4,6 +4,7 @@ import { useAuth } from '../../../app/providers/AuthProvider';
 import { useToast } from '../../../shared/components/feedback/Toast';
 import Button from '../../../shared/components/ui/Button';
 import Input from '../../../shared/components/ui/Input';
+import PasswordInput from '../../../shared/components/ui/PasswordInput';
 
 export default function LoginView() {
   const [username, setUsername] = useState('');
@@ -63,9 +64,8 @@ export default function LoginView() {
           autoFocus
         />
 
-        <Input
+        <PasswordInput
           label="Contraseña"
-          type="password"
           placeholder="••••••••"
           value={password}
           onChange={(e) => {
