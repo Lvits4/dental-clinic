@@ -4,12 +4,12 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { AppointmentStatus } from '../../../common/enums/appointment-status.enum';
 
 export class FilterAppointmentDto extends PaginationDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '550e8400-e29b-41d4-a716-446655440001' })
   @IsOptional()
   @IsUUID()
   doctorId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '550e8400-e29b-41d4-a716-446655440000' })
   @IsOptional()
   @IsUUID()
   patientId?: string;

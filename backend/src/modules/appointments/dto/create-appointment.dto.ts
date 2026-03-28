@@ -2,11 +2,11 @@ import { IsUUID, IsDateString, IsOptional, IsString, IsInt, Min } from 'class-va
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateAppointmentDto {
-  @ApiProperty({ description: 'Patient ID' })
+  @ApiProperty({ description: 'Patient ID', example: '550e8400-e29b-41d4-a716-446655440000' })
   @IsUUID()
   patientId: string;
 
-  @ApiProperty({ description: 'Doctor ID' })
+  @ApiProperty({ description: 'Doctor ID', example: '550e8400-e29b-41d4-a716-446655440001' })
   @IsUUID()
   doctorId: string;
 
