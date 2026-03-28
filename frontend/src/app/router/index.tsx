@@ -4,6 +4,7 @@ import AuthLayout from '../layouts/AuthLayout';
 import ProtectedRoute from './ProtectedRoute';
 import { authRoutes } from '../../modules/auth/routes/auth.routes';
 import { patientsRoutes } from '../../modules/patients/routes/patients.routes';
+import { doctorsRoutes } from '../../modules/doctors/routes/doctors.routes';
 
 // Placeholder temporal para módulos pendientes
 const Placeholder = ({ title }: { title: string }) => (
@@ -40,10 +41,7 @@ export const routes: RouteObject[] = [
           { path: '/patients/:id/treatment-plans', element: <Placeholder title="Planes del Paciente" /> },
 
           // Doctores
-          { path: '/doctors', element: <Placeholder title="Doctores" /> },
-          { path: '/doctors/new', element: <Placeholder title="Nuevo Doctor" /> },
-          { path: '/doctors/:id', element: <Placeholder title="Detalle de Doctor" /> },
-          { path: '/doctors/:id/edit', element: <Placeholder title="Editar Doctor" /> },
+          ...doctorsRoutes,
 
           // Citas
           { path: '/appointments', element: <Placeholder title="Citas" /> },
