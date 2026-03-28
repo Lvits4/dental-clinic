@@ -88,10 +88,10 @@ export default function MainLayout() {
                   className="flex items-center gap-2 p-2 rounded-md text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                    {user?.firstName?.charAt(0) || 'U'}
+                    {user?.fullName?.charAt(0) || 'U'}
                   </div>
                   <span className="hidden sm:block text-sm font-medium">
-                    {user?.firstName || 'Usuario'}
+                    {user?.fullName || 'Usuario'}
                   </span>
                 </button>
 
@@ -104,7 +104,7 @@ export default function MainLayout() {
                     <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-20">
                       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user?.firstName} {user?.lastName}
+                          {user?.fullName}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {user?.email}

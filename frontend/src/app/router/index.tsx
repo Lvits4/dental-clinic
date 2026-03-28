@@ -2,6 +2,8 @@ import type { RouteObject } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import ProtectedRoute from './ProtectedRoute';
+import LoginView from '../../modules/auth/views/LoginView';
+import RegisterView from '../../modules/auth/views/RegisterView';
 
 // Placeholder temporal para módulos pendientes
 const Placeholder = ({ title }: { title: string }) => (
@@ -16,7 +18,8 @@ export const routes: RouteObject[] = [
   {
     element: <AuthLayout />,
     children: [
-      { path: '/login', element: <Placeholder title="Iniciar Sesión" /> },
+      { path: '/login', element: <LoginView /> },
+      { path: '/register', element: <RegisterView /> },
     ],
   },
 

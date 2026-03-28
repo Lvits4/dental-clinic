@@ -33,9 +33,9 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   role: Role;
+  isActive?: boolean;
 }
 
 // Roles del sistema
@@ -53,8 +53,16 @@ export interface LoginDto {
 
 // Respuesta de login
 export interface LoginResponse {
-  access_token: string;
+  accessToken: string;
   user: User;
+}
+
+// DTO de registro
+export interface RegisterDto {
+  username: string;
+  email: string;
+  password: string;
+  fullName: string;
 }
 
 // Error de la API
