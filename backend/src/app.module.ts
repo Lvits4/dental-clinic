@@ -12,7 +12,6 @@ import { TreatmentsModule } from './modules/treatments/treatments.module';
 import { TreatmentPlansModule } from './modules/treatment-plans/treatment-plans.module';
 import { PerformedProceduresModule } from './modules/performed-procedures/performed-procedures.module';
 import { ClinicalFilesModule } from './modules/clinical-files/clinical-files.module';
-import { AuditModule } from './modules/audit/audit.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
@@ -46,7 +45,6 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     TreatmentPlansModule,
     PerformedProceduresModule,
     ClinicalFilesModule,
-    AuditModule,
     DashboardModule,
   ],
 })
