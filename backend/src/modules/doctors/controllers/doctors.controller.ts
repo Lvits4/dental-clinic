@@ -6,10 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { DoctorsService } from '../services/doctors.service';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
@@ -33,9 +34,10 @@ export class DoctorsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all active doctors' })
-  findAll() {
-    return this.doctorsService.findAll();
+  @ApiOperation({ summary: 'List doctors (all by default, filter by isActive)' })
+  @ApiQuery({ name: 'isActive', required: false, type: Boolean, description: 'Filter by active status' })
+  findAll(@Query('isActive') isActive?: boolean) {
+    return this.doctorsService.findAll(isActive);
   }
 
   @Get(':id')

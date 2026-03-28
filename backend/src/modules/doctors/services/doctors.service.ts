@@ -27,17 +27,17 @@ export class DoctorsService {
     return this.doctorRepository.save(doctor);
   }
 
-  async findAll(): Promise<Doctor[]> {
-    return this.doctorRepository.find({
-      where: { isActive: true },
-      relations: ['user'],
-    });
+  async findAll(isActive?: boolean): Promise<Doctor[]> {
+    const where: any = {};
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+    return this.doctorRepository.find({ where });
   }
 
   async findOne(id: string): Promise<Doctor> {
     const doctor = await this.doctorRepository.findOne({
       where: { id },
-      relations: ['user'],
     });
     if (!doctor) {
       throw new NotFoundException(`Doctor with ID ${id} not found`);
