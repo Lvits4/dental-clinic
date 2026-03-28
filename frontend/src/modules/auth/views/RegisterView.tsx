@@ -1,94 +1,40 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useToast } from '../../../shared/components/feedback/Toast';
-import { authApi } from '../services/auth.api';
+import { Link } from 'react-router-dom';
+import { useRegister } from '../hooks/useRegister';
+import { validateRegister, TEXT_ONLY_REGEX, USERNAME_REGEX } from '../validations/auth.validations';
+import type { RegisterFormErrors } from '../types/auth.types';
 import Button from '../../../shared/components/ui/Button';
 import Input from '../../../shared/components/ui/Input';
 import PasswordInput from '../../../shared/components/ui/PasswordInput';
-
-interface FormErrors {
-  fullName?: string;
-  username?: string;
-  email?: string;
-  password?: string;
-}
-
-// Solo letras, espacios y acentos
-const TEXT_ONLY_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
-// Username: letras, números, guiones y guion bajo
-const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/;
 
 export default function RegisterView() {
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<RegisterFormErrors>({});
 
-  const toast = useToast();
-  const navigate = useNavigate();
+  const registerMutation = useRegister();
 
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!fullName.trim()) {
-      newErrors.fullName = 'El nombre es obligatorio';
-    } else if (fullName.trim().length < 3) {
-      newErrors.fullName = 'Mínimo 3 caracteres';
-    } else if (!TEXT_ONLY_REGEX.test(fullName.trim())) {
-      newErrors.fullName = 'Solo se permiten letras y espacios';
-    }
-
-    if (!username.trim()) {
-      newErrors.username = 'El usuario es obligatorio';
-    } else if (username.trim().length < 3) {
-      newErrors.username = 'Mínimo 3 caracteres';
-    } else if (!USERNAME_REGEX.test(username.trim())) {
-      newErrors.username = 'Solo letras, números, guiones y guion bajo';
-    }
-
-    if (!email.trim()) {
-      newErrors.email = 'El correo es obligatorio';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      newErrors.email = 'Formato de correo inválido';
-    }
-
-    if (!password) {
-      newErrors.password = 'La contraseña es obligatoria';
-    } else if (password.length < 6) {
-      newErrors.password = 'Mínimo 6 caracteres';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const clearError = (field: keyof FormErrors) => {
+  const clearError = (field: keyof RegisterFormErrors) => {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
 
-    setLoading(true);
-    try {
-      await authApi.register({
-        fullName: fullName.trim(),
-        username: username.trim().toLowerCase(),
-        email: email.trim().toLowerCase(),
-        password,
-      });
-      toast.success('Cuenta creada exitosamente. Ahora inicia sesión.');
-      navigate('/login');
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Error al crear la cuenta';
-      toast.error(message);
-    } finally {
-      setLoading(false);
+    const validationErrors = validateRegister(fullName, username, email, password);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
+
+    registerMutation.mutate({
+      fullName: fullName.trim(),
+      username: username.trim().toLowerCase(),
+      email: email.trim().toLowerCase(),
+      password,
+    });
   };
 
   return (
@@ -105,10 +51,7 @@ export default function RegisterView() {
           value={fullName}
           onChange={(e) => {
             const val = e.target.value;
-            // Solo permitir letras, espacios y acentos
-            if (val === '' || TEXT_ONLY_REGEX.test(val)) {
-              setFullName(val);
-            }
+            if (val === '' || TEXT_ONLY_REGEX.test(val)) setFullName(val);
             clearError('fullName');
           }}
           error={errors.fullName}
@@ -122,9 +65,7 @@ export default function RegisterView() {
           value={username}
           onChange={(e) => {
             const val = e.target.value;
-            if (val === '' || USERNAME_REGEX.test(val)) {
-              setUsername(val);
-            }
+            if (val === '' || USERNAME_REGEX.test(val)) setUsername(val);
             clearError('username');
           }}
           error={errors.username}
@@ -152,7 +93,7 @@ export default function RegisterView() {
 
         <Button
           type="submit"
-          loading={loading}
+          loading={registerMutation.isPending}
           className="w-full"
         >
           Registrarse

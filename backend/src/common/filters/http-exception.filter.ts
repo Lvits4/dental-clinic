@@ -26,6 +26,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else {
         message = exceptionResponse as string;
       }
+    } else {
+      console.error('Unhandled exception:', exception);
     }
 
     response.status(status).json({

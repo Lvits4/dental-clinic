@@ -8,14 +8,14 @@ import {
 } from 'react';
 import { http } from '../../shared/utils/http';
 import { ENDPOINTS } from '../../shared/constants/api';
-import type { User, LoginDto, LoginResponse } from '../../shared/types/common';
+import type { User } from '../../shared/types/common';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginDto) => Promise<void>;
+  setSession: (token: string, user: User) => void;
   logout: () => void;
 }
 
@@ -42,7 +42,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = await http.get<User>(ENDPOINTS.PROFILE);
         setUser(userData);
       } catch {
-        // Token inválido o expirado
         localStorage.removeItem('access_token');
         setToken(null);
         setUser(null);
@@ -54,11 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadUser();
   }, [token]);
 
-  const login = useCallback(async (credentials: LoginDto) => {
-    const response = await http.post<LoginResponse>(ENDPOINTS.LOGIN, credentials);
-    localStorage.setItem('access_token', response.accessToken);
-    setToken(response.accessToken);
-    setUser(response.user);
+  const setSession = useCallback((newToken: string, newUser: User) => {
+    localStorage.setItem('access_token', newToken);
+    setToken(newToken);
+    setUser(newUser);
   }, []);
 
   const logout = useCallback(() => {
@@ -70,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated, isLoading, login, logout }}
+      value={{ user, token, isAuthenticated, isLoading, setSession, logout }}
     >
       {children}
     </AuthContext.Provider>

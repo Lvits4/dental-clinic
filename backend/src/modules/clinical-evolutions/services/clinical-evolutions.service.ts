@@ -26,10 +26,10 @@ export class ClinicalEvolutionsService {
       .leftJoinAndSelect('evolution.clinicalRecord', 'clinicalRecord');
 
     if (recordId) {
-      query.andWhere('evolution.clinical_record_id = :recordId', { recordId });
+      query.andWhere('evolution.clinicalRecordId = :recordId', { recordId });
     }
     if (doctorId) {
-      query.andWhere('evolution.doctor_id = :doctorId', { doctorId });
+      query.andWhere('evolution.doctorId = :doctorId', { doctorId });
     }
     if (dateFrom) {
       query.andWhere('evolution.date >= :dateFrom', { dateFrom });
@@ -46,21 +46,14 @@ export class ClinicalEvolutionsService {
   }
 
   async findOne(id: string): Promise<ClinicalEvolution> {
+    // Search by evolution ID first, then by clinical record ID
     const evolution = await this.evolutionRepository.findOne({
-      where: { id },
+      where: [{ id }, { clinicalRecordId: id }],
       relations: ['doctor', 'clinicalRecord', 'clinicalRecord.patient'],
     });
     if (!evolution) {
-      throw new NotFoundException(`Clinical evolution with ID ${id} not found`);
+      throw new NotFoundException(`Clinical evolution with ID or clinical record ID ${id} not found`);
     }
     return evolution;
-  }
-
-  async findByRecord(recordId: string): Promise<ClinicalEvolution[]> {
-    return this.evolutionRepository.find({
-      where: { clinicalRecordId: recordId },
-      relations: ['doctor'],
-      order: { date: 'DESC' },
-    });
   }
 }

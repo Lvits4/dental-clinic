@@ -36,34 +36,24 @@ export class ClinicalRecordsService {
       .leftJoinAndSelect('record.patient', 'patient');
 
     if (patientId) {
-      query.andWhere('record.patient_id = :patientId', { patientId });
+      query.andWhere('record.patientId = :patientId', { patientId });
     }
 
-    query.orderBy('record.created_at', 'DESC');
+    query.orderBy('record.createdAt', 'DESC');
     query.skip((page - 1) * limit).take(limit);
 
     const [data, totalItems] = await query.getManyAndCount();
     return new PaginatedResponseDto(data, totalItems, page, limit);
   }
 
-  async findByPatient(patientId: string): Promise<ClinicalRecord> {
-    const record = await this.clinicalRecordRepository.findOne({
-      where: { patientId },
-      relations: ['patient'],
-    });
-    if (!record) {
-      throw new NotFoundException(`Clinical record for patient ${patientId} not found`);
-    }
-    return record;
-  }
-
   async findOne(id: string): Promise<ClinicalRecord> {
+    // Search by clinical record ID first, then by patient ID
     const record = await this.clinicalRecordRepository.findOne({
-      where: { id },
+      where: [{ id }, { patientId: id }],
       relations: ['patient'],
     });
     if (!record) {
-      throw new NotFoundException(`Clinical record with ID ${id} not found`);
+      throw new NotFoundException(`Clinical record with ID or patient ID ${id} not found`);
     }
     return record;
   }

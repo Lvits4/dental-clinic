@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../app/providers/AuthProvider';
-import { useToast } from '../../../shared/components/feedback/Toast';
+import { Link } from 'react-router-dom';
+import { useLogin } from '../hooks/useLogin';
+import { validateLogin } from '../validations/auth.validations';
+import type { LoginFormErrors } from '../types/auth.types';
 import Button from '../../../shared/components/ui/Button';
 import Input from '../../../shared/components/ui/Input';
 import PasswordInput from '../../../shared/components/ui/PasswordInput';
@@ -9,38 +10,24 @@ import PasswordInput from '../../../shared/components/ui/PasswordInput';
 export default function LoginView() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
+  const [errors, setErrors] = useState<LoginFormErrors>({});
 
-  const { login } = useAuth();
-  const toast = useToast();
-  const navigate = useNavigate();
+  const loginMutation = useLogin();
 
-  const validate = (): boolean => {
-    const newErrors: typeof errors = {};
-    if (!username.trim()) newErrors.username = 'El usuario es obligatorio';
-    if (!password) newErrors.password = 'La contraseña es obligatoria';
-    else if (password.length < 6) newErrors.password = 'Mínimo 6 caracteres';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+
+    const validationErrors = validateLogin(username, password);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    loginMutation.mutate({ username: username.trim(), password });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    setLoading(true);
-    try {
-      await login({ username: username.trim(), password });
-      toast.success('Inicio de sesión exitoso');
-      navigate('/');
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Credenciales inválidas';
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
+  const clearError = (field: keyof LoginFormErrors) => {
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   return (
@@ -55,10 +42,7 @@ export default function LoginView() {
           type="text"
           placeholder="tu_usuario o correo@ejemplo.com"
           value={username}
-          onChange={(e) => {
-            setUsername(e.target.value);
-            if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
-          }}
+          onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
           error={errors.username}
           autoComplete="username"
           autoFocus
@@ -68,17 +52,14 @@ export default function LoginView() {
           label="Contraseña"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
-          }}
+          onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
           error={errors.password}
           autoComplete="current-password"
         />
 
         <Button
           type="submit"
-          loading={loading}
+          loading={loginMutation.isPending}
           className="w-full"
         >
           Ingresar

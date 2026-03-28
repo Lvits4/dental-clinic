@@ -1,44 +1,6 @@
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
-export { toast as toastNotify };
-
-export function ToastContainer() {
-  return (
-    <Toaster
-      position="top-right"
-      toastOptions={{
-        duration: 3500,
-        style: {
-          borderRadius: '8px',
-          fontSize: '14px',
-          padding: '12px 16px',
-        },
-        success: {
-          style: {
-            background: '#10B981',
-            color: '#fff',
-          },
-          iconTheme: {
-            primary: '#fff',
-            secondary: '#10B981',
-          },
-        },
-        error: {
-          style: {
-            background: '#EF4444',
-            color: '#fff',
-          },
-          iconTheme: {
-            primary: '#fff',
-            secondary: '#EF4444',
-          },
-        },
-      }}
-    />
-  );
-}
-
-// Hook wrapper para mantener compatibilidad
+// Hook de conveniencia para usar toast en cualquier componente
 export function useToast() {
   return {
     success: (message: string) => toast.success(message),

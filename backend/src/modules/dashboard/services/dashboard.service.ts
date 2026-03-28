@@ -6,7 +6,6 @@ import { Patient } from '../../patients/entities/patient.entity';
 import { TreatmentPlan } from '../../treatment-plans/entities/treatment-plan.entity';
 import { AppointmentStatus } from '../../../common/enums/appointment-status.enum';
 import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
-import { AuditLog } from '../../audit/entities/audit-log.entity';
 
 @Injectable()
 export class DashboardService {
@@ -17,8 +16,6 @@ export class DashboardService {
     private readonly patientRepository: Repository<Patient>,
     @InjectRepository(TreatmentPlan)
     private readonly treatmentPlanRepository: Repository<TreatmentPlan>,
-    @InjectRepository(AuditLog)
-    private readonly auditLogRepository: Repository<AuditLog>,
   ) {}
 
   async getSummary() {
@@ -127,19 +124,24 @@ export class DashboardService {
   }
 
   async getRecentActivity() {
-    const logs = await this.auditLogRepository.find({
-      relations: ['user'],
+    const recentAppointments = await this.appointmentRepository.find({
+      relations: ['patient', 'doctor'],
       order: { createdAt: 'DESC' },
       take: 20,
     });
 
     return {
-      data: logs.map((log) => ({
-        id: log.id,
-        user: log.user ? log.user.fullName : 'System',
-        action: log.action,
-        module: log.module,
-        createdAt: log.createdAt,
+      data: recentAppointments.map((appt) => ({
+        id: appt.id,
+        patient: appt.patient
+          ? `${appt.patient.firstName} ${appt.patient.lastName}`
+          : 'N/A',
+        doctor: appt.doctor
+          ? `${appt.doctor.firstName} ${appt.doctor.lastName}`
+          : 'N/A',
+        status: appt.status,
+        dateTime: appt.dateTime,
+        createdAt: appt.createdAt,
       })),
     };
   }

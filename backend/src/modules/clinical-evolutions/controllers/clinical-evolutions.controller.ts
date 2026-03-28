@@ -38,14 +38,8 @@ export class ClinicalEvolutionsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get clinical evolution by ID' })
+  @ApiOperation({ summary: 'Get clinical evolution by evolution ID or clinical record ID' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.evolutionsService.findOne(id);
-  }
-
-  @Get('record/:recordId')
-  @ApiOperation({ summary: 'Get evolutions by clinical record ID' })
-  findByRecord(@Param('recordId', ParseUUIDPipe) recordId: string) {
-    return this.evolutionsService.findByRecord(recordId);
   }
 }

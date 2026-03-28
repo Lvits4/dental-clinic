@@ -39,14 +39,8 @@ export class ClinicalRecordsController {
     return this.clinicalRecordsService.findAll(filterDto);
   }
 
-  @Get('patient/:patientId')
-  @ApiOperation({ summary: 'Get clinical record by patient ID' })
-  findByPatient(@Param('patientId', ParseUUIDPipe) patientId: string) {
-    return this.clinicalRecordsService.findByPatient(patientId);
-  }
-
   @Get(':id')
-  @ApiOperation({ summary: 'Get clinical record by ID' })
+  @ApiOperation({ summary: 'Get clinical record by record ID or patient ID' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.clinicalRecordsService.findOne(id);
   }

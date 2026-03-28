@@ -1,6 +1,7 @@
 import { http } from '../../../shared/utils/http';
 import { ENDPOINTS } from '../../../shared/constants/api';
-import type { LoginDto, LoginResponse, RegisterDto, User } from '../../../shared/types/common';
+import type { User } from '../../../shared/types/common';
+import type { LoginDto, LoginResponse, RegisterDto } from '../types/auth.types';
 
 export const authApi = {
   login(credentials: LoginDto): Promise<LoginResponse> {

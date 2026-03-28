@@ -45,26 +45,6 @@ export enum Role {
   RECEPTIONIST = 'receptionist',
 }
 
-// Credenciales de login
-export interface LoginDto {
-  username: string;
-  password: string;
-}
-
-// Respuesta de login
-export interface LoginResponse {
-  accessToken: string;
-  user: User;
-}
-
-// DTO de registro
-export interface RegisterDto {
-  username: string;
-  email: string;
-  password: string;
-  fullName: string;
-}
-
 // Error de la API
 export interface ApiError {
   statusCode: number;

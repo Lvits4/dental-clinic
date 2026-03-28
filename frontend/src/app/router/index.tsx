@@ -2,8 +2,7 @@ import type { RouteObject } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import ProtectedRoute from './ProtectedRoute';
-import LoginView from '../../modules/auth/views/LoginView';
-import RegisterView from '../../modules/auth/views/RegisterView';
+import { authRoutes } from '../../modules/auth/routes/auth.routes';
 
 // Placeholder temporal para módulos pendientes
 const Placeholder = ({ title }: { title: string }) => (
@@ -17,10 +16,7 @@ export const routes: RouteObject[] = [
   // Rutas de autenticación (sin navbar)
   {
     element: <AuthLayout />,
-    children: [
-      { path: '/login', element: <LoginView /> },
-      { path: '/register', element: <RegisterView /> },
-    ],
+    children: authRoutes,
   },
 
   // Rutas protegidas (con navbar)
