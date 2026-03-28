@@ -1,111 +1,164 @@
+import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from './common/layouts/MainLayout/MainLayout';
-import AuthLayout from './modules/auth/layouts/AuthLayout/AuthLayout';
-import ProtectedRoute from './common/components/ProtectedRoute/ProtectedRoute';
+import MainLayout from './layouts/MainLayout';
+import AuthLayout from './layouts/AuthLayout';
+import ProtectedRoute from './components/ui/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
+import { Role } from './enums';
 
-// Auth
-import LoginView from './modules/auth/views/LoginView';
-import RegisterView from './modules/auth/views/RegisterView';
+// ─── Spinner de carga ──────────────────────────────────────────────────────────
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
-// Dashboard
-import DashboardView from './modules/dashboard/views/DashboardView';
+// ─── Auth ──────────────────────────────────────────────────────────────────────
+const LoginView = React.lazy(() => import('./views/LoginView'));
+const RegisterView = React.lazy(() => import('./views/RegisterView'));
 
-// Patients
-import PatientsListView from './modules/patients/views/PatientsListView';
-import PatientCreateView from './modules/patients/views/PatientCreateView';
-import PatientDetailView from './modules/patients/views/PatientDetailView';
-import PatientEditView from './modules/patients/views/PatientEditView';
+// ─── Dashboard ─────────────────────────────────────────────────────────────────
+const DashboardView = React.lazy(() => import('./views/DashboardView'));
 
-// Doctors
-import DoctorsListView from './modules/doctors/views/DoctorsListView';
-import DoctorCreateView from './modules/doctors/views/DoctorCreateView';
-import DoctorDetailView from './modules/doctors/views/DoctorDetailView';
-import DoctorEditView from './modules/doctors/views/DoctorEditView';
+// ─── Patients ──────────────────────────────────────────────────────────────────
+const PatientsListView = React.lazy(() => import('./views/patients/PatientsListView'));
+const PatientCreateView = React.lazy(() => import('./views/patients/PatientCreateView'));
+const PatientDetailView = React.lazy(() => import('./views/patients/PatientDetailView'));
+const PatientEditView = React.lazy(() => import('./views/patients/PatientEditView'));
 
-// Appointments
-import AppointmentsListView from './modules/appointments/views/AppointmentsListView';
-import AppointmentCreateView from './modules/appointments/views/AppointmentCreateView';
-import AppointmentDetailView from './modules/appointments/views/AppointmentDetailView';
-import AppointmentAgendaView from './modules/appointments/views/AppointmentAgendaView';
+// ─── Doctors ───────────────────────────────────────────────────────────────────
+const DoctorsListView = React.lazy(() => import('./views/doctors/DoctorsListView'));
+const DoctorCreateView = React.lazy(() => import('./views/doctors/DoctorCreateView'));
+const DoctorDetailView = React.lazy(() => import('./views/doctors/DoctorDetailView'));
+const DoctorEditView = React.lazy(() => import('./views/doctors/DoctorEditView'));
 
-// Treatments
-import TreatmentsListView from './modules/treatments/views/TreatmentsListView';
-import TreatmentCreateView from './modules/treatments/views/TreatmentCreateView';
-import TreatmentEditView from './modules/treatments/views/TreatmentEditView';
+// ─── Appointments ──────────────────────────────────────────────────────────────
+const AppointmentsListView = React.lazy(() => import('./views/appointments/AppointmentsListView'));
+const AppointmentCreateView = React.lazy(() => import('./views/appointments/AppointmentCreateView'));
+const AppointmentDetailView = React.lazy(() => import('./views/appointments/AppointmentDetailView'));
+const AppointmentAgendaView = React.lazy(() => import('./views/appointments/AppointmentAgendaView'));
 
-// Treatment Plans
-import TreatmentPlansListView from './modules/treatment-plans/views/TreatmentPlansListView';
-import TreatmentPlanCreateView from './modules/treatment-plans/views/TreatmentPlanCreateView';
-import TreatmentPlanDetailView from './modules/treatment-plans/views/TreatmentPlanDetailView';
+// ─── Treatments ────────────────────────────────────────────────────────────────
+const TreatmentsListView = React.lazy(() => import('./views/treatments/TreatmentsListView'));
+const TreatmentCreateView = React.lazy(() => import('./views/treatments/TreatmentCreateView'));
+const TreatmentEditView = React.lazy(() => import('./views/treatments/TreatmentEditView'));
 
-// Performed Procedures
-import PerformedProceduresListView from './modules/performed-procedures/views/PerformedProceduresListView';
-import PerformedProcedureCreateView from './modules/performed-procedures/views/PerformedProcedureCreateView';
+// ─── Treatment Plans ───────────────────────────────────────────────────────────
+const TreatmentPlansListView = React.lazy(() => import('./views/treatment-plans/TreatmentPlansListView'));
+const TreatmentPlanCreateView = React.lazy(() => import('./views/treatment-plans/TreatmentPlanCreateView'));
+const TreatmentPlanDetailView = React.lazy(() => import('./views/treatment-plans/TreatmentPlanDetailView'));
 
-// Clinical
-import ClinicalRecordView from './modules/clinical-records/views/ClinicalRecordView';
-import ClinicalEvolutionsListView from './modules/clinical-evolutions/views/ClinicalEvolutionsListView';
-import ClinicalEvolutionCreateView from './modules/clinical-evolutions/views/ClinicalEvolutionCreateView';
-import ClinicalFilesListView from './modules/clinical-files/views/ClinicalFilesListView';
+// ─── Performed Procedures ──────────────────────────────────────────────────────
+const PerformedProceduresListView = React.lazy(() => import('./views/performed-procedures/PerformedProceduresListView'));
+const PerformedProcedureCreateView = React.lazy(() => import('./views/performed-procedures/PerformedProcedureCreateView'));
 
+// ─── Clinical ──────────────────────────────────────────────────────────────────
+const ClinicalRecordView = React.lazy(() => import('./views/clinical-records/ClinicalRecordView'));
+const ClinicalEvolutionsListView = React.lazy(() => import('./views/clinical-evolutions/ClinicalEvolutionsListView'));
+const ClinicalEvolutionCreateView = React.lazy(() => import('./views/clinical-evolutions/ClinicalEvolutionCreateView'));
+const ClinicalFilesListView = React.lazy(() => import('./views/clinical-files/ClinicalFilesListView'));
+
+// ─── Users (Admin only) ────────────────────────────────────────────────────────
+const UsersListView = React.lazy(() => import('./views/users/UsersListView'));
+const UserCreateView = React.lazy(() => import('./views/users/UserCreateView'));
+const UserEditView = React.lazy(() => import('./views/users/UserEditView'));
+
+// ─── Ruta admin-only ───────────────────────────────────────────────────────────
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (user?.role !== Role.ADMIN) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
+
+// ─── App ───────────────────────────────────────────────────────────────────────
 const App = () => {
   return (
-    <Routes>
-      {/* Rutas de autenticación (sin navbar) */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginView />} />
-        <Route path="/register" element={<RegisterView />} />
-      </Route>
-
-      {/* Rutas protegidas (con navbar) */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<MainLayout />}>
-          {/* Dashboard */}
-          <Route path="/" element={<DashboardView />} />
-
-          {/* Pacientes */}
-          <Route path="/patients" element={<PatientsListView />} />
-          <Route path="/patients/new" element={<PatientCreateView />} />
-          <Route path="/patients/:id" element={<PatientDetailView />} />
-          <Route path="/patients/:id/edit" element={<PatientEditView />} />
-
-          {/* Clinical Records (anidados a paciente) */}
-          <Route path="/patients/:patientId/clinical-record" element={<ClinicalRecordView />} />
-          <Route path="/patients/:patientId/clinical-evolutions" element={<ClinicalEvolutionsListView />} />
-          <Route path="/patients/:patientId/clinical-evolutions/new" element={<ClinicalEvolutionCreateView />} />
-          <Route path="/patients/:patientId/clinical-files" element={<ClinicalFilesListView />} />
-
-          {/* Doctores */}
-          <Route path="/doctors" element={<DoctorsListView />} />
-          <Route path="/doctors/new" element={<DoctorCreateView />} />
-          <Route path="/doctors/:id" element={<DoctorDetailView />} />
-          <Route path="/doctors/:id/edit" element={<DoctorEditView />} />
-
-          {/* Citas */}
-          <Route path="/appointments" element={<AppointmentsListView />} />
-          <Route path="/appointments/new" element={<AppointmentCreateView />} />
-          <Route path="/appointments/agenda" element={<AppointmentAgendaView />} />
-          <Route path="/appointments/:id" element={<AppointmentDetailView />} />
-
-          {/* Tratamientos (catálogo) */}
-          <Route path="/treatments" element={<TreatmentsListView />} />
-          <Route path="/treatments/new" element={<TreatmentCreateView />} />
-          <Route path="/treatments/:id/edit" element={<TreatmentEditView />} />
-
-          {/* Planes de tratamiento */}
-          <Route path="/treatment-plans" element={<TreatmentPlansListView />} />
-          <Route path="/treatment-plans/new" element={<TreatmentPlanCreateView />} />
-          <Route path="/treatment-plans/:id" element={<TreatmentPlanDetailView />} />
-
-          {/* Procedimientos realizados */}
-          <Route path="/performed-procedures" element={<PerformedProceduresListView />} />
-          <Route path="/performed-procedures/new" element={<PerformedProcedureCreateView />} />
-
-          {/* 404 */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* Rutas de autenticacion */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginView />} />
+          <Route path="/register" element={<RegisterView />} />
         </Route>
-      </Route>
-    </Routes>
+
+        {/* Rutas protegidas */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            {/* Dashboard */}
+            <Route path="/" element={<DashboardView />} />
+
+            {/* Pacientes */}
+            <Route path="/patients" element={<PatientsListView />} />
+            <Route path="/patients/new" element={<PatientCreateView />} />
+            <Route path="/patients/:id" element={<PatientDetailView />} />
+            <Route path="/patients/:id/edit" element={<PatientEditView />} />
+
+            {/* Expediente clinico (anidados a paciente) */}
+            <Route path="/patients/:patientId/clinical-record" element={<ClinicalRecordView />} />
+            <Route path="/patients/:patientId/clinical-evolutions" element={<ClinicalEvolutionsListView />} />
+            <Route path="/clinical-evolutions/new" element={<ClinicalEvolutionCreateView />} />
+            <Route path="/patients/:patientId/clinical-files" element={<ClinicalFilesListView />} />
+
+            {/* Doctores */}
+            <Route path="/doctors" element={<DoctorsListView />} />
+            <Route path="/doctors/new" element={<DoctorCreateView />} />
+            <Route path="/doctors/:id" element={<DoctorDetailView />} />
+            <Route path="/doctors/:id/edit" element={<DoctorEditView />} />
+
+            {/* Citas */}
+            <Route path="/appointments" element={<AppointmentsListView />} />
+            <Route path="/appointments/new" element={<AppointmentCreateView />} />
+            <Route path="/appointments/agenda" element={<AppointmentAgendaView />} />
+            <Route path="/appointments/:id" element={<AppointmentDetailView />} />
+
+            {/* Tratamientos (catalogo) */}
+            <Route path="/treatments" element={<TreatmentsListView />} />
+            <Route path="/treatments/new" element={<TreatmentCreateView />} />
+            <Route path="/treatments/:id/edit" element={<TreatmentEditView />} />
+
+            {/* Planes de tratamiento */}
+            <Route path="/treatment-plans" element={<TreatmentPlansListView />} />
+            <Route path="/treatment-plans/new" element={<TreatmentPlanCreateView />} />
+            <Route path="/treatment-plans/:id" element={<TreatmentPlanDetailView />} />
+
+            {/* Procedimientos realizados */}
+            <Route path="/performed-procedures" element={<PerformedProceduresListView />} />
+            <Route path="/performed-procedures/new" element={<PerformedProcedureCreateView />} />
+
+            {/* Usuarios (solo admin) */}
+            <Route
+              path="/users"
+              element={
+                <AdminRoute>
+                  <UsersListView />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/users/new"
+              element={
+                <AdminRoute>
+                  <UserCreateView />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/users/:id/edit"
+              element={
+                <AdminRoute>
+                  <UserEditView />
+                </AdminRoute>
+              }
+            />
+
+            {/* 404 */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Route>
+      </Routes>
+    </Suspense>
   );
 };
 

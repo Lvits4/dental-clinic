@@ -1,0 +1,96 @@
+// Tipos comunes / compartidos
+export type {
+  ApiResponse,
+  PaginationMeta,
+  PaginatedResponse,
+  PaginationParams,
+  SelectOption,
+  ApiError,
+} from './common.types';
+
+// Entidades de dominio
+export type {
+  User,
+} from './user.types';
+
+export type {
+  LoginDto,
+  LoginResponse,
+  RegisterDto,
+  LoginFormErrors,
+  RegisterFormErrors,
+} from './auth.types';
+
+export type {
+  PatientSex,
+  Patient,
+  CreatePatientDto,
+  UpdatePatientDto,
+  PatientFilters,
+  PatientFormErrors,
+} from './patient.types';
+export { SEX_OPTIONS } from './patient.types';
+
+export type {
+  Doctor,
+  CreateDoctorDto,
+  UpdateDoctorDto,
+  DoctorFilters,
+  DoctorFormErrors,
+} from './doctor.types';
+
+export type {
+  Appointment,
+  CreateAppointmentDto,
+  UpdateAppointmentDto,
+  UpdateStatusDto,
+  RescheduleAppointmentDto,
+  AppointmentFilters,
+  AppointmentFormErrors,
+} from './appointment.types';
+export { STATUS_CONFIG, STATUS_OPTIONS, DURATION_OPTIONS } from './appointment.types';
+
+export type {
+  Treatment,
+  CreateTreatmentDto,
+  UpdateTreatmentDto,
+  TreatmentFormErrors,
+} from './treatment.types';
+export { TREATMENT_CATEGORIES } from './treatment.types';
+
+export type {
+  TreatmentPlanItem,
+  TreatmentPlan,
+  CreateTreatmentPlanDto,
+} from './treatment-plan.types';
+export { PLAN_STATUS_CONFIG } from './treatment-plan.types';
+
+export type {
+  PerformedProcedure,
+  CreatePerformedProcedureDto,
+  PerformedProcedureFilters,
+} from './performed-procedure.types';
+
+export type {
+  ClinicalRecord,
+  CreateClinicalRecordDto,
+  UpdateClinicalRecordDto,
+} from './clinical-record.types';
+
+export type {
+  ClinicalEvolution,
+  CreateClinicalEvolutionDto,
+  ClinicalEvolutionFilters,
+} from './clinical-evolution.types';
+
+export type {
+  ClinicalFile,
+  ClinicalFileFilters,
+} from './clinical-file.types';
+
+export type {
+  DashboardSummary,
+  StatusCount,
+  DoctorWorkload,
+  RecentActivity,
+} from './dashboard.types';

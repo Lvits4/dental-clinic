@@ -1,0 +1,71 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { appointmentsApi } from '../../requests/appointments.api';
+import type { CreateAppointmentDto } from '../../types';
+import { AppointmentStatus } from '../../enums';
+import { STATUS_CONFIG } from '../../types';
+import { HttpError } from '../../helpers/http';
+
+export function useCreateAppointment() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (data: CreateAppointmentDto) => appointmentsApi.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      toast.success('Cita creada exitosamente');
+      navigate('/appointments');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al crear la cita');
+      }
+    },
+  });
+}
+
+export function useUpdateAppointmentStatus(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (status: AppointmentStatus) => appointmentsApi.updateStatus(id, { status }),
+    onSuccess: (_data, status) => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['appointments', id] });
+      toast.success(`Estado cambiado a: ${STATUS_CONFIG[status].label}`);
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al cambiar el estado');
+      }
+    },
+  });
+}
+
+export function useCancelAppointment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => appointmentsApi.cancel(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      toast.success('Cita cancelada');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al cancelar la cita');
+      }
+    },
+  });
+}
