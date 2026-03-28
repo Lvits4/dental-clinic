@@ -8,6 +8,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { Patient } from '../../patients/entities/patient.entity';
 
 @Entity('clinical_records')
@@ -37,9 +38,11 @@ export class ClinicalRecord {
   @Column({ type: 'text', nullable: true })
   observations: string;
 
+  @Exclude()
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

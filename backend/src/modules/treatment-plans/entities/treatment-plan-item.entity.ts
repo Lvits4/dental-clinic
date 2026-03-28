@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { TreatmentPlan } from './treatment-plan.entity';
 import { Treatment } from '../../treatments/entities/treatment.entity';
 import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
@@ -46,9 +47,11 @@ export class TreatmentPlanItem {
   @Column({ name: 'order', type: 'int', default: 0 })
   order: number;
 
+  @Exclude()
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

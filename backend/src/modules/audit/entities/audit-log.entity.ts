@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('audit_logs')
@@ -35,6 +36,7 @@ export class AuditLog {
   @Column({ name: 'ip_address', nullable: true })
   ipAddress: string;
 
+  @Exclude()
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }

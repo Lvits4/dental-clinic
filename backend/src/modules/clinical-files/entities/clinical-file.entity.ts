@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { Patient } from '../../patients/entities/patient.entity';
 import { ClinicalEvolution } from '../../clinical-evolutions/entities/clinical-evolution.entity';
 import { User } from '../../users/entities/user.entity';
@@ -51,6 +52,7 @@ export class ClinicalFile {
   @JoinColumn({ name: 'uploaded_by' })
   uploader: User;
 
+  @Exclude()
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
