@@ -44,6 +44,15 @@ interface AppointmentFormProps {
   submitLabel?: string;
   defaultPatientId?: string;
   defaultDoctorId?: string;
+  initialValues?: {
+    patientId?: string;
+    doctorId?: string;
+    date?: string;   // YYYY-MM-DD
+    time?: string;   // HH:MM
+    durationMinutes?: number;
+    reason?: string;
+    notes?: string;
+  };
 }
 
 /* ── Iconos de sección ── */
@@ -66,14 +75,17 @@ const AppointmentForm = ({
   submitLabel = 'Guardar',
   defaultPatientId = '',
   defaultDoctorId = '',
+  initialValues = {},
 }: AppointmentFormProps) => {
-  const [patientId, setPatientId] = useState(defaultPatientId);
-  const [doctorId, setDoctorId] = useState(defaultDoctorId);
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [durationMinutes, setDurationMinutes] = useState('30');
-  const [reason, setReason] = useState('');
-  const [notes, setNotes] = useState('');
+  const [patientId, setPatientId] = useState(initialValues.patientId ?? defaultPatientId);
+  const [doctorId, setDoctorId] = useState(initialValues.doctorId ?? defaultDoctorId);
+  const [date, setDate] = useState(initialValues.date ?? '');
+  const [time, setTime] = useState(initialValues.time ?? '');
+  const [durationMinutes, setDurationMinutes] = useState(
+    initialValues.durationMinutes ? String(initialValues.durationMinutes) : '30'
+  );
+  const [reason, setReason] = useState(initialValues.reason ?? '');
+  const [notes, setNotes] = useState(initialValues.notes ?? '');
   const [errors, setErrors] = useState<AppointmentFormErrors>({});
 
   const clearError = (field: keyof AppointmentFormErrors) => {

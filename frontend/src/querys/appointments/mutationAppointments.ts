@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { appointmentsApi } from '../../requests/appointments.api';
-import type { CreateAppointmentDto } from '../../types';
+import type { CreateAppointmentDto, UpdateAppointmentDto } from '../../types';
 import { AppointmentStatus } from '../../enums';
 import { STATUS_CONFIG } from '../../types';
 import { HttpError } from '../../helpers/http';
@@ -107,6 +107,28 @@ export function useRescheduleAppointment() {
         toast.error(msg);
       } else {
         toast.error('Error al reprogramar la cita');
+      }
+    },
+  });
+}
+
+export function useUpdateAppointment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateAppointmentDto }) =>
+      appointmentsApi.update(id, data),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['appointments', id] });
+      toast.success('Cita actualizada exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al actualizar la cita');
       }
     },
   });

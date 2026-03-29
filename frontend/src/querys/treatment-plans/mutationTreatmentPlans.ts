@@ -48,3 +48,25 @@ export const useUpdateTreatmentPlanStatus = (id: string) => {
     },
   });
 };
+
+export const useUpdateTreatmentPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { observations?: string } }) =>
+      treatmentPlansApi.update(id, data),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['treatment-plans'] });
+      queryClient.invalidateQueries({ queryKey: ['treatment-plans', id] });
+      toast.success('Plan actualizado exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al actualizar el plan');
+      }
+    },
+  });
+};

@@ -20,6 +20,9 @@ interface TreatmentPlanFormProps {
   onSubmit: (data: CreateTreatmentPlanDto) => void;
   loading?: boolean;
   submitLabel?: string;
+  initialPatientId?: string;
+  initialDoctorId?: string;
+  initialObservations?: string;
 }
 
 /* ── Icono de sección ── */
@@ -35,10 +38,13 @@ const TreatmentPlanForm = ({
   onSubmit,
   loading = false,
   submitLabel = 'Crear Plan',
+  initialPatientId,
+  initialDoctorId,
+  initialObservations,
 }: TreatmentPlanFormProps) => {
-  const [patientId, setPatientId] = useState('');
-  const [doctorId, setDoctorId] = useState('');
-  const [observations, setObservations] = useState('');
+  const [patientId, setPatientId] = useState(initialPatientId ?? '');
+  const [doctorId, setDoctorId] = useState(initialDoctorId ?? '');
+  const [observations, setObservations] = useState(initialObservations ?? '');
   const [errors, setErrors] = useState<TreatmentPlanFormErrors>({});
 
   const patientOptions = patients.map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
