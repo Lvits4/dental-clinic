@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Button } from '../ui';
+import { Input, Select, Button, FormSection } from '../ui';
 import type { User } from '../../types';
 import type { CreateUserDto, UpdateUserDto } from '../../requests/users.api';
 import { Role } from '../../enums';
@@ -58,6 +58,13 @@ interface UserFormEditProps {
 
 type UserFormProps = UserFormCreateProps | UserFormEditProps;
 
+/* ── Iconos de sección ── */
+const IconUser = () => (
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
 const UserForm = (props: UserFormProps) => {
   const isEdit = props.mode === 'edit';
   const initial = isEdit ? props.initialData : undefined;
@@ -107,11 +114,8 @@ const UserForm = (props: UserFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-          Datos del usuario
-        </h3>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <FormSection title="Datos del Usuario" icon={<IconUser />} description="Credenciales, rol y datos de acceso">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Nombre completo *"
@@ -154,7 +158,7 @@ const UserForm = (props: UserFormProps) => {
             />
           )}
         </div>
-      </div>
+      </FormSection>
 
       <div className="flex justify-end gap-3 pt-2">
         <Button type="submit" loading={props.loading}>

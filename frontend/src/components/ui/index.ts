@@ -12,6 +12,12 @@ export type { SelectProps, SelectOption } from './Select';
 export { default as DatePicker } from './DatePicker';
 export type { DatePickerProps } from './DatePicker';
 
+export { default as FormSection } from './FormSection';
+export type { FormSectionProps } from './FormSection';
+
+export { default as MultiStepForm } from './MultiStepForm';
+export type { MultiStepFormProps, Step } from './MultiStepForm';
+
 export { default as Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
 

@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
-import { Input, Select, Textarea, Button, DatePicker } from '../ui';
+import { useState, useCallback, type FormEvent } from 'react';
+import { Input, Select, Textarea, DatePicker, FormSection, MultiStepForm } from '../ui';
+import type { Step } from '../ui';
 import type {
   CreateAppointmentDto,
   AppointmentFormErrors,
@@ -45,6 +46,18 @@ interface AppointmentFormProps {
   defaultDoctorId?: string;
 }
 
+/* ── Iconos de sección ── */
+const IconCalendar = () => (
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+  </svg>
+);
+const IconNotes = () => (
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
+
 const AppointmentForm = ({
   patients,
   doctors,
@@ -77,9 +90,17 @@ const AppointmentForm = ({
     label: `Dr. ${d.firstName} ${d.lastName} — ${d.specialty}`,
   }));
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const validateStep1 = useCallback(() => {
+    const stepErrors: AppointmentFormErrors = {};
+    if (!patientId) stepErrors.patientId = 'Debe seleccionar un paciente';
+    if (!doctorId) stepErrors.doctorId = 'Debe seleccionar un doctor';
+    if (!date) stepErrors.dateTime = 'La fecha es obligatoria';
 
+    setErrors((prev) => ({ ...prev, ...stepErrors }));
+    return Object.keys(stepErrors).length === 0;
+  }, [patientId, doctorId, date]);
+
+  const handleSubmit = (_e: FormEvent) => {
     const dateTime = date && time ? `${date}T${time}:00` : '';
 
     const data: CreateAppointmentDto = {
@@ -100,80 +121,85 @@ const AppointmentForm = ({
     onSubmit(data);
   };
 
+  const steps: Step[] = [
+    {
+      title: 'Datos de la Cita',
+      validate: validateStep1,
+      content: (
+        <FormSection title="Información de la Cita" icon={<IconCalendar />} description="Paciente, doctor, fecha y duración">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Select
+              label="Paciente *"
+              options={patientOptions}
+              value={patientId}
+              onChange={(e) => { setPatientId(e.target.value); clearError('patientId'); }}
+              error={errors.patientId}
+              placeholder="Seleccionar paciente..."
+            />
+            <Select
+              label="Doctor *"
+              options={doctorOptions}
+              value={doctorId}
+              onChange={(e) => { setDoctorId(e.target.value); clearError('doctorId'); }}
+              error={errors.doctorId}
+              placeholder="Seleccionar doctor..."
+            />
+            <DatePicker
+              label="Fecha *"
+              value={date}
+              onChange={(e) => { setDate(e.target.value); clearError('dateTime'); }}
+              error={errors.dateTime}
+              min={new Date().toISOString().split('T')[0]}
+            />
+            <Input
+              label="Hora *"
+              type="time"
+              value={time}
+              onChange={(e) => { setTime(e.target.value); clearError('dateTime'); }}
+            />
+            <Select
+              label="Duración"
+              options={DURATION_OPTIONS}
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(e.target.value)}
+              error={errors.durationMinutes}
+            />
+          </div>
+        </FormSection>
+      ),
+    },
+    {
+      title: 'Detalles',
+      content: (
+        <FormSection title="Detalles" icon={<IconNotes />} description="Motivo de consulta y notas adicionales">
+          <div className="space-y-4">
+            <Textarea
+              label="Motivo de la cita"
+              placeholder="Consulta general, limpieza, dolor..."
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={3}
+            />
+            <Textarea
+              label="Notas"
+              placeholder="Notas adicionales..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+            />
+          </div>
+        </FormSection>
+      ),
+    },
+  ];
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-          Información de la Cita
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Select
-            label="Paciente *"
-            options={patientOptions}
-            value={patientId}
-            onChange={(e) => { setPatientId(e.target.value); clearError('patientId'); }}
-            error={errors.patientId}
-            placeholder="Seleccionar paciente..."
-          />
-          <Select
-            label="Doctor *"
-            options={doctorOptions}
-            value={doctorId}
-            onChange={(e) => { setDoctorId(e.target.value); clearError('doctorId'); }}
-            error={errors.doctorId}
-            placeholder="Seleccionar doctor..."
-          />
-          <DatePicker
-            label="Fecha *"
-            value={date}
-            onChange={(e) => { setDate(e.target.value); clearError('dateTime'); }}
-            error={errors.dateTime}
-            min={new Date().toISOString().split('T')[0]}
-          />
-          <Input
-            label="Hora *"
-            type="time"
-            value={time}
-            onChange={(e) => { setTime(e.target.value); clearError('dateTime'); }}
-          />
-          <Select
-            label="Duración"
-            options={DURATION_OPTIONS}
-            value={durationMinutes}
-            onChange={(e) => setDurationMinutes(e.target.value)}
-            error={errors.durationMinutes}
-          />
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-          Detalles
-        </h3>
-        <div className="space-y-4">
-          <Textarea
-            label="Motivo de la cita"
-            placeholder="Consulta general, limpieza, dolor..."
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            rows={2}
-          />
-          <Textarea
-            label="Notas"
-            placeholder="Notas adicionales..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-3 pt-2">
-        <Button type="submit" loading={loading}>
-          {submitLabel}
-        </Button>
-      </div>
-    </form>
+    <MultiStepForm
+      steps={steps}
+      onSubmit={handleSubmit}
+      submitLabel={submitLabel}
+      loading={loading}
+    />
   );
 };
 

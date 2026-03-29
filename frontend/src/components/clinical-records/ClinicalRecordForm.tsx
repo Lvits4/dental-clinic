@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Textarea, Button } from '../ui';
+import { Textarea, FormSection, MultiStepForm } from '../ui';
+import type { Step } from '../ui';
 import type { ClinicalRecord, UpdateClinicalRecordDto } from '../../types';
 
 interface ClinicalRecordFormProps {
@@ -10,13 +11,17 @@ interface ClinicalRecordFormProps {
   onCancel?: () => void;
 }
 
-const SECTIONS = [
-  { key: 'medicalBackground' as const, label: 'Antecedentes Médicos' },
-  { key: 'dentalBackground' as const, label: 'Antecedentes Odontológicos' },
-  { key: 'consultationReason' as const, label: 'Motivo de Consulta' },
-  { key: 'diagnosis' as const, label: 'Diagnóstico' },
-  { key: 'observations' as const, label: 'Observaciones' },
-];
+/* ── Iconos de sección ── */
+const IconHistory = () => (
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+const IconDiagnosis = () => (
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+  </svg>
+);
 
 const ClinicalRecordForm = ({
   initialData,
@@ -31,24 +36,7 @@ const ClinicalRecordForm = ({
   const [diagnosis, setDiagnosis] = useState(initialData?.diagnosis || '');
   const [observations, setObservations] = useState(initialData?.observations || '');
 
-  const setters: Record<typeof SECTIONS[number]['key'], (v: string) => void> = {
-    medicalBackground: setMedicalBackground,
-    dentalBackground: setDentalBackground,
-    consultationReason: setConsultationReason,
-    diagnosis: setDiagnosis,
-    observations: setObservations,
-  };
-
-  const values: Record<typeof SECTIONS[number]['key'], string> = {
-    medicalBackground,
-    dentalBackground,
-    consultationReason,
-    diagnosis,
-    observations,
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (_e: FormEvent) => {
     onSubmit({
       medicalBackground: medicalBackground.trim() || undefined,
       dentalBackground: dentalBackground.trim() || undefined,
@@ -58,28 +46,79 @@ const ClinicalRecordForm = ({
     });
   };
 
+  const steps: Step[] = [
+    {
+      title: 'Antecedentes',
+      content: (
+        <FormSection title="Antecedentes" icon={<IconHistory />} description="Historial médico y odontológico del paciente">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Textarea
+              label="Antecedentes Médicos"
+              value={medicalBackground}
+              onChange={(e) => setMedicalBackground(e.target.value)}
+              rows={4}
+            />
+            <Textarea
+              label="Antecedentes Odontológicos"
+              value={dentalBackground}
+              onChange={(e) => setDentalBackground(e.target.value)}
+              rows={4}
+            />
+          </div>
+        </FormSection>
+      ),
+    },
+    {
+      title: 'Evaluación',
+      content: (
+        <FormSection title="Evaluación" icon={<IconDiagnosis />} description="Consulta, diagnóstico y observaciones">
+          <div className="space-y-4">
+            <Textarea
+              label="Motivo de Consulta"
+              value={consultationReason}
+              onChange={(e) => setConsultationReason(e.target.value)}
+              rows={3}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Textarea
+                label="Diagnóstico"
+                value={diagnosis}
+                onChange={(e) => setDiagnosis(e.target.value)}
+                rows={3}
+              />
+              <Textarea
+                label="Observaciones"
+                value={observations}
+                onChange={(e) => setObservations(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+        </FormSection>
+      ),
+    },
+  ];
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {SECTIONS.map((s) => (
-        <Textarea
-          key={s.key}
-          label={s.label}
-          value={values[s.key]}
-          onChange={(e) => setters[s.key](e.target.value)}
-          rows={3}
-        />
-      ))}
-      <div className="flex justify-end gap-3 pt-2">
-        {onCancel && (
-          <Button type="button" variant="ghost" onClick={onCancel}>
+    <div>
+      {onCancel && (
+        <div className="mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+          >
             Cancelar
-          </Button>
-        )}
-        <Button type="submit" loading={loading}>
-          {submitLabel}
-        </Button>
-      </div>
-    </form>
+          </button>
+        </div>
+      )}
+      <MultiStepForm
+        steps={steps}
+        onSubmit={handleSubmit}
+        submitLabel={submitLabel}
+        loading={loading}
+      />
+    </div>
   );
 };
 
