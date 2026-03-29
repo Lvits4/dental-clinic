@@ -6,6 +6,7 @@ export const useDoctorsList = (filters: DoctorFilters = {}) => {
   return useQuery({
     queryKey: ['doctors', filters],
     queryFn: () => doctorsApi.getAll(filters),
+    staleTime: 1000 * 60 * 10, // 10 min — lookup data changes rarely
   });
 };
 

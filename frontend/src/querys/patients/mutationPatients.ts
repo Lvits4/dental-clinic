@@ -69,3 +69,24 @@ export const useDeletePatient = () => {
     },
   });
 };
+
+export const useTogglePatientStatus = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (isActive: boolean) => patientsApi.update(id, { isActive }),
+    onSuccess: (_data, isActive) => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      queryClient.invalidateQueries({ queryKey: ['patients', id] });
+      toast.success(isActive ? 'Paciente activado exitosamente' : 'Paciente desactivado exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al cambiar el estado del paciente');
+      }
+    },
+  });
+};

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Button, Badge, Card, PageHeader, Spinner, ConfirmDialog } from '../../components/ui';
+import { Button, Badge, Card, PageHeader, Spinner, ConfirmDialog, ToggleSwitch } from '../../components/ui';
 import { usePatientDetail } from '../../querys/patients/queryPatients';
-import { useDeletePatient } from '../../querys/patients/mutationPatients';
+import { useTogglePatientStatus } from '../../querys/patients/mutationPatients';
 import type { Patient } from '../../types';
 
 const SEX_LABELS: Record<string, string> = {
@@ -116,8 +116,9 @@ const PatientDetailView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: patient, isLoading } = usePatientDetail(id!);
-  const deleteMutation = useDeletePatient();
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const toggleStatusMutation = useTogglePatientStatus(id!);
+  const [showToggleDialog, setShowToggleDialog] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('info');
 
   if (isLoading) {
@@ -136,11 +137,15 @@ const PatientDetailView = () => {
     );
   }
 
-  const handleDelete = () => {
-    deleteMutation.mutate(id!, {
+  const handleToggleRequest = (newStatus: boolean) => {
+    setPendingStatus(newStatus);
+    setShowToggleDialog(true);
+  };
+
+  const handleToggleConfirm = () => {
+    toggleStatusMutation.mutate(pendingStatus, {
       onSuccess: () => {
-        setShowDeleteDialog(false);
-        navigate('/patients');
+        setShowToggleDialog(false);
       },
     });
   };
@@ -155,19 +160,17 @@ const PatientDetailView = () => {
           { label: `${patient.firstName} ${patient.lastName}` },
         ]}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <ToggleSwitch
+              checked={patient.isActive}
+              onChange={handleToggleRequest}
+              label={patient.isActive ? 'Activo' : 'Inactivo'}
+              size="sm"
+              disabled={toggleStatusMutation.isPending}
+            />
             <Link to={`/patients/${id}/edit`}>
               <Button variant="secondary" size="sm">Editar</Button>
             </Link>
-            {patient.isActive && (
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                Desactivar
-              </Button>
-            )}
           </div>
         }
       />
@@ -270,13 +273,17 @@ const PatientDetailView = () => {
       </Card>
 
       <ConfirmDialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleDelete}
-        title="Desactivar paciente"
-        message={`Estas seguro de desactivar a ${patient.firstName} ${patient.lastName}? El paciente no sera eliminado, solo se marcara como inactivo.`}
-        confirmLabel="Desactivar"
-        loading={deleteMutation.isPending}
+        isOpen={showToggleDialog}
+        onClose={() => setShowToggleDialog(false)}
+        onConfirm={handleToggleConfirm}
+        title={pendingStatus ? 'Activar paciente' : 'Desactivar paciente'}
+        message={
+          pendingStatus
+            ? `¿Deseas activar a ${patient.firstName} ${patient.lastName}? El paciente volverá a aparecer en las listas de selección.`
+            : `¿Deseas desactivar a ${patient.firstName} ${patient.lastName}? El paciente no será eliminado, solo se marcará como inactivo.`
+        }
+        confirmLabel={pendingStatus ? 'Activar' : 'Desactivar'}
+        loading={toggleStatusMutation.isPending}
       />
     </div>
   );

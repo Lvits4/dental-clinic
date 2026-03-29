@@ -55,3 +55,6 @@ export { default as ProtectedRoute } from './ProtectedRoute';
 export type { ProtectedRouteProps } from './ProtectedRoute';
 
 export { default as ErrorBoundary } from './ErrorBoundary';
+
+export { default as ToggleSwitch } from './ToggleSwitch';
+export type { ToggleSwitchProps } from './ToggleSwitch';

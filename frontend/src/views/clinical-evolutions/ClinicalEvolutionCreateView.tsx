@@ -1,9 +1,27 @@
 import { useParams } from 'react-router-dom';
-import { PageHeader, Spinner } from '../../components/ui';
+import { PageHeader, Card } from '../../components/ui';
 import ClinicalEvolutionForm from '../../components/clinical-evolutions/ClinicalEvolutionForm';
 import { useCreateClinicalEvolution } from '../../querys/clinical-evolutions/mutationClinicalEvolutions';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+
+const FormSkeleton = () => (
+  <div className="animate-pulse space-y-5">
+    <div className="rounded-xl bg-slate-100 dark:bg-slate-800 h-10 w-48" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {[1, 2].map((i) => (
+        <div key={i} className="space-y-2">
+          <div className="h-4 w-24 rounded bg-slate-100 dark:bg-slate-800" />
+          <div className="h-10 rounded-xl bg-slate-100 dark:bg-slate-800" />
+        </div>
+      ))}
+    </div>
+    <div className="h-px bg-slate-100 dark:bg-slate-800" />
+    <div className="flex justify-end">
+      <div className="h-10 w-32 rounded-xl bg-slate-100 dark:bg-slate-800" />
+    </div>
+  </div>
+);
 
 const ClinicalEvolutionCreateView = () => {
   const { id: patientId } = useParams<{ id: string }>();
@@ -11,13 +29,7 @@ const ClinicalEvolutionCreateView = () => {
   const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
   const createMutation = useCreateClinicalEvolution(patientId!);
 
-  if (loadingRecord || loadingDoctors) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
-  }
+  const loading = loadingRecord || loadingDoctors;
 
   return (
     <div className="space-y-4">
@@ -32,22 +44,24 @@ const ClinicalEvolutionCreateView = () => {
         ]}
       />
 
-      {!record ? (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
-          <p className="text-slate-500 dark:text-slate-400">
-            Este paciente no tiene expediente clínico. Debe crearlo primero.
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <Card>
+        {loading ? (
+          <FormSkeleton />
+        ) : !record ? (
+          <div className="text-center py-8">
+            <p className="text-slate-500 dark:text-slate-400">
+              Este paciente no tiene expediente clínico. Debe crearlo primero.
+            </p>
+          </div>
+        ) : (
           <ClinicalEvolutionForm
             clinicalRecordId={record.id}
             doctors={doctors || []}
             loading={createMutation.isPending}
             onSubmit={(data) => createMutation.mutate(data)}
           />
-        </div>
-      )}
+        )}
+      </Card>
     </div>
   );
 };

@@ -40,119 +40,112 @@ const LoginView = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 px-4">
-      {/* Decorative background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-emerald-100/40 dark:bg-emerald-900/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-teal-100/30 dark:bg-teal-900/10 blur-3xl" />
+    <>
+      {/* Header */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Iniciar sesion
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
+          Ingresa tus credenciales para acceder al sistema
+        </p>
       </div>
 
-      <div className="relative w-full max-w-[400px] animate-fade-in-up">
-        {/* Logo / Marca */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-5 shadow-lg shadow-emerald-500/25">
-            <svg className="w-9 h-9 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C9.243 2 7 4.243 7 7c0 1.642.8 3.093 2.024 4H7.5C5.015 11 3 13.015 3 15.5c0 2.063 1.398 3.794 3.293 4.333C6.577 20.416 7 21 7.5 21h9c.5 0 .923-.584 1.207-1.167C19.602 19.294 21 17.563 21 15.5c0-2.485-2.015-4.5-4.5-4.5h-1.524C16.2 10.093 17 8.642 17 7c0-2.757-2.243-5-5-5z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
-            Bienvenido de vuelta
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
-            Inicia sesion en <span className="font-semibold text-emerald-600 dark:text-emerald-400">Rubia Dental</span>
-          </p>
-        </div>
+      {/* Form card */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-slate-200/60 dark:shadow-none border border-slate-200/70 dark:border-slate-800 p-6 sm:p-7">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Usuario o correo"
+            type="text"
+            placeholder="tu_usuario o correo@ejemplo.com"
+            value={username}
+            onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
+            error={errors.username}
+            autoComplete="username"
+            autoFocus
+            leftIcon={
+              <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+            }
+          />
 
-        {/* Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 p-7">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="Usuario o correo"
-              type="text"
-              placeholder="tu_usuario o correo@ejemplo.com"
-              value={username}
-              onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
-              error={errors.username}
-              autoComplete="username"
-              autoFocus
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Contrasena
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
-                  autoComplete="current-password"
-                  className={[
-                    'w-full rounded-xl border px-4 py-2.5 pr-11 text-sm',
-                    'bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white',
-                    'placeholder-slate-400 dark:placeholder-slate-500',
-                    'focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500',
-                    'transition-all duration-200',
-                    errors.password
-                      ? 'border-red-400 dark:border-red-500'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600',
-                  ].join(' ')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Contrasena
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none">
+                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+              </span>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+                autoComplete="current-password"
+                className={[
+                  'w-full rounded-xl border text-sm transition-all duration-200',
+                  'bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white',
+                  'placeholder-slate-400 dark:placeholder-slate-500',
+                  'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                  'pl-10 pr-11 py-2.5',
+                  errors.password
+                    ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
+                ].join(' ')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
                   </svg>
-                  {errors.password}
-                </p>
-              )}
+                ) : (
+                  <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                )}
+              </button>
             </div>
+            {errors.password && (
+              <p className="mt-1.5 text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+                <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {errors.password}
+              </p>
+            )}
+          </div>
 
-            <Button
-              type="submit"
-              loading={loginMutation.isPending}
-              className="w-full !py-2.5 !text-sm !font-semibold !shadow-md !shadow-emerald-500/20"
-            >
-              Iniciar sesion
-            </Button>
-          </form>
-        </div>
-
-        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-          No tienes cuenta?{' '}
-          <Link
-            to="/register"
-            className="font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+          <Button
+            type="submit"
+            loading={loginMutation.isPending}
+            className="w-full !py-2.5 !text-sm !font-semibold"
           >
-            Registrate aqui
-          </Link>
-        </p>
-
-        {/* Footer */}
-        <p className="mt-8 text-center text-[11px] text-slate-400 dark:text-slate-600">
-          &copy; {new Date().getFullYear()} Rubia Dental. Todos los derechos reservados.
-        </p>
+            Iniciar sesion
+          </Button>
+        </form>
       </div>
-    </div>
+
+      {/* Footer link */}
+      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        No tienes cuenta?{' '}
+        <Link
+          to="/register"
+          className="font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
+        >
+          Registrate aqui
+        </Link>
+      </p>
+    </>
   );
 };
 

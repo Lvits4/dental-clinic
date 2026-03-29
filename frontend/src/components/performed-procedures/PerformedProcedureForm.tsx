@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, useMemo, type FormEvent } from 'react';
 import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment } from '../../types';
@@ -38,17 +38,15 @@ const PerformedProcedureForm = ({
   const [notes, setNotes] = useState('');
   const [performedAt, setPerformedAt] = useState(new Date().toISOString().split('T')[0]);
 
-  const patientOptions = patients
-    .filter((p) => p.isActive)
-    .map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
+  const patientOptions = useMemo(() => patients
+    .map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` })), [patients]);
 
-  const doctorOptions = doctors
-    .filter((d) => d.isActive)
-    .map((d) => ({ value: d.id, label: `Dr. ${d.firstName} ${d.lastName}` }));
+  const doctorOptions = useMemo(() => doctors
+    .map((d) => ({ value: d.id, label: `Dr. ${d.firstName} ${d.lastName}` })), [doctors]);
 
-  const treatmentOptions = treatments
+  const treatmentOptions = useMemo(() => treatments
     .filter((t) => t.isActive)
-    .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` }));
+    .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` })), [treatments]);
 
   const validateStep1 = useCallback(() => {
     return !!patientId && !!doctorId && !!treatmentId;

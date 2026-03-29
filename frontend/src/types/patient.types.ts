@@ -34,7 +34,9 @@ export interface CreatePatientDto {
 }
 
 // DTO para actualizar paciente (todos los campos opcionales)
-export type UpdatePatientDto = Partial<CreatePatientDto>;
+export type UpdatePatientDto = Partial<CreatePatientDto> & {
+  isActive?: boolean;
+};
 
 // Filtros para listado
 export interface PatientFilters {

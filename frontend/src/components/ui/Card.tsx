@@ -41,7 +41,7 @@ const Card = ({
   return (
     <div
       className={[
-        'rounded-2xl overflow-hidden transition-shadow duration-200',
+        'rounded-2xl overflow-visible transition-shadow duration-200',
         variantClasses[variant],
         className,
       ]

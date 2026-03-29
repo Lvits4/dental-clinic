@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { appointmentsApi } from '../../requests/appointments.api';
 import type { AppointmentFilters } from '../../types';
 
@@ -6,6 +6,7 @@ export function useAppointmentsList(filters: AppointmentFilters = {}) {
   return useQuery({
     queryKey: ['appointments', filters],
     queryFn: () => appointmentsApi.getAll(filters),
+    placeholderData: keepPreviousData,
   });
 }
 
