@@ -1,4 +1,4 @@
-import { Spinner } from '../components/ui';
+import { PageHeader, Spinner } from '../components/ui';
 import StatCard from '../components/dashboard/StatCard';
 import {
   useDashboardSummary,
@@ -95,8 +95,16 @@ const DashboardView = () => {
 
   if (summaryLoading) {
     return (
-      <div className="flex justify-center py-16">
-        <Spinner />
+      <div className="flex flex-col min-h-0">
+        <PageHeader
+          title="Dashboard"
+          subtitle="Resumen de actividad de la clinica"
+          breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Dashboard' }]}
+          dense
+        />
+        <div className="flex flex-1 justify-center py-12">
+          <Spinner />
+        </div>
       </div>
     );
   }
@@ -149,14 +157,12 @@ const DashboardView = () => {
       className="flex flex-col min-h-0 gap-4 lg:h-[calc(100dvh-3.5rem)] lg:overflow-hidden"
       aria-label="Dashboard de la clinica"
     >
-      <div className="shrink-0">
-        <h1 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight">
-          Dashboard
-        </h1>
-        <p className="mt-0.5 text-xs md:text-sm text-slate-500 dark:text-slate-400">
-          Resumen de actividad de la clinica
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Resumen de actividad de la clinica"
+        breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Dashboard' }]}
+        dense
+      />
 
       {/* Fila de KPI: ancho completo del contenedor, 6 columnas */}
       <div className="shrink-0 w-full min-w-0 stagger-fade">

@@ -176,7 +176,9 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
           ? isActive
             ? 'mx-auto size-10 shrink-0 justify-center rounded-full p-0'
             : 'justify-center rounded-lg px-0 py-2.5'
-          : 'gap-3 rounded-lg px-3 py-2.5',
+          : isActive
+            ? 'gap-3 rounded-md px-3 py-2.5'
+            : 'gap-3 rounded-lg px-3 py-2.5',
         isActive
           ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',

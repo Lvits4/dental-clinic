@@ -11,6 +11,8 @@ export interface PageHeaderProps {
   subtitle?: string;
   breadcrumb?: BreadcrumbItem[];
   action?: ReactNode;
+  /** Margen inferior menor (vistas con altura fija, p. ej. dashboard) */
+  dense?: boolean;
 }
 
 const ChevronRightIcon = () => (
@@ -24,9 +26,10 @@ const PageHeader = ({
   subtitle,
   breadcrumb,
   action,
+  dense = false,
 }: PageHeaderProps) => {
   return (
-    <div className="mb-6 sm:mb-8">
+    <div className={dense ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8'}>
       {/* Breadcrumb */}
       {breadcrumb && breadcrumb.length > 0 && (
         <nav aria-label="Migas de pan" className="mb-3">

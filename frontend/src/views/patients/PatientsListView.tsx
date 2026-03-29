@@ -32,6 +32,7 @@ const PatientsListView = () => {
     <div className="space-y-4">
       <PageHeader
         title="Pacientes"
+        breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Pacientes' }]}
         action={
           <Link to="/patients/new">
             <Button>
