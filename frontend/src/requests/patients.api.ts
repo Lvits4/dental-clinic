@@ -9,13 +9,14 @@ import type {
 
 export const patientsApi = {
   getAll(filters: PatientFilters = {}): Promise<PaginatedResponse<Patient>> {
+    const isActive = filters.isActive ?? true;
     return http.get<PaginatedResponse<Patient>>('/patients', {
       page: filters.page,
       limit: filters.limit,
       name: filters.name,
       phone: filters.phone,
       email: filters.email,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
+      isActive: String(isActive),
       sortBy: filters.sortBy,
       sortOrder: filters.sortOrder,
     } as Record<string, string | number | undefined>);

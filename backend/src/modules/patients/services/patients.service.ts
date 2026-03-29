@@ -72,9 +72,9 @@ export class PatientsService {
     if (email) {
       query.andWhere('patient.email LIKE :email', { email: `%${email}%` });
     }
-    if (isActive !== undefined) {
-      query.andWhere('patient.is_active = :isActive', { isActive });
-    }
+    /** Por defecto solo activos; `isActive: false` en query = solo inactivos (p. ej. administración). */
+    const onlyInactive = isActive === false;
+    query.andWhere('patient.is_active = :active', { active: !onlyInactive });
 
     const resolvedBy = sortBy ?? PatientSortBy.CREATED_AT;
     const resolvedOrder =

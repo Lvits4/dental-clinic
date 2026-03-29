@@ -94,7 +94,7 @@ const PatientsTable = ({
       {showDeactivate && (
         <button
           type="button"
-          title="Quitar de la lista (desactivar)"
+          title="Eliminar de la lista"
           onClick={() => setPatientToDelete(p)}
           className="p-1.5 rounded-2xl text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
         >
@@ -225,9 +225,9 @@ const PatientsTable = ({
             });
           }
         }}
-        title="Quitar paciente de la lista"
-        message={`¿Estás seguro de que deseas quitar a ${patientToDelete?.firstName} ${patientToDelete?.lastName}? Se desactivará en el sistema y dejará de mostrarse aquí.`}
-        confirmLabel="Desactivar"
+        title="Eliminar paciente"
+        message={`¿Eliminar a ${patientToDelete?.firstName} ${patientToDelete?.lastName}? Dejará de mostrarse en la lista.`}
+        confirmLabel="Eliminar"
         variant="danger"
         loading={deletePatient.isPending}
       />

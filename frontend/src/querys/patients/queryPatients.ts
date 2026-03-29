@@ -3,9 +3,13 @@ import { patientsApi } from '../../requests/patients.api';
 import type { PatientFilters } from '../../types';
 
 export const usePatientsList = (filters: PatientFilters = {}) => {
+  const params: PatientFilters = {
+    ...filters,
+    isActive: filters.isActive ?? true,
+  };
   return useQuery({
-    queryKey: ['patients', filters],
-    queryFn: () => patientsApi.getAll(filters),
+    queryKey: ['patients', params],
+    queryFn: () => patientsApi.getAll(params),
     staleTime: 1000 * 60 * 10, // 10 min — lookup data changes rarely
   });
 };
