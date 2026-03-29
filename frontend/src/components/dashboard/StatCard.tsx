@@ -8,6 +8,10 @@ export interface StatCardProps {
   subtitle?: string;
   icon?: ReactNode;
   color?: StatCardColor;
+  /** Tarjeta más densa (p. ej. fila de KPI en dashboard) */
+  compact?: boolean;
+  /** Con `compact`: icono arriba, texto centrado; tarjeta más estrecha y alta */
+  stacked?: boolean;
 }
 
 const COLOR_MAP: Record<StatCardColor, { card: string; iconBg: string; iconText: string; valueText: string }> = {
@@ -49,23 +53,83 @@ const COLOR_MAP: Record<StatCardColor, { card: string; iconBg: string; iconText:
   },
 };
 
-const StatCard = ({ title, value, subtitle, icon, color = 'emerald' }: StatCardProps) => {
+const StatCard = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  color = 'emerald',
+  compact = false,
+  stacked = false,
+}: StatCardProps) => {
   const colors = COLOR_MAP[color];
+  const useStacked = compact && stacked;
+
+  if (useStacked) {
+    return (
+      <div
+        className={[
+          'group flex h-full min-h-[6.75rem] min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-200/50 transition-all duration-200',
+          'hover:shadow-md hover:ring-slate-300/70 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-700/60 dark:hover:ring-slate-600/50',
+        ].join(' ')}
+      >
+        <div className="flex shrink-0 justify-center pt-3 pb-1">
+          {icon && (
+            <div
+              className={`flex size-10 items-center justify-center rounded-lg p-2 shadow-sm ${colors.iconBg} ${colors.iconText}`}
+            >
+              <span className="flex [&_svg]:size-5">{icon}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-1 px-1.5 pb-2.5 pt-1 text-center">
+          <p className="line-clamp-2 text-[10px] font-bold uppercase leading-tight tracking-wide text-slate-500 dark:text-slate-400">
+            {title}
+          </p>
+          <p className={`text-lg font-bold tabular-nums leading-none tracking-tight sm:text-xl ${colors.valueText}`}>
+            {value}
+          </p>
+          {subtitle && (
+            <p className="line-clamp-2 text-[10px] leading-snug text-slate-400 dark:text-slate-500">{subtitle}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
-      className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border ${colors.card} shadow-sm hover:shadow-md transition-all duration-200 flex items-start gap-4`}
+      className={[
+        'bg-white dark:bg-slate-900 border shadow-sm hover:shadow-md transition-all duration-200 flex items-start min-w-0',
+        compact
+          ? `rounded-lg p-3 gap-2 ${colors.card}`
+          : `rounded-lg p-5 gap-4 ${colors.card}`,
+      ].join(' ')}
     >
       {icon && (
-        <div className={`${colors.iconBg} rounded-xl p-2.5 shrink-0`}>
+        <div
+          className={[
+            colors.iconBg,
+            'shrink-0',
+            compact ? 'rounded-md p-1.5 [&_svg]:size-4' : 'rounded-lg p-2.5',
+          ].join(' ')}
+        >
           <span className={`${colors.iconText} block`}>{icon}</span>
         </div>
       )}
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">
+        <p
+          className={
+            compact
+              ? 'text-[9px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate leading-tight'
+              : 'text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate'
+          }
+        >
           {title}
         </p>
-        <p className={`text-2xl font-bold mt-1 tracking-tight ${colors.valueText}`}>
+        <p
+          className={`font-bold tracking-tight tabular-nums ${compact ? 'text-lg mt-0.5 leading-tight' : 'text-2xl mt-1'} ${colors.valueText}`}
+        >
           {value}
         </p>
         {subtitle && (

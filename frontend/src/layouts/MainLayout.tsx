@@ -171,8 +171,12 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
     title={collapsed ? item.label : undefined}
     className={({ isActive }) =>
       [
-        'relative flex items-center rounded-xl font-medium transition-all duration-200 group cursor-pointer',
-        collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+        'relative flex items-center font-medium transition-all duration-200 group cursor-pointer',
+        collapsed
+          ? isActive
+            ? 'mx-auto size-10 shrink-0 justify-center rounded-full p-0'
+            : 'justify-center rounded-lg px-0 py-2.5'
+          : 'gap-3 rounded-lg px-3 py-2.5',
         isActive
           ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
@@ -181,8 +185,8 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
   >
     {({ isActive }) => (
       <>
-        {/* Active indicator bar */}
-        {isActive && (
+        {/* Franja activa solo con sidebar expandido */}
+        {isActive && !collapsed && (
           <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-500 dark:bg-emerald-400" />
         )}
         <span className={`transition-colors duration-200 ${
@@ -236,7 +240,7 @@ const MainLayout = () => {
             <button
               onClick={() => setCollapsed(false)}
               title="Expandir menu"
-              className="w-10 h-10 rounded-xl overflow-hidden shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
             >
               <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
             </button>
@@ -244,7 +248,7 @@ const MainLayout = () => {
             /* Cuando esta expandido: logo + boton colapsar */
             <>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
+                <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
                   <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
                 </div>
                 <div className="min-w-0">
@@ -315,7 +319,7 @@ const MainLayout = () => {
           <button
             onClick={toggleTheme}
             title={collapsed ? (isDark ? 'Modo claro' : 'Modo oscuro') : undefined}
-            className={`w-full flex items-center rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200 cursor-pointer ${
               collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
             }`}
           >
@@ -336,7 +340,7 @@ const MainLayout = () => {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
+            <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
                 {userInitial}
               </div>
@@ -355,7 +359,7 @@ const MainLayout = () => {
           <button
             onClick={handleLogout}
             title={collapsed ? 'Cerrar sesion' : undefined}
-            className={`w-full flex items-center rounded-xl text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center rounded-lg text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 cursor-pointer ${
               collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
             }`}
           >
@@ -394,7 +398,7 @@ const MainLayout = () => {
                 className="fixed inset-0 z-10"
                 onClick={() => setUserMenuOpen(false)}
               />
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden">
                 <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
                   <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">
                     {user?.fullName ?? 'Usuario'}
@@ -406,7 +410,7 @@ const MainLayout = () => {
                 <div className="p-1.5">
                   <button
                     onClick={toggleTheme}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <span className="text-slate-400">
                       {isDark ? <IconSun /> : <IconMoon />}
@@ -415,7 +419,7 @@ const MainLayout = () => {
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-colors"
                   >
                     <IconLogout />
                     <span>Cerrar sesion</span>
@@ -525,7 +529,7 @@ const MainLayout = () => {
                   to={item.to}
                   onClick={() => setDrawerOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    `flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
