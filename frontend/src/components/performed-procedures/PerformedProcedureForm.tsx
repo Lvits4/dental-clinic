@@ -3,6 +3,12 @@ import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepFor
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment } from '../../types';
 
+interface ProcedureFormErrors {
+  patientId?: string;
+  doctorId?: string;
+  treatmentId?: string;
+}
+
 interface PerformedProcedureFormProps {
   patients: Patient[];
   doctors: Doctor[];
@@ -37,6 +43,7 @@ const PerformedProcedureForm = ({
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [performedAt, setPerformedAt] = useState(new Date().toISOString().split('T')[0]);
+  const [errors, setErrors] = useState<ProcedureFormErrors>({});
 
   const patientOptions = useMemo(() => patients
     .map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` })), [patients]);
@@ -49,7 +56,12 @@ const PerformedProcedureForm = ({
     .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` })), [treatments]);
 
   const validateStep1 = useCallback(() => {
-    return !!patientId && !!doctorId && !!treatmentId;
+    const stepErrors: ProcedureFormErrors = {};
+    if (!patientId)   stepErrors.patientId   = 'Debe seleccionar un paciente';
+    if (!doctorId)    stepErrors.doctorId    = 'Debe seleccionar un doctor';
+    if (!treatmentId) stepErrors.treatmentId = 'Debe seleccionar un tratamiento';
+    setErrors(stepErrors);
+    return Object.keys(stepErrors).length === 0;
   }, [patientId, doctorId, treatmentId]);
 
   const handleSubmit = (_e: FormEvent) => {
@@ -83,22 +95,25 @@ const PerformedProcedureForm = ({
               label="Paciente *"
               options={patientOptions}
               value={patientId}
-              onChange={(e) => setPatientId(e.target.value)}
+              onChange={(e) => { setPatientId(e.target.value); setErrors((p) => ({ ...p, patientId: undefined })); }}
               placeholder="Seleccionar..."
+              error={errors.patientId}
             />
             <Select
               label="Doctor *"
               options={doctorOptions}
               value={doctorId}
-              onChange={(e) => setDoctorId(e.target.value)}
+              onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctorId: undefined })); }}
               placeholder="Seleccionar..."
+              error={errors.doctorId}
             />
             <Select
               label="Tratamiento *"
               options={treatmentOptions}
               value={treatmentId}
-              onChange={(e) => setTreatmentId(e.target.value)}
+              onChange={(e) => { setTreatmentId(e.target.value); setErrors((p) => ({ ...p, treatmentId: undefined })); }}
               placeholder="Seleccionar..."
+              error={errors.treatmentId}
             />
             <DatePicker
               label="Fecha *"
