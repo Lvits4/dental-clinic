@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   Button, Badge, Card, PageHeader, Spinner, ConfirmDialog,
-  ToggleSwitch, Pagination,
+  ToggleSwitch, Pagination, Modal,
 } from '../../components/ui';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
 import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
@@ -17,7 +17,7 @@ import { useCreateClinicalRecord, useUpdateClinicalRecord } from '../../querys/c
 import { useClinicalEvolutionsList } from '../../querys/clinical-evolutions/queryClinicalEvolutions';
 import { useClinicalFilesList } from '../../querys/clinical-files/queryClinicalFiles';
 import { useUploadClinicalFile, useDeleteClinicalFile } from '../../querys/clinical-files/mutationClinicalFiles';
-import type { Patient, UpdateClinicalRecordDto } from '../../types';
+import type { Patient, UpdateClinicalRecordDto, Appointment } from '../../types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -298,9 +298,16 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
 
 // ─── Tab: Citas ───────────────────────────────────────────────────────────────
 
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-start gap-2">
+    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0 pt-0.5">{label}</span>
+    <span className="text-sm text-slate-800 dark:text-slate-200 break-words">{value}</span>
+  </div>
+);
+
 const AppointmentsTab = ({ patientId }: { patientId: string }) => {
-  const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [viewTarget, setViewTarget] = useState<Appointment | null>(null);
   const { data, isLoading } = useAppointmentsList({ page, limit: 8, patientId });
 
   if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
@@ -320,54 +327,89 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <Link to="/appointments/new">
-          <Button size="sm">
-            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Agendar Cita
-          </Button>
-        </Link>
+    <>
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <Link to="/appointments/new">
+            <Button size="sm">
+              <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Agendar Cita
+            </Button>
+          </Link>
+        </div>
+
+        <div className="space-y-2">
+          {data.data.map((apt) => (
+            <button
+              key={apt.id}
+              onClick={() => setViewTarget(apt)}
+              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                    {formatDateTime(apt.dateTime)}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {apt.doctor ? `Dr. ${apt.doctor.firstName} ${apt.doctor.lastName}` : '—'}
+                    {apt.reason ? ` · ${apt.reason}` : ''}
+                  </p>
+                </div>
+                <div className="shrink-0 flex items-center gap-2">
+                  <AppointmentStatusBadge status={apt.status} />
+                  <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {data.meta.totalPages > 1 && (
+          <Pagination
+            page={data.meta.page}
+            totalPages={data.meta.totalPages}
+            total={data.meta.totalItems}
+            limit={data.meta.limit}
+            onPageChange={setPage}
+          />
+        )}
       </div>
 
-      <div className="space-y-2">
-        {data.data.map((apt) => (
-          <button
-            key={apt.id}
-            onClick={() => navigate(`/appointments/${apt.id}`)}
-            className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  {formatDateTime(apt.dateTime)}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {apt.doctor ? `Dr. ${apt.doctor.firstName} ${apt.doctor.lastName}` : '—'}
-                  {apt.reason ? ` · ${apt.reason}` : ''}
-                </p>
-              </div>
-              <div className="shrink-0 flex items-center gap-2">
-                <AppointmentStatusBadge status={apt.status} />
-                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-              </div>
+      {/* Modal detalle de cita */}
+      <Modal
+        isOpen={!!viewTarget}
+        onClose={() => setViewTarget(null)}
+        title="Detalle de cita"
+        size="md"
+      >
+        {viewTarget && (
+          <div className="space-y-4 text-sm">
+            <DetailRow label="Fecha / Hora" value={formatDateTime(viewTarget.dateTime)} />
+            <DetailRow
+              label="Paciente"
+              value={viewTarget.patient
+                ? `${viewTarget.patient.firstName} ${viewTarget.patient.lastName}`
+                : '—'}
+            />
+            <DetailRow
+              label="Doctor"
+              value={viewTarget.doctor
+                ? `Dr. ${viewTarget.doctor.firstName} ${viewTarget.doctor.lastName}`
+                : '—'}
+            />
+            <DetailRow label="Duración" value={`${viewTarget.durationMinutes} min`} />
+            <DetailRow label="Motivo"   value={viewTarget.reason || '—'} />
+            <DetailRow label="Notas"    value={viewTarget.notes  || '—'} />
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0">Estado</span>
+              <AppointmentStatusBadge status={viewTarget.status} />
             </div>
-          </button>
-        ))}
-      </div>
-
-      {data.meta.totalPages > 1 && (
-        <Pagination
-          page={data.meta.page}
-          totalPages={data.meta.totalPages}
-          total={data.meta.totalItems}
-          limit={data.meta.limit}
-          onPageChange={setPage}
-        />
-      )}
-    </div>
+          </div>
+        )}
+      </Modal>
+    </>
   );
 };
 
