@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { Select, Textarea, Button, FormSection } from '../ui';
 import type { CreateTreatmentPlanDto, Patient, Doctor } from '../../types';
 
@@ -23,6 +23,8 @@ interface TreatmentPlanFormProps {
   initialPatientId?: string;
   initialDoctorId?: string;
   initialObservations?: string;
+  /** Contenido extra que aparece entre el formulario y el botón de guardar (e.g. sección de estado) */
+  footerContent?: ReactNode;
 }
 
 /* ── Icono de sección ── */
@@ -41,6 +43,7 @@ const TreatmentPlanForm = ({
   initialPatientId,
   initialDoctorId,
   initialObservations,
+  footerContent,
 }: TreatmentPlanFormProps) => {
   const [patientId, setPatientId] = useState(initialPatientId ?? '');
   const [doctorId, setDoctorId] = useState(initialDoctorId ?? '');
@@ -96,6 +99,8 @@ const TreatmentPlanForm = ({
           />
         </div>
       </FormSection>
+
+      {footerContent}
 
       <div className="flex justify-end">
         <Button type="submit" loading={loading}>{submitLabel}</Button>
