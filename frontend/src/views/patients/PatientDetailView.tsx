@@ -5,6 +5,12 @@ import {
   ToggleSwitch, Pagination, Modal,
 } from '../../components/ui';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
+import AppointmentForm from '../../components/appointments/AppointmentForm';
+import { useUpdateStatus, useUpdateAppointment } from '../../querys/appointments/mutationAppointments';
+import { usePatientsList } from '../../querys/patients/queryPatients';
+import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { AppointmentStatus } from '../../enums';
+import { STATUS_CONFIG } from '../../types';
 import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
 import ClinicalEvolutionCard from '../../components/clinical-evolutions/ClinicalEvolutionCard';
 import FileUploadZone from '../../components/clinical-files/FileUploadZone';
@@ -305,9 +311,31 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
+const STATUS_BUTTON_CLASSES: Record<AppointmentStatus, string> = {
+  [AppointmentStatus.SCHEDULED]:   'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
+  [AppointmentStatus.CONFIRMED]:   'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
+  [AppointmentStatus.IN_PROGRESS]: 'border-yellow-300 text-yellow-700 hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-400 dark:hover:bg-yellow-900/20',
+  [AppointmentStatus.ATTENDED]:    'border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700/40',
+  [AppointmentStatus.CANCELLED]:   'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20',
+  [AppointmentStatus.NO_SHOW]:     'border-orange-300 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900/20',
+};
+
 const AppointmentsTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
   const [viewTarget, setViewTarget] = useState<Appointment | null>(null);
+  const [editTarget, setEditTarget] = useState<Appointment | null>(null);
+
+  const updateStatus      = useUpdateStatus();
+  const updateAppointment = useUpdateAppointment();
+  const { data: patientsData } = usePatientsList({ limit: 100 });
+  const { data: doctorsData }  = useDoctorsList();
+  const activePatients = (patientsData?.data ?? []).filter((p) => p.isActive);
+  const activeDoctors  = (doctorsData ?? []).filter((d) => d.isActive);
+
+  const allStatusesExceptCurrent = editTarget
+    ? Object.values(AppointmentStatus).filter((s) => s !== editTarget.status)
+    : [];
+
   const { data, isLoading } = useAppointmentsList({ page, limit: 8, patientId });
 
   if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
@@ -377,7 +405,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
         )}
       </div>
 
-      {/* Modal detalle de cita */}
+      {/* Modal ver cita (solo lectura) */}
       <Modal
         isOpen={!!viewTarget}
         onClose={() => setViewTarget(null)}
@@ -406,7 +434,83 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0">Estado</span>
               <AppointmentStatusBadge status={viewTarget.status} />
             </div>
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+              <button
+                type="button"
+                onClick={() => { setEditTarget(viewTarget); setViewTarget(null); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Editar cita
+              </button>
+            </div>
           </div>
+        )}
+      </Modal>
+
+      {/* Modal editar cita */}
+      <Modal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        title="Editar cita"
+        size="lg"
+      >
+        {editTarget && (
+          <AppointmentForm
+            patients={activePatients}
+            doctors={activeDoctors}
+            initialValues={{
+              patientId:       editTarget.patientId,
+              doctorId:        editTarget.doctorId,
+              date:            editTarget.dateTime.slice(0, 10),
+              time:            editTarget.dateTime.slice(11, 16),
+              durationMinutes: editTarget.durationMinutes,
+              reason:          editTarget.reason,
+              notes:           editTarget.notes,
+            }}
+            onSubmit={(data) => {
+              updateAppointment.mutate(
+                { id: editTarget.id, data },
+                { onSettled: () => setEditTarget(null) },
+              );
+            }}
+            loading={updateAppointment.isPending}
+            submitLabel="Guardar cambios"
+            footerContent={
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    Estado actual
+                  </p>
+                  <AppointmentStatusBadge status={editTarget.status} />
+                </div>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Cambiar a:</p>
+                <div className="flex flex-wrap gap-2">
+                  {allStatusesExceptCurrent.map((status) => (
+                    <button
+                      key={status}
+                      type="button"
+                      disabled={updateStatus.isPending}
+                      onClick={() =>
+                        updateStatus.mutate(
+                          { id: editTarget.id, status },
+                          { onSuccess: () => setEditTarget((prev) => prev ? { ...prev, status } : null) },
+                        )
+                      }
+                      className={[
+                        'px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        STATUS_BUTTON_CLASSES[status],
+                      ].join(' ')}
+                    >
+                      {STATUS_CONFIG[status]?.label ?? status}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            }
+          />
         )}
       </Modal>
     </>
