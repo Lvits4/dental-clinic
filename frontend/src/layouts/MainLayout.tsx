@@ -129,6 +129,7 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   end?: boolean;
+  roles?: Role[];
 }
 
 const primaryNavItems: NavItem[] = [
@@ -139,10 +140,13 @@ const primaryNavItems: NavItem[] = [
 ];
 
 const secondaryNavItems: NavItem[] = [
-  { to: '/doctors', label: 'Doctores', icon: <IconDoctors /> },
-  { to: '/treatment-plans', label: 'Planes', icon: <IconPlans /> },
-  { to: '/performed-procedures', label: 'Procedimientos', icon: <IconProcedures /> },
+  { to: '/doctors', label: 'Doctores', icon: <IconDoctors />, roles: [Role.ADMIN] },
+  { to: '/treatment-plans', label: 'Planes', icon: <IconPlans />, roles: [Role.ADMIN, Role.DOCTOR] },
+  { to: '/performed-procedures', label: 'Procedimientos', icon: <IconProcedures />, roles: [Role.ADMIN, Role.DOCTOR] },
 ];
+
+const filterByRole = (items: NavItem[], role: string | undefined) =>
+  items.filter(item => !item.roles || (role && item.roles.includes(role as Role)));
 
 const adminNavItems: NavItem[] = [
   { to: '/users', label: 'Usuarios', icon: <IconUsers /> },
@@ -213,6 +217,7 @@ const MainLayout = () => {
   };
 
   const isAdmin = user?.role === Role.ADMIN;
+  const visibleSecondaryItems = filterByRole(secondaryNavItems, user?.role);
   const userInitial = user?.fullName?.charAt(0)?.toUpperCase() ?? 'U';
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
 
@@ -275,16 +280,19 @@ const MainLayout = () => {
             <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
           ))}
 
-          <div className={`my-4 border-t border-slate-100 dark:border-slate-800/80 ${collapsed ? 'mx-2' : 'mx-3'}`} />
-
-          {!collapsed && (
-            <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
-              Administracion
-            </p>
+          {visibleSecondaryItems.length > 0 && (
+            <>
+              <div className={`my-4 border-t border-slate-100 dark:border-slate-800/80 ${collapsed ? 'mx-2' : 'mx-3'}`} />
+              {!collapsed && (
+                <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
+                  Administracion
+                </p>
+              )}
+              {visibleSecondaryItems.map((item) => (
+                <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
+              ))}
+            </>
           )}
-          {secondaryNavItems.map((item) => (
-            <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
-          ))}
 
           {isAdmin && (
             <>
@@ -511,7 +519,7 @@ const MainLayout = () => {
 
             {/* Items secundarios */}
             <nav className="px-3 py-3 space-y-1 pb-8">
-              {[...secondaryNavItems, ...(isAdmin ? adminNavItems : [])].map((item) => (
+              {[...visibleSecondaryItems, ...(isAdmin ? adminNavItems : [])].map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

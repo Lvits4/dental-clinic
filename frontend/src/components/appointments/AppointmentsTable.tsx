@@ -29,7 +29,6 @@ function formatDateTime(dateStr: string): string {
   });
 }
 
-// Colores semánticos por estado
 const STATUS_BUTTON_CLASSES: Record<AppointmentStatus, string> = {
   [AppointmentStatus.SCHEDULED]:   'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
   [AppointmentStatus.CONFIRMED]:   'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
@@ -40,14 +39,19 @@ const STATUS_BUTTON_CLASSES: Record<AppointmentStatus, string> = {
 };
 
 const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
+  const [viewTarget, setViewTarget] = useState<Appointment | null>(null);
   const [editTarget, setEditTarget] = useState<Appointment | null>(null);
 
-  const updateStatus    = useUpdateStatus();
+  const updateStatus      = useUpdateStatus();
   const updateAppointment = useUpdateAppointment();
   const { data: patientsData } = usePatientsList({ limit: 100 });
   const { data: doctorsData }  = useDoctorsList();
   const activePatients = (patientsData?.data ?? []).filter((p) => p.isActive);
   const activeDoctors  = (doctorsData ?? []).filter((d) => d.isActive);
+
+  const allStatusesExceptCurrent = editTarget
+    ? Object.values(AppointmentStatus).filter((s) => s !== editTarget.status)
+    : [];
 
   const columns: Column<Appointment>[] = [
     {
@@ -98,13 +102,16 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            title="Editar cita"
-            onClick={() => setEditTarget(a)}
-            className="p-2 rounded-lg text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
+            title="Ver cita"
+            onClick={() => setViewTarget(a)}
+            className="p-2 rounded-lg text-sky-500 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-150 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
               />
             </svg>
           </button>
@@ -112,11 +119,6 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
       ),
     },
   ];
-
-  // Todos los estados posibles excepto el actual
-  const allStatusesExceptCurrent = editTarget
-    ? Object.values(AppointmentStatus).filter((s) => s !== editTarget.status)
-    : [];
 
   return (
     <>
@@ -127,6 +129,58 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
         loading={loading}
         emptyMessage="No se encontraron citas"
       />
+
+      {/* Modal ver cita (solo lectura) */}
+      <Modal
+        isOpen={!!viewTarget}
+        onClose={() => setViewTarget(null)}
+        title="Detalle de cita"
+        size="md"
+      >
+        {viewTarget && (
+          <div className="space-y-4 text-sm">
+            <DetailRow label="Fecha / Hora" value={formatDateTime(viewTarget.dateTime)} />
+            <DetailRow
+              label="Paciente"
+              value={viewTarget.patient
+                ? `${viewTarget.patient.firstName} ${viewTarget.patient.lastName}`
+                : '—'}
+            />
+            <DetailRow
+              label="Doctor"
+              value={viewTarget.doctor
+                ? `Dr. ${viewTarget.doctor.firstName} ${viewTarget.doctor.lastName}`
+                : '—'}
+            />
+            <DetailRow label="Duración" value={`${viewTarget.durationMinutes} min`} />
+            <DetailRow label="Motivo"   value={viewTarget.reason || '—'} />
+            <DetailRow label="Notas"    value={viewTarget.notes  || '—'} />
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0">Estado</span>
+              <AppointmentStatusBadge status={viewTarget.status} />
+            </div>
+
+            {/* Acción editar */}
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditTarget(viewTarget);
+                  setViewTarget(null);
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Editar cita
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Modal editar cita */}
       <Modal
@@ -200,5 +254,12 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
     </>
   );
 };
+
+const DetailRow = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-start gap-2">
+    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0 pt-0.5">{label}</span>
+    <span className="text-slate-800 dark:text-slate-200 break-words">{value}</span>
+  </div>
+);
 
 export default AppointmentsTable;
