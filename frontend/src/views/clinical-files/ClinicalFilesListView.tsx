@@ -47,8 +47,8 @@ const ClinicalFilesListView = () => {
           <Spinner />
         </div>
       ) : !data?.data?.length ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">No hay archivos clínicos.</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+          <p className="text-slate-500 dark:text-slate-400">No hay archivos clínicos.</p>
         </div>
       ) : (
         <>

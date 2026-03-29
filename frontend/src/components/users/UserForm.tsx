@@ -109,7 +109,7 @@ const UserForm = (props: UserFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
           Datos del usuario
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

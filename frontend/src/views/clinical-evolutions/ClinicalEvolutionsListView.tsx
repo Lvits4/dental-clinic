@@ -51,8 +51,8 @@ const ClinicalEvolutionsListView = () => {
       />
 
       {!record ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+          <p className="text-slate-500 dark:text-slate-400">
             Debe crear el expediente clínico primero.
           </p>
           <Link
@@ -67,8 +67,8 @@ const ClinicalEvolutionsListView = () => {
           <Spinner />
         </div>
       ) : !data?.data?.length ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
-          <p className="text-gray-500 dark:text-gray-400">No hay evoluciones registradas.</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+          <p className="text-slate-500 dark:text-slate-400">No hay evoluciones registradas.</p>
         </div>
       ) : (
         <>
@@ -80,7 +80,7 @@ const ClinicalEvolutionsListView = () => {
             {data.data.map((evolution) => (
               <div key={evolution.id} className="relative">
                 {/* Punto en la línea */}
-                <div className="absolute -left-3 sm:-left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-900" />
+                <div className="absolute -left-3 sm:-left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
                 <ClinicalEvolutionCard evolution={evolution} />
               </div>
             ))}

@@ -11,7 +11,6 @@ export interface ModalProps {
   footer?: ReactNode;
 }
 
-// En desktop: max-width controlado. En mobile: siempre ocupa el ancho.
 const desktopSizeClasses: Record<ModalSize, string> = {
   sm: 'md:max-w-sm',
   md: 'md:max-w-lg',
@@ -27,7 +26,6 @@ const Modal = ({
   children,
   footer,
 }: ModalProps) => {
-  // Cerrar con Escape
   useEffect(() => {
     if (!isOpen) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -37,7 +35,6 @@ const Modal = ({
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  // Bloquear scroll del body
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -60,7 +57,7 @@ const Modal = ({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -68,19 +65,15 @@ const Modal = ({
       {/* Panel */}
       <div
         className={[
-          // Mobile: desliza desde abajo, ocupa todo el ancho
           'relative w-full',
-          'bg-white dark:bg-gray-900',
-          'border border-gray-200 dark:border-gray-800',
+          'bg-white dark:bg-slate-900',
+          'border border-slate-200/80 dark:border-slate-800',
           'flex flex-col',
-          // Mobile: slide-up, rounded top, max height
-          'rounded-t-2xl md:rounded-xl',
+          'rounded-t-2xl md:rounded-2xl',
           'max-h-[92dvh] md:max-h-[90vh]',
-          'shadow-xl',
-          // Desktop: centrado, ancho controlado
+          'shadow-2xl',
           desktopSizeClasses[size],
           isFullscreen ? 'md:min-h-[80vh]' : '',
-          // Animacion
           'animate-slide-up md:animate-fade-in',
         ]
           .filter(Boolean)
@@ -88,36 +81,36 @@ const Modal = ({
       >
         {/* Handle (solo mobile) */}
         <div className="md:hidden flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
+          <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />
         </div>
 
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 shrink-0">
             <h2
               id="modal-title"
-              className="text-base font-semibold text-gray-900 dark:text-white"
+              className="text-base font-semibold text-slate-800 dark:text-white tracking-tight"
             >
               {title}
             </h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-all duration-200"
               aria-label="Cerrar"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         )}
 
         {/* Body */}
-        <div className="px-5 py-4 overflow-y-auto flex-1">{children}</div>
+        <div className="px-6 py-5 overflow-y-auto flex-1">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-3 shrink-0 bg-gray-50/50 dark:bg-gray-800/30">
+          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-slate-800/20 rounded-b-2xl">
             {footer}
           </div>
         )}

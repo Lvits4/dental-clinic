@@ -15,7 +15,7 @@ const TreatmentsTable = ({ data, loading, onToggle, togglePending }: TreatmentsT
     {
       key: 'name',
       header: 'Nombre',
-      render: (t) => <span className="font-medium text-gray-900 dark:text-white">{t.name}</span>,
+      render: (t) => <span className="font-medium text-slate-900 dark:text-white">{t.name}</span>,
     },
     { key: 'category', header: 'Categoría' },
     {

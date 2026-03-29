@@ -75,7 +75,7 @@ export const STATUS_CONFIG: Record<AppointmentStatus, { label: string; className
   },
   [AppointmentStatus.ATTENDED]: {
     label: 'Atendida',
-    className: 'bg-gray-100 text-gray-700 dark:bg-gray-700/30 dark:text-gray-400',
+    className: 'bg-slate-100 text-slate-700 dark:bg-slate-700/30 dark:text-slate-400',
   },
   [AppointmentStatus.CANCELLED]: {
     label: 'Cancelada',

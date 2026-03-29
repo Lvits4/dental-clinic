@@ -26,24 +26,24 @@ const PageHeader = ({
   action,
 }: PageHeaderProps) => {
   return (
-    <div className="mb-5 sm:mb-6">
+    <div className="mb-6 sm:mb-8">
       {/* Breadcrumb */}
       {breadcrumb && breadcrumb.length > 0 && (
-        <nav aria-label="Migas de pan" className="mb-2">
+        <nav aria-label="Migas de pan" className="mb-3">
           <ol className="flex items-center flex-wrap gap-1">
             {breadcrumb.map((item, index) => {
               const isLast = index === breadcrumb.length - 1;
               return (
                 <li key={index} className="flex items-center gap-1">
                   {index > 0 && (
-                    <span className="text-gray-400 dark:text-gray-600">
+                    <span className="text-slate-300 dark:text-slate-600">
                       <ChevronRightIcon />
                     </span>
                   )}
                   {item.to && !isLast ? (
                     <Link
                       to={item.to}
-                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                      className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium"
                     >
                       {item.label}
                     </Link>
@@ -51,8 +51,8 @@ const PageHeader = ({
                     <span
                       className={`text-xs ${
                         isLast
-                          ? 'text-gray-700 dark:text-gray-300 font-medium'
-                          : 'text-gray-500 dark:text-gray-400'
+                          ? 'text-slate-700 dark:text-slate-300 font-semibold'
+                          : 'text-slate-500 dark:text-slate-400'
                       }`}
                       aria-current={isLast ? 'page' : undefined}
                     >
@@ -69,11 +69,11 @@ const PageHeader = ({
       {/* Titulo + accion */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-tight truncate">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight tracking-tight truncate">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
               {subtitle}
             </p>
           )}
@@ -89,7 +89,7 @@ const PageHeader = ({
 
       {/* Accion mobile (debajo del titulo) */}
       {action && (
-        <div className="sm:hidden mt-3">
+        <div className="sm:hidden mt-4">
           {action}
         </div>
       )}

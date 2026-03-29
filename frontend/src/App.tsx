@@ -8,7 +8,7 @@ import { Role } from './enums';
 
 // ─── Spinner de carga ──────────────────────────────────────────────────────────
 const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
     <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
   </div>
 );

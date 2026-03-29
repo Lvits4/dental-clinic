@@ -23,7 +23,7 @@ const Input = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
         >
           {label}
           {props.required && (
@@ -34,23 +34,23 @@ const Input = ({
 
       <div className="relative">
         {leftIcon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none">
             {leftIcon}
           </span>
         )}
         <input
           id={inputId}
           className={[
-            'w-full rounded-lg border text-sm transition-colors',
-            'bg-white dark:bg-gray-900',
-            'text-gray-900 dark:text-white',
-            'placeholder-gray-400 dark:placeholder-gray-500',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0',
-            'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-gray-800',
-            leftIcon ? 'pl-10 pr-3 py-2' : 'px-3 py-2',
+            'w-full rounded-xl border text-sm transition-all duration-200',
+            'bg-white dark:bg-slate-800/50',
+            'text-slate-900 dark:text-white',
+            'placeholder-slate-400 dark:placeholder-slate-500',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
+            leftIcon ? 'pl-10 pr-3.5 py-2.5' : 'px-3.5 py-2.5',
             error
-              ? 'border-red-400 dark:border-red-500 focus-visible:ring-red-400'
-              : 'border-gray-300 dark:border-gray-700 focus-visible:ring-emerald-500 focus-visible:border-emerald-500',
+              ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
+              : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
             className,
           ]
             .filter(Boolean)
@@ -68,7 +68,7 @@ const Input = ({
         </p>
       )}
       {helperText && !error && (
-        <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">{helperText}</p>
+        <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{helperText}</p>
       )}
     </div>
   );

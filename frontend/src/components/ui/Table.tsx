@@ -5,8 +5,8 @@ export interface Column<T> {
   header: string;
   render?: (item: T) => ReactNode;
   className?: string;
-  mobileLabel?: string; // etiqueta alternativa en vista card mobile
-  hideOnMobile?: boolean; // ocultar esta columna en mobile
+  mobileLabel?: string;
+  hideOnMobile?: boolean;
 }
 
 interface TableProps<T> {
@@ -25,18 +25,18 @@ interface TableProps<T> {
 const SkeletonRow = ({ cols }: { cols: number }) => (
   <tr>
     {Array.from({ length: cols }).map((_, i) => (
-      <td key={i} className="px-4 py-3">
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+      <td key={i} className="px-5 py-3.5">
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-md animate-pulse" />
       </td>
     ))}
   </tr>
 );
 
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 space-y-3">
-    <div className="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-    <div className="h-3 w-3/4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
-    <div className="h-3 w-2/3 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3">
+    <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-md animate-pulse" />
+    <div className="h-3 w-3/4 bg-slate-50 dark:bg-slate-800/60 rounded-md animate-pulse" />
+    <div className="h-3 w-2/3 bg-slate-50 dark:bg-slate-800/60 rounded-md animate-pulse" />
   </div>
 );
 
@@ -59,21 +59,21 @@ const Table = <T,>({
     return (
       <>
         {/* Desktop skeleton */}
-        <div className="hidden md:block overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
+              <tr className="border-b border-slate-100 dark:border-slate-800/80">
                 {columns.map((col) => (
                   <th
                     key={col.key}
-                    className={`px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col.className ?? ''}`}
+                    className={`px-5 py-3.5 text-left text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${col.className ?? ''}`}
                   >
                     {col.header}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+            <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60">
               {Array.from({ length: skeletonRows }).map((_, i) => (
                 <SkeletonRow key={i} cols={columns.length} />
               ))}
@@ -97,39 +97,40 @@ const Table = <T,>({
   return (
     <>
       {/* ── Desktop table ── */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-800">
+            <tr className="border-b border-slate-100 dark:border-slate-800/80">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider sticky top-0 bg-white dark:bg-gray-900 ${col.className ?? ''}`}
+                  className={`px-5 py-3.5 text-left text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider sticky top-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm first:rounded-tl-2xl last:rounded-tr-2xl ${col.className ?? ''}`}
                 >
                   {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
             {isEmpty ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10 text-center">
+                <td colSpan={columns.length} className="px-5 py-14 text-center">
                   {emptySlot ?? (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{emptyMessage}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{emptyMessage}</p>
                   )}
                 </td>
               </tr>
             ) : (
-              data.map((item) => (
+              data.map((item, idx) => (
                 <tr
                   key={keyExtractor(item)}
                   onClick={() => onRowClick?.(item)}
                   className={[
-                    'transition-colors',
+                    'transition-colors duration-150',
                     onRowClick
-                      ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/60'
+                      ? 'cursor-pointer hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10'
                       : '',
+                    idx % 2 === 1 ? 'bg-slate-25 dark:bg-slate-800/20' : '',
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -137,7 +138,7 @@ const Table = <T,>({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={`px-4 py-3 text-sm text-gray-700 dark:text-gray-300 ${col.className ?? ''}`}
+                      className={`px-5 py-3.5 text-sm text-slate-700 dark:text-slate-300 ${col.className ?? ''}`}
                     >
                       {col.render
                         ? col.render(item)
@@ -154,9 +155,9 @@ const Table = <T,>({
       {/* ── Mobile cards ── */}
       <div className="md:hidden space-y-3">
         {isEmpty ? (
-          <div className="py-10 text-center">
+          <div className="py-14 text-center">
             {emptySlot ?? (
-              <p className="text-sm text-gray-500 dark:text-gray-400">{emptyMessage}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{emptyMessage}</p>
             )}
           </div>
         ) : (
@@ -165,9 +166,9 @@ const Table = <T,>({
               key={keyExtractor(item)}
               onClick={() => onRowClick?.(item)}
               className={[
-                'bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 space-y-2',
+                'bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200',
                 onRowClick
-                  ? 'cursor-pointer active:bg-gray-50 dark:active:bg-gray-800/60'
+                  ? 'cursor-pointer active:scale-[0.98] active:shadow-none'
                   : '',
               ]
                 .filter(Boolean)
@@ -175,10 +176,10 @@ const Table = <T,>({
             >
               {visibleColumns.map((col) => (
                 <div key={col.key} className="flex justify-between items-start gap-3">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 shrink-0 min-w-[80px]">
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 shrink-0 min-w-[80px] uppercase tracking-wider">
                     {col.mobileLabel ?? col.header}
                   </span>
-                  <span className="text-sm text-gray-900 dark:text-white text-right">
+                  <span className="text-sm text-slate-800 dark:text-white text-right font-medium">
                     {col.render
                       ? col.render(item)
                       : String((item as Record<string, unknown>)[col.key] ?? '')}

@@ -1,34 +1,129 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Rubia Dental
+   Professional, elegant, aligned
+   ══════════════════════════════════════════════════════════════════════════════ */
+
 :root {
+  /* ── Brand Palette ── */
   --color-brand: #059669;
   --color-brand-dark: #047857;
+  --color-brand-darker: #065f46;
   --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-gradient: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+  --color-brand-gradient-subtle: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%);
+
+  /* ── Surface Colors ── */
   --color-surface: #ffffff;
-  --color-surface-muted: #f9fafb;
-  --color-surface-elevated: #f3f4f6;
+  --color-surface-muted: #f8fafc;
+  --color-surface-elevated: #f1f5f9;
+  --color-background: #f8fafc;
+
+  /* ── Border Radius ── */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
-  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
-  --shadow-elevated: 0 4px 12px rgb(0 0 0 / 0.1), 0 2px 4px rgb(0 0 0 / 0.06);
+  --radius-xl: 1.25rem;
+
+  /* ── Shadows (multi-layer for depth) ── */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.03);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  --shadow-brand: 0 4px 14px rgb(5 150 105 / 0.25);
+  --shadow-inner-soft: inset 0 1px 2px rgb(0 0 0 / 0.04);
+
+  /* ── Layout ── */
   --nav-height-mobile: 4rem;
-  --sidebar-width: 240px;
+  --sidebar-width: 260px;
+
+  /* ── Transitions ── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html { scroll-behavior: smooth; }
+/* ── Global Resets & Defaults ── */
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
+  color: #1e293b;
+  background-color: var(--color-background);
 }
 
-/* Safe area for bottom nav on iOS */
+/* ── Typography refinements ── */
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* ── Focus visible ring (consistent across components) ── */
+
+*:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Scrollbar styling ── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ── Selection ── */
+
+::selection {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.dark ::selection {
+  background-color: #065f46;
+  color: #d1fae5;
+}
+
+/* ── Safe area for bottom nav on iOS ── */
+
 .bottom-nav-safe {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
+
+/* ── Animations ── */
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
@@ -43,4 +138,61 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(5 150 105 / 0.3); }
+  50% { box-shadow: 0 0 0 6px rgb(5 150 105 / 0); }
+}
+
+/* ── Utility classes ── */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.gradient-brand {
+  background: var(--color-brand-gradient);
+}
+
+.gradient-brand-subtle {
+  background: var(--color-brand-gradient-subtle);
+}
+
+/* Staggered fade-in for card grids */
+.stagger-fade > * {
+  animation: fadeInUp 0.4s ease-out both;
+}
+.stagger-fade > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-fade > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-fade > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-fade > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-fade > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-fade > *:nth-child(6) { animation-delay: 300ms; }
+
+/* Glass morphism for overlays */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
 }

@@ -23,7 +23,7 @@ const PerformedProceduresListView = () => {
       key: 'performedAt',
       header: 'Fecha',
       render: (p) => (
-        <span className="font-medium text-gray-900 dark:text-white">
+        <span className="font-medium text-slate-900 dark:text-white">
           {formatDate(p.performedAt)}
         </span>
       ),

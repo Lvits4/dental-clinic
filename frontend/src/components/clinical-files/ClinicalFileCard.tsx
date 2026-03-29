@@ -29,14 +29,14 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
   const downloadUrl = `${API_BASE_URL}/clinical-files/${file.id}/download`;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
       {/* Preview de imagen */}
       {isImage(file.mimeType) && (
         <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
           <img
             src={downloadUrl}
             alt={file.fileName}
-            className="w-full h-32 object-cover bg-gray-100 dark:bg-gray-700"
+            className="w-full h-32 object-cover bg-slate-100 dark:bg-slate-700"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
@@ -47,13 +47,13 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
       {/* Info */}
       <div className="p-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={file.fileName}>
+          <p className="text-sm font-medium text-slate-900 dark:text-white truncate" title={file.fileName}>
             {file.fileName}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             {file.fileType.toUpperCase()} — {formatFileSize(file.fileSize)}
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{formatDate(file.createdAt)}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{formatDate(file.createdAt)}</p>
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
@@ -62,7 +62,7 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
             href={downloadUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-1.5 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
             title="Descargar"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,7 +79,7 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
           <button
             onClick={() => onDelete(file.id)}
             disabled={deleteLoading}
-            className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+            className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
             title="Eliminar"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

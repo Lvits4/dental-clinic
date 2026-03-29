@@ -56,52 +56,52 @@ const PatientInfoTab = ({ patient }: PatientInfoTabProps) => {
       <dl className="space-y-3">
         {rows.map((row) => (
           <div key={row.label} className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-40 shrink-0">
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-40 shrink-0">
               {row.label}
             </dt>
-            <dd className="text-sm text-gray-900 dark:text-white">{row.value}</dd>
+            <dd className="text-sm text-slate-900 dark:text-white">{row.value}</dd>
           </div>
         ))}
       </dl>
 
       {(patient.medicalHistory || patient.allergies || patient.medications || patient.observations) && (
-        <div className="pt-4 border-t border-gray-100 dark:border-gray-700 space-y-4">
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-4">
           {patient.medicalHistory && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Antecedentes Medicos
               </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
                 {patient.medicalHistory}
               </p>
             </div>
           )}
           {patient.allergies && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Alergias
               </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
                 {patient.allergies}
               </p>
             </div>
           )}
           {patient.medications && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Medicamentos
               </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
                 {patient.medications}
               </p>
             </div>
           )}
           {patient.observations && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
+              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Observaciones
               </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
                 {patient.observations}
               </p>
             </div>
@@ -131,7 +131,7 @@ const PatientDetailView = () => {
   if (!patient) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Paciente no encontrado</p>
+        <p className="text-slate-500 dark:text-slate-400">Paciente no encontrado</p>
       </div>
     );
   }
@@ -181,10 +181,10 @@ const PatientDetailView = () => {
             </span>
           </div>
           <div className="min-w-0">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white truncate">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">
               {patient.firstName} {patient.lastName}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {SEX_LABELS[patient.sex]} &middot; {calculateAge(patient.dateOfBirth)} anos
             </p>
           </div>
@@ -211,7 +211,7 @@ const PatientDetailView = () => {
                 'px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
                 activeTab === tab.key
                   ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800',
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
               ].join(' ')}
             >
               {tab.label}
@@ -226,7 +226,7 @@ const PatientDetailView = () => {
 
         {activeTab === 'record' && (
           <div className="text-center py-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
               Ver expediente clinico del paciente
             </p>
             <Link to={`/patients/${id}/clinical-record`}>
@@ -237,7 +237,7 @@ const PatientDetailView = () => {
 
         {activeTab === 'evolutions' && (
           <div className="text-center py-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
               Ver evoluciones clinicas del paciente
             </p>
             <Link to={`/patients/${id}/evolutions`}>
@@ -248,7 +248,7 @@ const PatientDetailView = () => {
 
         {activeTab === 'files' && (
           <div className="text-center py-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
               Archivos clinicos del paciente
             </p>
             <Link to={`/patients/${id}/files`}>
@@ -259,7 +259,7 @@ const PatientDetailView = () => {
 
         {activeTab === 'appointments' && (
           <div className="text-center py-6">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
               Historial de citas del paciente
             </p>
             <Link to={`/appointments?patient=${id}`}>

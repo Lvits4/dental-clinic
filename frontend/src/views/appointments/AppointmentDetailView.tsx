@@ -38,7 +38,7 @@ const AppointmentDetailView = () => {
   if (!appointment) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Cita no encontrada</p>
+        <p className="text-slate-500 dark:text-slate-400">Cita no encontrada</p>
       </div>
     );
   }
@@ -77,9 +77,9 @@ const AppointmentDetailView = () => {
         }
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             {formatDateTime(appointment.dateTime)}
           </h2>
           <AppointmentStatusBadge status={appointment.status} />
@@ -87,43 +87,43 @@ const AppointmentDetailView = () => {
 
         <dl className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Paciente</dt>
-            <dd className="text-sm text-gray-900 dark:text-white">
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Paciente</dt>
+            <dd className="text-sm text-slate-900 dark:text-white">
               {appointment.patient
                 ? <Link to={`/patients/${appointment.patientId}`} className="text-emerald-600 dark:text-emerald-400 hover:underline">{appointment.patient.firstName} {appointment.patient.lastName}</Link>
                 : '—'}
             </dd>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Doctor</dt>
-            <dd className="text-sm text-gray-900 dark:text-white">
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Doctor</dt>
+            <dd className="text-sm text-slate-900 dark:text-white">
               {appointment.doctor
                 ? <Link to={`/doctors/${appointment.doctorId}`} className="text-emerald-600 dark:text-emerald-400 hover:underline">Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}</Link>
                 : '—'}
             </dd>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Duración</dt>
-            <dd className="text-sm text-gray-900 dark:text-white">{appointment.durationMinutes} minutos</dd>
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Duración</dt>
+            <dd className="text-sm text-slate-900 dark:text-white">{appointment.durationMinutes} minutos</dd>
           </div>
           {appointment.reason && (
             <div className="flex flex-col sm:flex-row sm:gap-2">
-              <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Motivo</dt>
-              <dd className="text-sm text-gray-900 dark:text-white">{appointment.reason}</dd>
+              <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Motivo</dt>
+              <dd className="text-sm text-slate-900 dark:text-white">{appointment.reason}</dd>
             </div>
           )}
           {appointment.notes && (
             <div className="flex flex-col sm:flex-row sm:gap-2">
-              <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Notas</dt>
-              <dd className="text-sm text-gray-900 dark:text-white whitespace-pre-line">{appointment.notes}</dd>
+              <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Notas</dt>
+              <dd className="text-sm text-slate-900 dark:text-white whitespace-pre-line">{appointment.notes}</dd>
             </div>
           )}
         </dl>
 
         {/* Cambiar estado */}
         {canChangeStatus && (
-          <div className="mt-5 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
+          <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
               Cambiar estado
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -132,9 +132,9 @@ const AppointmentDetailView = () => {
                   key={s.value}
                   onClick={() => statusMutation.mutate(s.value as AppointmentStatus)}
                   disabled={statusMutation.isPending}
-                  className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600
-                    text-gray-700 dark:text-gray-300
-                    hover:bg-gray-50 dark:hover:bg-gray-700
+                  className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600
+                    text-slate-700 dark:text-slate-300
+                    hover:bg-slate-50 dark:hover:bg-slate-700
                     disabled:opacity-50 transition-colors"
                 >
                   {s.label}

@@ -20,7 +20,7 @@ const UserEditView = () => {
   if (!user) {
     return (
       <div className="flex justify-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Usuario no encontrado.</p>
+        <p className="text-slate-500 dark:text-slate-400">Usuario no encontrado.</p>
       </div>
     );
   }
@@ -36,7 +36,7 @@ const UserEditView = () => {
         ]}
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
         <UserForm
           mode="edit"
           initialData={user}

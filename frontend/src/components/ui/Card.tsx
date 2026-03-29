@@ -15,18 +15,18 @@ export interface CardProps {
 
 const variantClasses: Record<CardVariant, string> = {
   default:
-    'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm',
+    'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm',
   flat:
-    'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800',
+    'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800',
   elevated:
-    'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md',
+    'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none',
 };
 
 const paddingClasses: Record<CardPadding, string> = {
   none: '',
-  sm: 'p-3 sm:p-4',
-  md: 'p-4 sm:p-6',
-  lg: 'p-5 sm:p-8',
+  sm: 'p-4 sm:p-5',
+  md: 'p-5 sm:p-6',
+  lg: 'p-6 sm:p-8',
 };
 
 const Card = ({
@@ -41,7 +41,7 @@ const Card = ({
   return (
     <div
       className={[
-        'rounded-xl overflow-hidden',
+        'rounded-2xl overflow-hidden transition-shadow duration-200',
         variantClasses[variant],
         className,
       ]
@@ -49,9 +49,9 @@ const Card = ({
         .join(' ')}
     >
       {(title || actions) && (
-        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between px-5 py-4 sm:px-6 sm:py-4 border-b border-slate-100 dark:border-slate-800/80">
           {title && (
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold text-slate-800 dark:text-white tracking-tight">
               {title}
             </h3>
           )}
@@ -66,7 +66,7 @@ const Card = ({
       <div className={paddingClasses[padding]}>{children}</div>
 
       {footer && (
-        <div className="px-4 py-3 sm:px-6 sm:py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+        <div className="px-5 py-4 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/20">
           {footer}
         </div>
       )}

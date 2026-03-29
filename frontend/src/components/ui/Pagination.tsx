@@ -31,23 +31,23 @@ const Pagination = ({
   const to = Math.min(page * limit, total);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5">
       {/* Contador */}
-      <p className="text-sm text-gray-500 dark:text-gray-400 order-2 sm:order-1">
+      <p className="text-sm text-slate-500 dark:text-slate-400 order-2 sm:order-1">
         <span className="hidden sm:inline">Mostrando </span>
-        <span className="font-medium text-gray-700 dark:text-gray-300">{from}–{to}</span>
+        <span className="font-semibold text-slate-700 dark:text-slate-300">{from}–{to}</span>
         <span className="hidden sm:inline"> de </span>
         <span className="sm:hidden"> / </span>
-        <span className="font-medium text-gray-700 dark:text-gray-300">{total}</span>
+        <span className="font-semibold text-slate-700 dark:text-slate-300">{total}</span>
         <span className="hidden sm:inline"> resultados</span>
       </p>
 
       {/* Controles */}
-      <div className="flex items-center gap-1 order-1 sm:order-2">
+      <div className="flex items-center gap-1.5 order-1 sm:order-2">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-xs"
           aria-label="Pagina anterior"
         >
           <ChevronLeftIcon />
@@ -58,7 +58,6 @@ const Pagination = ({
         <div className="hidden sm:flex items-center gap-1">
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter((p) => {
-              // Mostrar primera, ultima, y vecinos de la pagina actual
               return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
             })
             .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
@@ -72,7 +71,7 @@ const Pagination = ({
               p === 'ellipsis' ? (
                 <span
                   key={`ellipsis-${idx}`}
-                  className="px-2 py-2 text-sm text-gray-400 dark:text-gray-600"
+                  className="px-2 py-2 text-sm text-slate-400 dark:text-slate-600"
                 >
                   ...
                 </span>
@@ -81,10 +80,10 @@ const Pagination = ({
                   key={p}
                   onClick={() => onPageChange(p as number)}
                   className={[
-                    'min-w-[36px] h-9 px-2 text-sm rounded-lg transition-colors',
+                    'min-w-[36px] h-9 px-2 text-sm rounded-xl transition-all duration-200 font-medium',
                     page === p
-                      ? 'bg-emerald-600 text-white font-semibold'
-                      : 'border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
+                      ? 'bg-gradient-to-b from-emerald-500 to-emerald-600 text-white shadow-sm shadow-emerald-500/25 font-semibold'
+                      : 'border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800',
                   ].join(' ')}
                   aria-current={page === p ? 'page' : undefined}
                 >
@@ -95,14 +94,14 @@ const Pagination = ({
         </div>
 
         {/* Indicador compacto (mobile) */}
-        <span className="sm:hidden px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 min-h-[44px] inline-flex items-center">
+        <span className="sm:hidden px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 min-h-[44px] inline-flex items-center">
           {page} / {totalPages}
         </span>
 
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-xs"
           aria-label="Pagina siguiente"
         >
           <span className="hidden sm:inline mr-1">Siguiente</span>

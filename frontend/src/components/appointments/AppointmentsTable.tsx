@@ -28,7 +28,7 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
       key: 'dateTime',
       header: 'Fecha / Hora',
       render: (a) => (
-        <span className="font-medium text-gray-900 dark:text-white">
+        <span className="font-medium text-slate-900 dark:text-white">
           {formatDateTime(a.dateTime)}
         </span>
       ),

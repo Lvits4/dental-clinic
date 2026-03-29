@@ -109,7 +109,7 @@ const PatientForm = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Datos personales */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 pb-2 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
           Datos Personales
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -148,7 +148,7 @@ const PatientForm = ({
 
       {/* Contacto */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 pb-2 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
           Contacto
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -181,7 +181,7 @@ const PatientForm = ({
 
       {/* Informacion medica */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 pb-2 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
           Informacion Medica
         </h3>
         <div className="space-y-4">

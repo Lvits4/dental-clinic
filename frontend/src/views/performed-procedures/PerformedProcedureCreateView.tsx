@@ -30,7 +30,7 @@ const PerformedProcedureCreateView = () => {
         ]}
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
         <PerformedProcedureForm
           patients={patientsData?.data || []}
           doctors={doctors || []}

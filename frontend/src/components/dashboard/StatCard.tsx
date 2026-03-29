@@ -10,36 +10,42 @@ export interface StatCardProps {
   color?: StatCardColor;
 }
 
-const COLOR_MAP: Record<StatCardColor, { bg: string; text: string; iconBg: string }> = {
+const COLOR_MAP: Record<StatCardColor, { card: string; iconBg: string; iconText: string; valueText: string }> = {
   emerald: {
-    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-    text: 'text-emerald-600 dark:text-emerald-400',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-800/40',
+    card: 'border-emerald-100 dark:border-emerald-900/30',
+    iconBg: 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm shadow-emerald-500/20',
+    iconText: 'text-white',
+    valueText: 'text-emerald-700 dark:text-emerald-400',
   },
   blue: {
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    text: 'text-blue-600 dark:text-blue-400',
-    iconBg: 'bg-blue-100 dark:bg-blue-800/40',
+    card: 'border-blue-100 dark:border-blue-900/30',
+    iconBg: 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm shadow-blue-500/20',
+    iconText: 'text-white',
+    valueText: 'text-blue-700 dark:text-blue-400',
   },
   purple: {
-    bg: 'bg-purple-50 dark:bg-purple-900/20',
-    text: 'text-purple-600 dark:text-purple-400',
-    iconBg: 'bg-purple-100 dark:bg-purple-800/40',
+    card: 'border-purple-100 dark:border-purple-900/30',
+    iconBg: 'bg-gradient-to-br from-purple-500 to-violet-600 shadow-sm shadow-purple-500/20',
+    iconText: 'text-white',
+    valueText: 'text-purple-700 dark:text-purple-400',
   },
   red: {
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    text: 'text-red-600 dark:text-red-400',
-    iconBg: 'bg-red-100 dark:bg-red-800/40',
+    card: 'border-red-100 dark:border-red-900/30',
+    iconBg: 'bg-gradient-to-br from-red-500 to-rose-600 shadow-sm shadow-red-500/20',
+    iconText: 'text-white',
+    valueText: 'text-red-700 dark:text-red-400',
   },
   yellow: {
-    bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-    text: 'text-yellow-600 dark:text-yellow-400',
-    iconBg: 'bg-yellow-100 dark:bg-yellow-800/40',
+    card: 'border-amber-100 dark:border-amber-900/30',
+    iconBg: 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-sm shadow-amber-500/20',
+    iconText: 'text-white',
+    valueText: 'text-amber-700 dark:text-amber-400',
   },
   gray: {
-    bg: 'bg-gray-50 dark:bg-gray-700/20',
-    text: 'text-gray-600 dark:text-gray-400',
-    iconBg: 'bg-gray-100 dark:bg-gray-700/40',
+    card: 'border-slate-200 dark:border-slate-700',
+    iconBg: 'bg-gradient-to-br from-slate-400 to-slate-500 shadow-sm shadow-slate-400/20',
+    iconText: 'text-white',
+    valueText: 'text-slate-700 dark:text-slate-400',
   },
 };
 
@@ -48,18 +54,22 @@ const StatCard = ({ title, value, subtitle, icon, color = 'emerald' }: StatCardP
 
   return (
     <div
-      className={`${colors.bg} rounded-xl p-4 border border-gray-200 dark:border-gray-700 flex items-start gap-3`}
+      className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border ${colors.card} shadow-sm hover:shadow-md transition-all duration-200 flex items-start gap-4`}
     >
       {icon && (
-        <div className={`${colors.iconBg} rounded-lg p-2 shrink-0`}>
-          <span className={`${colors.text} block`}>{icon}</span>
+        <div className={`${colors.iconBg} rounded-xl p-2.5 shrink-0`}>
+          <span className={`${colors.iconText} block`}>{icon}</span>
         </div>
       )}
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">{title}</p>
-        <p className={`text-2xl font-bold mt-0.5 ${colors.text}`}>{value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider truncate">
+          {title}
+        </p>
+        <p className={`text-2xl font-bold mt-1 tracking-tight ${colors.valueText}`}>
+          {value}
+        </p>
         {subtitle && (
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 truncate">{subtitle}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 truncate">{subtitle}</p>
         )}
       </div>
     </div>

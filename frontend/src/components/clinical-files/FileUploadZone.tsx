@@ -50,14 +50,14 @@ const FileUploadZone = ({
         'flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed cursor-pointer transition-colors',
         isDragging
           ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10'
-          : 'border-gray-300 dark:border-gray-600 hover:border-emerald-400 dark:hover:border-emerald-500 bg-white dark:bg-gray-800',
+          : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500 bg-white dark:bg-slate-800',
         loading ? 'opacity-60 pointer-events-none' : '',
       ].join(' ')}
     >
       <input ref={inputRef} type="file" className="hidden" accept={accept} onChange={handleChange} />
 
       <svg
-        className="w-10 h-10 text-gray-400 dark:text-gray-500"
+        className="w-10 h-10 text-slate-400 dark:text-slate-500"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -71,10 +71,10 @@ const FileUploadZone = ({
       </svg>
 
       <div className="text-center">
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
           {loading ? 'Subiendo...' : 'Arrastra un archivo aquí o haz clic para seleccionar'}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           Imágenes, PDF, Word — máximo recomendado 10 MB
         </p>
       </div>

@@ -20,7 +20,7 @@ const DoctorEditView = () => {
   if (!doctor) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Doctor no encontrado</p>
+        <p className="text-slate-500 dark:text-slate-400">Doctor no encontrado</p>
       </div>
     );
   }
@@ -37,7 +37,7 @@ const DoctorEditView = () => {
         ]}
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
         <DoctorForm
           initialData={doctor}
           onSubmit={(data) => updateMutation.mutate(data)}

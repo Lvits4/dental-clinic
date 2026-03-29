@@ -22,7 +22,7 @@ const PatientsTable = ({ data, loading }: PatientsTableProps) => {
       key: 'name',
       header: 'Nombre',
       render: (p) => (
-        <span className="font-medium text-gray-900 dark:text-white">
+        <span className="font-medium text-slate-900 dark:text-white">
           {p.firstName} {p.lastName}
         </span>
       ),
@@ -63,11 +63,11 @@ const PatientsTable = ({ data, loading }: PatientsTableProps) => {
     return (
       <div className="space-y-2 sm:hidden">
         {loading ? (
-          <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">
             Cargando...
           </div>
         ) : data.length === 0 ? (
-          <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">
             No se encontraron pacientes
           </div>
         ) : (
@@ -75,10 +75,10 @@ const PatientsTable = ({ data, loading }: PatientsTableProps) => {
             <button
               key={p.id}
               onClick={() => navigate(`/patients/${p.id}`)}
-              className="w-full text-left bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              className="w-full text-left bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-gray-900 dark:text-white">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {p.firstName} {p.lastName}
                 </span>
                 <Badge
@@ -91,9 +91,9 @@ const PatientsTable = ({ data, loading }: PatientsTableProps) => {
                   {p.isActive ? 'Activo' : 'Inactivo'}
                 </Badge>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{p.phone}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{p.phone}</p>
               {p.email && (
-                <p className="text-sm text-gray-400 dark:text-gray-500 truncate">{p.email}</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 truncate">{p.email}</p>
               )}
             </button>
           ))
@@ -107,18 +107,18 @@ const PatientsTable = ({ data, loading }: PatientsTableProps) => {
       {/* Mobile cards */}
       <div className="sm:hidden space-y-2">
         {loading ? (
-          <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">Cargando...</div>
+          <div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">Cargando...</div>
         ) : data.length === 0 ? (
-          <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">No se encontraron pacientes</div>
+          <div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">No se encontraron pacientes</div>
         ) : (
           data.map((p) => (
             <button
               key={p.id}
               onClick={() => navigate(`/patients/${p.id}`)}
-              className="w-full text-left bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              className="w-full text-left bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-gray-900 dark:text-white">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {p.firstName} {p.lastName}
                 </span>
                 <Badge
@@ -131,9 +131,9 @@ const PatientsTable = ({ data, loading }: PatientsTableProps) => {
                   {p.isActive ? 'Activo' : 'Inactivo'}
                 </Badge>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{p.phone}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{p.phone}</p>
               {p.email && (
-                <p className="text-sm text-gray-400 dark:text-gray-500 truncate">{p.email}</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 truncate">{p.email}</p>
               )}
             </button>
           ))

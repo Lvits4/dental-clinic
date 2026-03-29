@@ -16,7 +16,7 @@ const DoctorsTable = ({ data, loading }: DoctorsTableProps) => {
       key: 'name',
       header: 'Nombre',
       render: (d) => (
-        <span className="font-medium text-gray-900 dark:text-white">
+        <span className="font-medium text-slate-900 dark:text-white">
           Dr. {d.firstName} {d.lastName}
         </span>
       ),

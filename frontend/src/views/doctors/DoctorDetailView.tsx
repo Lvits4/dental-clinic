@@ -22,7 +22,7 @@ const DoctorDetailView = () => {
   if (!doctor) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Doctor no encontrado</p>
+        <p className="text-slate-500 dark:text-slate-400">Doctor no encontrado</p>
       </div>
     );
   }
@@ -66,9 +66,9 @@ const DoctorDetailView = () => {
         }
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             Dr. {doctor.firstName} {doctor.lastName}
           </h2>
           <Badge
@@ -85,10 +85,10 @@ const DoctorDetailView = () => {
         <dl className="space-y-2">
           {rows.map((row) => (
             <div key={row.label} className="flex flex-col sm:flex-row sm:gap-2">
-              <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">
+              <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">
                 {row.label}
               </dt>
-              <dd className="text-sm text-gray-900 dark:text-white">{row.value}</dd>
+              <dd className="text-sm text-slate-900 dark:text-white">{row.value}</dd>
             </div>
           ))}
         </dl>

@@ -29,14 +29,14 @@ const UsersTable = ({ data, loading }: UsersTableProps) => {
       key: 'fullName',
       header: 'Nombre',
       render: (u) => (
-        <span className="font-medium text-gray-900 dark:text-white">{u.fullName}</span>
+        <span className="font-medium text-slate-900 dark:text-white">{u.fullName}</span>
       ),
     },
     {
       key: 'username',
       header: 'Usuario',
       render: (u) => (
-        <span className="text-gray-600 dark:text-gray-400 font-mono text-sm">@{u.username}</span>
+        <span className="text-slate-600 dark:text-slate-400 font-mono text-sm">@{u.username}</span>
       ),
     },
     {

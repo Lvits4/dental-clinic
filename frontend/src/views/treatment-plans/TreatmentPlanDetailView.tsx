@@ -22,7 +22,7 @@ const TreatmentPlanDetailView = () => {
   if (!plan) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Plan no encontrado</p>
+        <p className="text-slate-500 dark:text-slate-400">Plan no encontrado</p>
       </div>
     );
   }
@@ -41,34 +41,34 @@ const TreatmentPlanDetailView = () => {
         action={config ? <Badge className={config.className}>{config.label}</Badge> : undefined}
       />
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 space-y-3">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-3">
         <dl className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Paciente</dt>
-            <dd className="text-sm text-gray-900 dark:text-white">
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Paciente</dt>
+            <dd className="text-sm text-slate-900 dark:text-white">
               {plan.patient
                 ? <Link to={`/patients/${plan.patientId}`} className="text-emerald-600 dark:text-emerald-400 hover:underline">{plan.patient.firstName} {plan.patient.lastName}</Link>
                 : '—'}
             </dd>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Doctor</dt>
-            <dd className="text-sm text-gray-900 dark:text-white">
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Doctor</dt>
+            <dd className="text-sm text-slate-900 dark:text-white">
               {plan.doctor ? `Dr. ${plan.doctor.firstName} ${plan.doctor.lastName}` : '—'}
             </dd>
           </div>
           {plan.observations && (
             <div className="flex flex-col sm:flex-row sm:gap-2">
-              <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:w-32 shrink-0">Observaciones</dt>
-              <dd className="text-sm text-gray-900 dark:text-white whitespace-pre-line">{plan.observations}</dd>
+              <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Observaciones</dt>
+              <dd className="text-sm text-slate-900 dark:text-white whitespace-pre-line">{plan.observations}</dd>
             </div>
           )}
         </dl>
 
         {/* Cambiar estado */}
         {plan.status !== TreatmentPlanStatus.COMPLETED && plan.status !== TreatmentPlanStatus.CANCELLED && (
-          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Cambiar estado</h3>
+          <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+            <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Cambiar estado</h3>
             <div className="flex flex-wrap gap-2">
               {Object.entries(PLAN_STATUS_CONFIG)
                 .filter(([s]) => s !== plan.status)
@@ -77,7 +77,7 @@ const TreatmentPlanDetailView = () => {
                     key={status}
                     onClick={() => statusMutation.mutate(status as TreatmentPlanStatus)}
                     disabled={statusMutation.isPending}
-                    className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                    className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
                   >
                     {cfg.label}
                   </button>
@@ -88,8 +88,8 @@ const TreatmentPlanDetailView = () => {
       </div>
 
       {/* Items del plan */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
           Procedimientos del Plan
         </h3>
         <TreatmentPlanItems items={plan.items || []} />

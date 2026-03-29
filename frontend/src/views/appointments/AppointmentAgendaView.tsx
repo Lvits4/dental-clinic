@@ -103,27 +103,27 @@ const AppointmentAgendaView = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigateWeek(-1)}
-            className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
-            <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-48 text-center">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 min-w-48 text-center">
             {new Date(from).toLocaleDateString('es', { day: 'numeric', month: 'short' })} —{' '}
             {new Date(to).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
           <button
             onClick={() => navigateWeek(1)}
-            className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
-            <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
           <button
             onClick={() => setBaseDate(new Date())}
-            className="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             Hoy
           </button>
@@ -154,7 +154,7 @@ const AppointmentAgendaView = () => {
 
               return (
                 <div key={day}>
-                  <h3 className={`text-xs font-semibold mb-1.5 capitalize ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                  <h3 className={`text-xs font-semibold mb-1.5 capitalize ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {formatDateShort(day)}
                     {isToday && <span className="ml-1.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded">Hoy</span>}
                   </h3>
@@ -163,14 +163,14 @@ const AppointmentAgendaView = () => {
                       <Link
                         key={a.id}
                         to={`/appointments/${a.id}`}
-                        className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                       >
                         <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-sm font-medium text-slate-900 dark:text-white">
                             {formatTime(a.dateTime)} — {a.patient ? `${a.patient.firstName} ${a.patient.lastName}` : 'Paciente'}
                           </div>
                           {a.doctor && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
                               Dr. {a.doctor.firstName} {a.doctor.lastName}
                             </div>
                           )}
@@ -183,7 +183,7 @@ const AppointmentAgendaView = () => {
               );
             })}
             {weekDays.every((day) => (groupedByDay[day] || []).length === 0) && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">Sin citas esta semana</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">Sin citas esta semana</p>
             )}
           </div>
 
@@ -196,28 +196,28 @@ const AppointmentAgendaView = () => {
               return (
                 <div
                   key={day}
-                  className={`bg-white dark:bg-gray-800 rounded-lg border p-3 min-h-32
+                  className={`bg-white dark:bg-slate-800 rounded-lg border p-3 min-h-32
                     ${isToday
                       ? 'border-emerald-400 dark:border-emerald-600'
-                      : 'border-gray-200 dark:border-gray-700'}`}
+                      : 'border-slate-200 dark:border-slate-700'}`}
                 >
-                  <h3 className={`text-xs font-semibold mb-2 capitalize ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                  <h3 className={`text-xs font-semibold mb-2 capitalize ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {formatDateShort(day)}
                   </h3>
                   {dayAppointments.length === 0 ? (
-                    <p className="text-xs text-gray-400 dark:text-gray-500">Sin citas</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">Sin citas</p>
                   ) : (
                     <div className="space-y-1.5">
                       {dayAppointments.map((a) => (
                         <Link
                           key={a.id}
                           to={`/appointments/${a.id}`}
-                          className="block p-2 rounded-md bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          className="block p-2 rounded-md bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                         >
-                          <div className="text-xs font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-slate-900 dark:text-white">
                             {formatTime(a.dateTime)}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {a.patient ? `${a.patient.firstName} ${a.patient.lastName}` : 'Paciente'}
                           </div>
                           <div className="mt-1">

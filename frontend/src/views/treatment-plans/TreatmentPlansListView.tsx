@@ -15,7 +15,7 @@ const TreatmentPlansListView = () => {
       key: 'patient',
       header: 'Paciente',
       render: (p) => p.patient
-        ? <span className="font-medium text-gray-900 dark:text-white">{p.patient.firstName} {p.patient.lastName}</span>
+        ? <span className="font-medium text-slate-900 dark:text-white">{p.patient.firstName} {p.patient.lastName}</span>
         : '—',
     },
     {
