@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Textarea, Button } from '../ui';
+import { Input, Select, Textarea, Button, DatePicker } from '../ui';
 import type {
   CreateAppointmentDto,
   AppointmentFormErrors,
@@ -123,9 +123,8 @@ const AppointmentForm = ({
             error={errors.doctorId}
             placeholder="Seleccionar doctor..."
           />
-          <Input
+          <DatePicker
             label="Fecha *"
-            type="date"
             value={date}
             onChange={(e) => { setDate(e.target.value); clearError('dateTime'); }}
             error={errors.dateTime}

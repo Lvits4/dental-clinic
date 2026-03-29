@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Textarea, Button, Spinner } from '../ui';
+import { Input, Select, Textarea, Button, Spinner, DatePicker } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment } from '../../types';
 
 interface PerformedProcedureFormProps {
@@ -82,9 +82,8 @@ const PerformedProcedureForm = ({
           onChange={(e) => setTreatmentId(e.target.value)}
           placeholder="Seleccionar..."
         />
-        <Input
+        <DatePicker
           label="Fecha *"
-          type="date"
           value={performedAt}
           onChange={(e) => setPerformedAt(e.target.value)}
         />

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PageHeader, Button, Select, Input, Pagination } from '../../components/ui';
+import { PageHeader, Button, Select, DatePicker, Pagination } from '../../components/ui';
 import AppointmentsTable from '../../components/appointments/AppointmentsTable';
 import { useAppointmentsList } from '../../querys/appointments/queryAppointments';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
@@ -107,14 +107,12 @@ const AppointmentsListView = () => {
               onChange={(e) => { setDoctorId(e.target.value); setPage(1); }}
               placeholder="Todos los doctores"
             />
-            <Input
-              type="date"
+            <DatePicker
               value={dateFrom}
               onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
               placeholder="Desde"
             />
-            <Input
-              type="date"
+            <DatePicker
               value={dateTo}
               onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
               placeholder="Hasta"

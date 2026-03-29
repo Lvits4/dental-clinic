@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Textarea, Button } from '../ui';
+import { Input, Select, Textarea, Button, DatePicker } from '../ui';
 import type { CreatePatientDto, PatientFormErrors, Patient } from '../../types';
 import { SEX_OPTIONS } from '../../types';
 
@@ -135,9 +135,8 @@ const PatientForm = ({
             onChange={(e) => { setSex(e.target.value); clearError('sex'); }}
             error={errors.sex}
           />
-          <Input
+          <DatePicker
             label="Fecha de nacimiento *"
-            type="date"
             value={dateOfBirth}
             onChange={(e) => { setDateOfBirth(e.target.value); clearError('dateOfBirth'); }}
             error={errors.dateOfBirth}

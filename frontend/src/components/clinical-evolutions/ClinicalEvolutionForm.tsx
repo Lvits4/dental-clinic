@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Textarea, Button } from '../ui';
+import { Input, Select, Textarea, Button, DatePicker } from '../ui';
 import type { CreateClinicalEvolutionDto, Doctor } from '../../types';
 
 interface ClinicalEvolutionFormProps {
@@ -53,9 +53,8 @@ const ClinicalEvolutionForm = ({
           onChange={(e) => setDoctorId(e.target.value)}
           placeholder="Seleccionar doctor..."
         />
-        <Input
+        <DatePicker
           label="Fecha *"
-          type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
