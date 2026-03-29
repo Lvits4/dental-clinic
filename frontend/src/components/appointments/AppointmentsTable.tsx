@@ -100,9 +100,9 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
           <button
             title="Editar cita"
             onClick={() => setEditTarget(a)}
-            className="p-1.5 rounded-lg text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
+            className="p-2 rounded-lg text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
               />
@@ -136,68 +136,65 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
         size="lg"
       >
         {editTarget && (
-          <div className="space-y-6">
-            {/* Formulario principal */}
-            <AppointmentForm
-              patients={activePatients}
-              doctors={activeDoctors}
-              initialValues={{
-                patientId:       editTarget.patientId,
-                doctorId:        editTarget.doctorId,
-                date:            editTarget.dateTime.slice(0, 10),
-                time:            editTarget.dateTime.slice(11, 16),
-                durationMinutes: editTarget.durationMinutes,
-                reason:          editTarget.reason,
-                notes:           editTarget.notes,
-              }}
-              onSubmit={(data) => {
-                updateAppointment.mutate(
-                  { id: editTarget.id, data },
-                  { onSettled: () => setEditTarget(null) },
-                );
-              }}
-              loading={updateAppointment.isPending}
-              submitLabel="Guardar cambios"
-            />
-
-            {/* Sección cambio de estado */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-5">
-              <div className="flex items-center gap-2 mb-3">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                  Estado actual
+          <AppointmentForm
+            patients={activePatients}
+            doctors={activeDoctors}
+            initialValues={{
+              patientId:       editTarget.patientId,
+              doctorId:        editTarget.doctorId,
+              date:            editTarget.dateTime.slice(0, 10),
+              time:            editTarget.dateTime.slice(11, 16),
+              durationMinutes: editTarget.durationMinutes,
+              reason:          editTarget.reason,
+              notes:           editTarget.notes,
+            }}
+            onSubmit={(data) => {
+              updateAppointment.mutate(
+                { id: editTarget.id, data },
+                { onSettled: () => setEditTarget(null) },
+              );
+            }}
+            loading={updateAppointment.isPending}
+            submitLabel="Guardar cambios"
+            footerContent={
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    Estado actual
+                  </p>
+                  <AppointmentStatusBadge status={editTarget.status} />
+                </div>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                  Cambiar a:
                 </p>
-                <AppointmentStatusBadge status={editTarget.status} />
-              </div>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                Cambiar a:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {allStatusesExceptCurrent.map((status) => (
-                  <button
-                    key={status}
-                    disabled={updateStatus.isPending}
-                    onClick={() =>
-                      updateStatus.mutate(
-                        { id: editTarget.id, status },
-                        {
-                          onSuccess: () => {
-                            // Actualizar el estado local del target para reflejar el cambio
-                            setEditTarget((prev) => prev ? { ...prev, status } : null);
+                <div className="flex flex-wrap gap-2">
+                  {allStatusesExceptCurrent.map((status) => (
+                    <button
+                      key={status}
+                      type="button"
+                      disabled={updateStatus.isPending}
+                      onClick={() =>
+                        updateStatus.mutate(
+                          { id: editTarget.id, status },
+                          {
+                            onSuccess: () => {
+                              setEditTarget((prev) => prev ? { ...prev, status } : null);
+                            },
                           },
-                        },
-                      )
-                    }
-                    className={[
-                      'px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
-                      STATUS_BUTTON_CLASSES[status],
-                    ].join(' ')}
-                  >
-                    {STATUS_CONFIG[status]?.label ?? status}
-                  </button>
-                ))}
+                        )
+                      }
+                      className={[
+                        'px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        STATUS_BUTTON_CLASSES[status],
+                      ].join(' ')}
+                    >
+                      {STATUS_CONFIG[status]?.label ?? status}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          </div>
+            }
+          />
         )}
       </Modal>
     </>

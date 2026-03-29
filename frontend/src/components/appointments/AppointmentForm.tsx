@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, type FormEvent, type ReactNode } from 'react';
 import { TimePicker, Select, Textarea, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type {
@@ -53,6 +53,8 @@ interface AppointmentFormProps {
     reason?: string;
     notes?: string;
   };
+  /** Contenido extra que aparece antes del botón Guardar/Siguiente (e.g. sección de estado) */
+  footerContent?: ReactNode;
 }
 
 /* ── Iconos de sección ── */
@@ -76,6 +78,7 @@ const AppointmentForm = ({
   defaultPatientId = '',
   defaultDoctorId = '',
   initialValues = {},
+  footerContent,
 }: AppointmentFormProps) => {
   const [patientId, setPatientId] = useState(initialValues.patientId ?? defaultPatientId);
   const [doctorId, setDoctorId] = useState(initialValues.doctorId ?? defaultDoctorId);
@@ -212,6 +215,7 @@ const AppointmentForm = ({
       onSubmit={handleSubmit}
       submitLabel={submitLabel}
       loading={loading}
+      beforeButtons={footerContent}
     />
   );
 };

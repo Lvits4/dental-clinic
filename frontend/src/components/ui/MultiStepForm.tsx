@@ -13,6 +13,8 @@ export interface MultiStepFormProps {
   onSubmit: (e: FormEvent) => void;
   submitLabel?: string;
   loading?: boolean;
+  /** Contenido extra que se renderiza entre el paso actual y los botones de navegación */
+  beforeButtons?: ReactNode;
 }
 
 const MultiStepForm = ({
@@ -20,6 +22,7 @@ const MultiStepForm = ({
   onSubmit,
   submitLabel = 'Guardar',
   loading = false,
+  beforeButtons,
 }: MultiStepFormProps) => {
   const [current, setCurrent] = useState(0);
   const isLast = current === steps.length - 1;
@@ -156,6 +159,9 @@ const MultiStepForm = ({
           {steps[current].content}
         </div>
       </div>
+
+      {/* ── Contenido extra antes de los botones ── */}
+      {beforeButtons}
 
       {/* ── Navigation Buttons ── */}
       <div className="flex items-center justify-between pt-5 mt-5 border-t border-slate-100 dark:border-slate-800">
