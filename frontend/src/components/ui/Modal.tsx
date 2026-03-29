@@ -57,11 +57,11 @@ const Modal = ({
 
   const panelRounded = fitContent
     ? 'rounded-t-lg md:rounded-lg'
-    : 'rounded-t-2xl md:rounded-2xl';
+    : 'rounded-t-lg md:rounded-lg';
 
-  const footerRounded = fitContent ? 'rounded-b-lg' : 'rounded-b-2xl';
+  const footerRounded = fitContent ? 'rounded-b-lg' : 'rounded-b-lg';
 
-  const closeBtnRounded = fitContent ? 'rounded-lg' : 'rounded-xl';
+  const closeBtnRounded = 'rounded-lg';
 
   return (
     <div
@@ -99,7 +99,7 @@ const Modal = ({
       >
         {/* Handle (solo mobile) */}
         <div className="md:hidden flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+          <div className="w-10 h-1 rounded-lg bg-slate-200 dark:bg-slate-700" />
         </div>
 
         {/* Header */}

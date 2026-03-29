@@ -47,7 +47,7 @@ const ToggleSwitch = ({
         onClick={() => !disabled && onChange(!checked)}
         className={[
           s.track,
-          'relative inline-flex items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-emerald-500/30',
+          'relative inline-flex items-center rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-emerald-500/30',
           checked
             ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
             : 'bg-slate-200 dark:bg-slate-700',
@@ -56,7 +56,7 @@ const ToggleSwitch = ({
         <span
           className={[
             s.thumb,
-            'rounded-full bg-white shadow-sm transition-transform duration-200',
+            'rounded-lg bg-white shadow-sm transition-transform duration-200',
             'absolute left-[3px]',
             checked ? s.translate : 'translate-x-0',
           ].join(' ')}

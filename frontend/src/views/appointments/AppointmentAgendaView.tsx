@@ -156,7 +156,7 @@ const AppointmentAgendaView = () => {
                 <div key={day}>
                   <h3 className={`text-xs font-semibold mb-1.5 capitalize ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {formatDateShort(day)}
-                    {isToday && <span className="ml-1.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded">Hoy</span>}
+                    {isToday && <span className="ml-1.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded-lg">Hoy</span>}
                   </h3>
                   <div className="space-y-1.5">
                     {dayAppointments.map((a) => (
@@ -212,7 +212,7 @@ const AppointmentAgendaView = () => {
                         <Link
                           key={a.id}
                           to={`/appointments/${a.id}`}
-                          className="block p-2 rounded-md bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          className="block p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                         >
                           <div className="text-xs font-medium text-slate-900 dark:text-white">
                             {formatTime(a.dateTime)}

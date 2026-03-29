@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 
-export type SearchInputRadius = 'xl' | '2xl';
-
 export interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -9,14 +7,7 @@ export interface SearchInputProps {
   debounceMs?: number;
   fullWidth?: boolean;
   className?: string;
-  /** Por defecto `xl`; usar `2xl` para alinear con tablas tipo `rounded-2xl` */
-  radius?: SearchInputRadius;
 }
-
-const RADIUS_CLASS: Record<SearchInputRadius, string> = {
-  xl: 'rounded-xl',
-  '2xl': 'rounded-2xl',
-};
 
 const SearchInput = ({
   value,
@@ -25,7 +16,6 @@ const SearchInput = ({
   debounceMs = 400,
   fullWidth = false,
   className = '',
-  radius = 'xl',
 }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState(value);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,7 +58,7 @@ const SearchInput = ({
         placeholder={placeholder}
         className={[
           'w-full h-10 box-border pl-10 pr-9 py-0 text-sm border transition-all duration-200',
-          RADIUS_CLASS[radius],
+          'rounded-lg',
           'bg-white dark:bg-slate-800/50',
           'text-slate-900 dark:text-white',
           'border-slate-200 dark:border-slate-700',
@@ -82,7 +72,7 @@ const SearchInput = ({
       {localValue && (
         <button
           onClick={handleClear}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           aria-label="Limpiar busqueda"
           type="button"
         >

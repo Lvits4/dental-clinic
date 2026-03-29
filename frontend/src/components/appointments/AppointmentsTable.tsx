@@ -246,7 +246,7 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
                         )
                       }
                       className={[
-                        'px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        'px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
                         STATUS_BUTTON_CLASSES[status],
                       ].join(' ')}
                     >

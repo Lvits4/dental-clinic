@@ -68,14 +68,14 @@ const ClinicalRecordView = () => {
       />
 
       {noRecord && !editing ? (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
           <p className="text-slate-500 dark:text-slate-400 mb-4">
             Este paciente no tiene expediente clínico aún.
           </p>
           <Button onClick={() => setEditing(true)}>Crear Expediente</Button>
         </div>
       ) : editing ? (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
           <ClinicalRecordForm
             initialData={record}
             loading={createMutation.isPending || updateMutation.isPending}
@@ -85,7 +85,7 @@ const ClinicalRecordView = () => {
           />
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-4">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-4">
           {SECTIONS.map((s) => (
             <div key={s.key}>
               <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">

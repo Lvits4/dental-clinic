@@ -200,7 +200,7 @@ const DatePicker = ({
           disabled={disabled}
           onClick={() => !disabled && setOpen((v) => !v)}
           className={[
-            'w-full rounded-xl border text-sm transition-all duration-200 text-left',
+            'w-full rounded-lg border text-sm transition-all duration-200 text-left',
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
@@ -242,7 +242,7 @@ const DatePicker = ({
 
         {/* Calendar Panel */}
         {open && (
-          <div className="absolute z-50 mt-1.5 w-72 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none p-3">
+          <div className="absolute z-50 mt-1.5 w-72 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none p-3">
             {/* Header — Month/Year Navigation */}
             <div className="flex items-center justify-between mb-3">
               <button

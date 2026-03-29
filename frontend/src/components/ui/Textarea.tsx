@@ -35,7 +35,7 @@ const Textarea = ({
         id={textareaId}
         rows={rows}
         className={[
-          'w-full rounded-xl border text-sm transition-all duration-200 resize-y',
+          'w-full rounded-lg border text-sm transition-all duration-200 resize-y',
           'bg-white dark:bg-slate-800/50',
           'text-slate-900 dark:text-white',
           'placeholder-slate-400 dark:placeholder-slate-500',

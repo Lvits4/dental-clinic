@@ -110,7 +110,7 @@ const TimePicker = ({
           disabled={disabled}
           onClick={() => !disabled && setOpen((v) => !v)}
           className={[
-            'w-full rounded-xl border text-sm transition-all duration-200 text-left',
+            'w-full rounded-lg border text-sm transition-all duration-200 text-left',
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
@@ -145,7 +145,7 @@ const TimePicker = ({
           <ul
             ref={listRef}
             role="listbox"
-            className="absolute z-50 mt-1.5 w-full max-h-[280px] overflow-y-auto rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none"
+            className="absolute z-50 mt-1.5 w-full max-h-[280px] overflow-y-auto rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none"
           >
             {TIME_SLOTS.map((slot) => {
               const isSelected = slot === value;

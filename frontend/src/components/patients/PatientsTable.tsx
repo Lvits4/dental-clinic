@@ -58,12 +58,12 @@ const PatientsTable = ({
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
   const actionButtons = (p: Patient) => (
-    <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+    <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
       <Link to={`/patients/${p.id}`}>
         <button
           type="button"
           title="Ver detalle"
-          className="p-1.5 rounded-2xl text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 transition-colors"
+          className="p-1.5 rounded-lg text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 transition-colors"
         >
           <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path
@@ -80,7 +80,7 @@ const PatientsTable = ({
           type="button"
           title="Editar"
           onClick={() => onEditPatient(p)}
-          className="p-1.5 rounded-2xl text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-900/20 transition-colors"
+          className="p-1.5 rounded-lg text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-900/20 transition-colors"
         >
           <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path
@@ -96,7 +96,7 @@ const PatientsTable = ({
           type="button"
           title="Eliminar de la lista"
           onClick={() => setPatientToDelete(p)}
-          className="p-1.5 rounded-2xl text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
+          className="p-1.5 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
         >
           <TrashIcon />
         </button>
@@ -143,7 +143,7 @@ const PatientsTable = ({
     {
       key: 'actions',
       header: 'Acciones',
-      className: 'text-right w-[9.5rem]',
+      className: 'text-center w-[9.5rem]',
       hideOnMobile: true,
       render: (p) => actionButtons(p),
     },
@@ -152,7 +152,7 @@ const PatientsTable = ({
   const rootClass = fillHeight ? 'flex flex-col flex-1 min-h-0 min-w-0 gap-2' : 'flex flex-col gap-2';
 
   const paginationProps = pagination
-    ? { embedded: true as const, radius: '2xl' as const, ...pagination }
+    ? { embedded: true as const, ...pagination }
     : null;
   const mobileWrap = fillHeight
     ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-2'
@@ -169,7 +169,7 @@ const PatientsTable = ({
           data.map((p) => (
             <div
               key={p.id}
-              className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <button
                 type="button"
@@ -184,7 +184,7 @@ const PatientsTable = ({
                   <p className="text-sm text-slate-400 dark:text-slate-500 truncate">{p.email}</p>
                 )}
               </button>
-              <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-700">
+              <div className="flex justify-center pt-2 border-t border-slate-100 dark:border-slate-700">
                 {actionButtons(p)}
               </div>
             </div>
@@ -193,7 +193,7 @@ const PatientsTable = ({
       </div>
 
       {paginationProps && (
-        <div className="md:hidden shrink-0 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+        <div className="md:hidden shrink-0 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
           <Pagination {...paginationProps} />
         </div>
       )}

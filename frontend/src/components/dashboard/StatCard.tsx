@@ -111,7 +111,7 @@ const StatCard = ({
           className={[
             colors.iconBg,
             'shrink-0',
-            compact ? 'rounded-md p-1.5 [&_svg]:size-4' : 'rounded-lg p-2.5',
+            compact ? 'rounded-lg p-1.5 [&_svg]:size-4' : 'rounded-lg p-2.5',
           ].join(' ')}
         >
           <span className={`${colors.iconText} block`}>{icon}</span>

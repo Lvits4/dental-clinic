@@ -26,7 +26,7 @@ interface TableProps<T> {
   /** Tabla con altura flexible: el padre debe ser flex con flex-1 min-h-0 */
   fillHeight?: boolean;
   /**
-   * `sentence`: cabeceras tipo cuadrícula (texto en oración, iconos ↑ activo / ↕ inactivo).
+   * `sentence`: cabeceras tipo cuadrícula (texto en oración; siempre ↑↓ con una resaltada si la columna ordena).
    * `default`: estilo compacto en mayúsculas con doble cheurón.
    */
   headerVariant?: 'default' | 'sentence';
@@ -34,35 +34,40 @@ interface TableProps<T> {
   footer?: ReactNode;
 }
 
+/** Siempre dos cheurones; el activo resalta según dirección (misma altura visual en todas las columnas). */
 const SortChevrons = ({
   active,
   direction,
 }: {
   active: boolean;
   direction: 'asc' | 'desc';
-}) => (
-  <span
-    className="inline-flex flex-col shrink-0 justify-center gap-0 text-slate-400 dark:text-slate-500"
-    aria-hidden
-  >
-    <svg
-      viewBox="0 0 12 12"
-      className={`h-2.5 w-2.5 -mb-px ${active && direction === 'asc' ? 'text-emerald-600 dark:text-emerald-400' : 'opacity-40'}`}
-      fill="currentColor"
+}) => {
+  const upOn = active && direction === 'asc';
+  const downOn = active && direction === 'desc';
+  return (
+    <span
+      className="inline-flex flex-col shrink-0 justify-center gap-px text-slate-500 dark:text-slate-400"
+      aria-hidden
     >
-      <path d="M6 2.5L10.5 9h-9L6 2.5z" />
-    </svg>
-    <svg
-      viewBox="0 0 12 12"
-      className={`h-2.5 w-2.5 ${active && direction === 'desc' ? 'text-emerald-600 dark:text-emerald-400' : 'opacity-40'}`}
-      fill="currentColor"
-    >
-      <path d="M6 9.5L1.5 3h9L6 9.5z" />
-    </svg>
-  </span>
-);
+      <svg
+        viewBox="0 0 12 12"
+        className={`h-2.5 w-2.5 shrink-0 ${upOn ? 'text-emerald-600 dark:text-emerald-400' : 'opacity-40'}`}
+        fill="currentColor"
+      >
+        <path d="M6 2.5L10.5 9h-9L6 2.5z" />
+      </svg>
+      <svg
+        viewBox="0 0 12 12"
+        className={`h-2.5 w-2.5 shrink-0 ${downOn ? 'text-emerald-600 dark:text-emerald-400' : 'opacity-40'}`}
+        fill="currentColor"
+      >
+        <path d="M6 9.5L1.5 3h9L6 9.5z" />
+      </svg>
+    </span>
+  );
+};
 
-/** Iconos alineados con referencia tipo “data grid”: columna activa ↑/↓; resto ↕ */
+/** Misma lógica que SortChevrons: siempre ↑ y ↓; columna ordenada resalta una de las dos. */
 const SortSentenceIcons = ({
   active,
   direction,
@@ -70,43 +75,28 @@ const SortSentenceIcons = ({
   active: boolean;
   direction: 'asc' | 'desc';
 }) => {
-  const muted = 'text-slate-400 dark:text-slate-500';
-  const accent = 'text-emerald-600 dark:text-emerald-400';
-
-  if (active && direction === 'asc') {
-    return (
-      <svg
-        viewBox="0 0 12 12"
-        className={`h-3 w-3 shrink-0 ${accent}`}
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M6 2.25L10.75 9h-9.5L6 2.25z" />
-      </svg>
-    );
-  }
-  if (active && direction === 'desc') {
-    return (
-      <svg
-        viewBox="0 0 12 12"
-        className={`h-3 w-3 shrink-0 ${accent}`}
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M6 9.75L1.25 3h9.5L6 9.75z" />
-      </svg>
-    );
-  }
+  const upOn = active && direction === 'asc';
+  const downOn = active && direction === 'desc';
   return (
-    <svg
-      viewBox="0 0 12 12"
-      className={`h-3 w-3 shrink-0 ${muted}`}
-      fill="currentColor"
+    <span
+      className="inline-flex flex-col items-center justify-center gap-px shrink-0 text-slate-500 dark:text-slate-400"
       aria-hidden
     >
-      <path d="M6 1.75L9.25 6.25H2.75L6 1.75z" opacity={0.65} />
-      <path d="M6 10.25L2.75 5.75h6.5L6 10.25z" opacity={0.65} />
-    </svg>
+      <svg
+        viewBox="0 0 12 12"
+        className={`h-2.5 w-2.5 shrink-0 ${upOn ? 'text-emerald-600 dark:text-emerald-400' : 'opacity-45'}`}
+        fill="currentColor"
+      >
+        <path d="M6 2.25L10.5 8.25h-9L6 2.25z" />
+      </svg>
+      <svg
+        viewBox="0 0 12 12"
+        className={`h-2.5 w-2.5 shrink-0 ${downOn ? 'text-emerald-600 dark:text-emerald-400' : 'opacity-45'}`}
+        fill="currentColor"
+      >
+        <path d="M6 9.75L1.5 3.75h9L6 9.75z" />
+      </svg>
+    </span>
   );
 };
 
@@ -114,17 +104,17 @@ const SkeletonRow = ({ cols }: { cols: number }) => (
   <tr>
     {Array.from({ length: cols }).map((_, i) => (
       <td key={i} className="px-5 py-3.5">
-        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-md animate-pulse" />
+        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
       </td>
     ))}
   </tr>
 );
 
 const SkeletonCard = () => (
-  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 space-y-3">
-    <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-md animate-pulse" />
-    <div className="h-3 w-3/4 bg-slate-50 dark:bg-slate-800/60 rounded-md animate-pulse" />
-    <div className="h-3 w-2/3 bg-slate-50 dark:bg-slate-800/60 rounded-md animate-pulse" />
+  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 space-y-3">
+    <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+    <div className="h-3 w-3/4 bg-slate-50 dark:bg-slate-800/60 rounded-lg animate-pulse" />
+    <div className="h-3 w-2/3 bg-slate-50 dark:bg-slate-800/60 rounded-lg animate-pulse" />
   </div>
 );
 
@@ -148,25 +138,36 @@ const Table = <T,>({
   const sentenceHeaders = headerVariant === 'sentence';
 
   const desktopOuter = fillHeight
-    ? 'hidden md:flex md:flex-col md:flex-1 md:min-h-0 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 overflow-hidden'
-    : 'hidden md:block overflow-x-auto bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm';
+    ? 'hidden md:flex md:flex-col md:flex-1 md:min-h-0 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 overflow-hidden'
+    : 'hidden md:block overflow-x-auto bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm';
 
   const desktopScroll = fillHeight ? 'flex-1 min-h-0 overflow-auto min-w-0' : 'overflow-x-auto';
 
-  const isRightAligned = (col: Column<T>) => col.className?.includes('text-right') ?? false;
+  const cellAlign = (col: Column<T>): 'left' | 'right' | 'center' => {
+    const cn = col.className ?? '';
+    if (cn.includes('text-center')) return 'center';
+    if (cn.includes('text-right')) return 'right';
+    return 'left';
+  };
+
+  const textAlignClass = (a: 'left' | 'right' | 'center') =>
+    a === 'right' ? 'text-right' : a === 'center' ? 'text-center' : 'text-left';
+
+  const flexJustifyClass = (a: 'left' | 'right' | 'center') =>
+    a === 'right' ? 'justify-end' : a === 'center' ? 'justify-center' : 'justify-start';
 
   const thBase = (col: Column<T>) =>
     [
       sentenceHeaders
-        ? 'px-5 py-3.5 min-h-[44px] text-sm font-medium text-slate-400 dark:text-slate-500 align-middle'
-        : 'px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider align-middle',
-      'sticky top-0 z-[1] bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800/80',
-      isRightAligned(col) ? 'text-right' : 'text-left',
+        ? 'px-5 py-4 min-h-[48px] text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-tight align-middle'
+        : 'px-5 py-3.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider align-middle',
+      'sticky top-0 z-[1] bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90',
+      textAlignClass(cellAlign(col)),
       col.className ?? '',
     ].join(' ');
 
   const renderHeaderCell = (col: Column<T>) => {
-    const right = isRightAligned(col);
+    const align = cellAlign(col);
 
     if (col.sortKey && onSort) {
       const active = sortColumn === col.sortKey;
@@ -177,25 +178,33 @@ const Table = <T,>({
         : 'none';
 
       return (
-        <th key={col.key} className={thBase(col)}>
+        <th
+          key={col.key}
+          className={[thBase(col), 'outline-none focus-within:outline-none [&_button::-moz-focus-inner]:border-0'].join(' ')}
+        >
           <button
             type="button"
             className={[
-              'group flex w-full items-center rounded-lg -mx-1 px-1 transition-colors',
-              sentenceHeaders ? 'gap-1.5 py-0.5' : 'gap-2 py-1.5',
-              right ? 'justify-end' : 'justify-start',
-              'hover:bg-slate-100/80 dark:hover:bg-slate-800/80',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-0',
+              'table-sort-header-btn flex w-full items-center rounded-lg -mx-1 px-1.5',
+              sentenceHeaders ? 'gap-2 py-1' : 'gap-2 py-1.5',
+              flexJustifyClass(align),
+              'appearance-none bg-transparent border-0 shadow-none ring-0 ring-offset-0',
+              'outline-none focus:outline-none focus-visible:outline-none',
+              'active:bg-transparent hover:bg-transparent',
+              '[-webkit-tap-highlight-color:transparent]',
             ].join(' ')}
             aria-sort={ariaSort}
+            onMouseDown={(e) => {
+              if (e.button === 0) e.preventDefault();
+            }}
             onClick={(e) => {
               e.stopPropagation();
               onSort(col.sortKey!);
             }}
           >
-            {!right && (
+            {align !== 'right' && (
               <>
-                <span className="whitespace-nowrap">{col.header}</span>
+                <span className="whitespace-nowrap text-slate-700 dark:text-slate-200">{col.header}</span>
                 {sentenceHeaders ? (
                   <SortSentenceIcons active={active} direction={sortDirection} />
                 ) : (
@@ -203,14 +212,14 @@ const Table = <T,>({
                 )}
               </>
             )}
-            {right && (
+            {align === 'right' && (
               <>
                 {sentenceHeaders ? (
                   <SortSentenceIcons active={active} direction={sortDirection} />
                 ) : (
                   <SortChevrons active={active} direction={sortDirection} />
                 )}
-                <span className="whitespace-nowrap">{col.header}</span>
+                <span className="whitespace-nowrap text-slate-700 dark:text-slate-200">{col.header}</span>
               </>
             )}
           </button>
@@ -220,8 +229,10 @@ const Table = <T,>({
 
     return (
       <th key={col.key} className={thBase(col)}>
-        <div className={`flex w-full items-center min-h-[2.25rem] ${right ? 'justify-end' : 'justify-start'}`}>
-          <span>{col.header}</span>
+        <div
+          className={`flex w-full items-center min-h-[2.25rem] ${flexJustifyClass(align)} ${sentenceHeaders ? 'px-0.5' : ''}`}
+        >
+          <span className={sentenceHeaders ? 'text-slate-700 dark:text-slate-200' : ''}>{col.header}</span>
         </div>
       </th>
     );
@@ -232,8 +243,8 @@ const Table = <T,>({
       key={col.key}
       className={
         sentenceHeaders
-          ? `px-5 py-3.5 min-h-[44px] text-sm font-medium text-slate-400 dark:text-slate-500 ${isRightAligned(col) ? 'text-right' : 'text-left'} sticky top-0 z-[1] bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800/80 ${col.className ?? ''}`
-          : `px-5 py-3.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${isRightAligned(col) ? 'text-right' : 'text-left'} ${col.className ?? ''}`
+          ? `px-5 py-4 min-h-[48px] text-sm font-semibold text-slate-600 dark:text-slate-300 ${textAlignClass(cellAlign(col))} sticky top-0 z-[1] bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90 ${col.className ?? ''}`
+          : `px-5 py-3.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${textAlignClass(cellAlign(col))} ${col.className ?? ''}`
       }
     >
       {col.header}
@@ -252,7 +263,7 @@ const Table = <T,>({
       <>
         <div className={desktopOuter}>
           <div className={desktopScroll}>
-            <table className="w-full table-auto border-collapse">
+            <table className="w-full table-auto border-collapse outline-none">
               <thead>
                 <tr>{columns.map((col) => renderSkeletonTh(col))}</tr>
               </thead>
@@ -281,7 +292,7 @@ const Table = <T,>({
     <>
       <div className={desktopOuter}>
         <div className={desktopScroll}>
-          <table className="w-full table-auto border-collapse">
+          <table className="w-full table-auto border-collapse outline-none">
             <thead>
               <tr>
                 {columns.map((col) => renderHeaderCell(col))}
@@ -316,7 +327,7 @@ const Table = <T,>({
                         key={col.key}
                         className={[
                           'px-5 py-3.5 text-sm text-slate-700 dark:text-slate-300 align-middle',
-                          isRightAligned(col) ? 'text-right' : 'text-left',
+                          textAlignClass(cellAlign(col)),
                           col.className ?? '',
                         ].join(' ')}
                       >
@@ -347,7 +358,7 @@ const Table = <T,>({
               key={keyExtractor(item)}
               onClick={() => onRowClick?.(item)}
               className={[
-                'bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200',
+                'bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200',
                 onRowClick
                   ? 'cursor-pointer active:scale-[0.98] active:shadow-none'
                   : '',

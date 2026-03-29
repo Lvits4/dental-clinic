@@ -31,7 +31,6 @@ const MultiStepForm = ({
   onCancel,
   onStepChange,
 }: MultiStepFormProps) => {
-  const actionBtnClass = 'rounded-lg';
   const [current, setCurrent] = useState(0);
   const isLast = current === steps.length - 1;
   const isFirst = current === 0;
@@ -108,7 +107,7 @@ const MultiStepForm = ({
                 }}
                 disabled={i > current}
                 className={[
-                  'min-h-[3px] min-w-0 flex-1 rounded-full transition-[height,background-color] duration-300 ease-out',
+                  'min-h-[3px] min-w-0 flex-1 rounded-lg transition-[height,background-color] duration-300 ease-out',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900',
                   active
                     ? 'h-1 bg-emerald-600 dark:bg-emerald-500'
@@ -144,7 +143,6 @@ const MultiStepForm = ({
               type="button"
               variant="secondary"
               size="md"
-              className={actionBtnClass}
               leftIcon={
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -161,7 +159,6 @@ const MultiStepForm = ({
               type="button"
               variant="secondary"
               size="md"
-              className={actionBtnClass}
               leftIcon={
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -182,7 +179,6 @@ const MultiStepForm = ({
               type="submit"
               variant="primary"
               size="md"
-              className={actionBtnClass}
               loading={loading}
               disabled={loading}
             >
@@ -193,7 +189,6 @@ const MultiStepForm = ({
               type="button"
               variant="primary"
               size="md"
-              className={actionBtnClass}
               rightIcon={
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -88,7 +88,14 @@ h1, h2, h3, h4, h5, h6 {
 *:focus-visible {
   outline: 2px solid #059669;
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+}
+
+/* Botón de ordenación en thead: ocupa todo el ancho del th; el outline global se ve como una raya horizontal */
+.table-sort-header-btn:focus,
+.table-sort-header-btn:focus-visible {
+  outline: none;
+  outline-offset: 0;
 }
 
 /* ── Scrollbar styling ── */
@@ -104,7 +111,7 @@ h1, h2, h3, h4, h5, h6 {
 
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 999px;
+  border-radius: var(--radius-lg);
 }
 
 ::-webkit-scrollbar-thumb:hover {

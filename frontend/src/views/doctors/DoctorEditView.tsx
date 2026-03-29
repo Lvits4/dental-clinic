@@ -54,7 +54,7 @@ const DoctorEditView = () => {
       {/* Status banner */}
       <div
         className={[
-          'flex items-center justify-between gap-4 px-4 py-3 rounded-xl border',
+          'flex items-center justify-between gap-4 px-4 py-3 rounded-lg border',
           doctor.isActive
             ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/40'
             : 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800/40',
@@ -63,7 +63,7 @@ const DoctorEditView = () => {
         <div className="flex items-center gap-2.5">
           <div
             className={[
-              'w-2 h-2 rounded-full shrink-0',
+              'w-2 h-2 rounded-lg shrink-0',
               doctor.isActive
                 ? 'bg-emerald-500'
                 : 'bg-amber-500',

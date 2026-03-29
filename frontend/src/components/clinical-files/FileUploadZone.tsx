@@ -47,7 +47,7 @@ const FileUploadZone = ({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       className={[
-        'flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed cursor-pointer transition-colors',
+        'flex flex-col items-center justify-center gap-3 p-8 rounded-lg border-2 border-dashed cursor-pointer transition-colors',
         isDragging
           ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/10'
           : 'border-slate-300 dark:border-slate-600 hover:border-emerald-400 dark:hover:border-emerald-500 bg-white dark:bg-slate-800',

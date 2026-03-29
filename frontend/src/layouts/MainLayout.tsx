@@ -174,10 +174,10 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
         'relative flex items-center font-medium transition-all duration-200 group cursor-pointer',
         collapsed
           ? isActive
-            ? 'mx-auto size-10 shrink-0 justify-center rounded-full p-0'
+            ? 'mx-auto size-10 shrink-0 justify-center rounded-lg p-0'
             : 'justify-center rounded-lg px-0 py-2.5'
           : isActive
-            ? 'gap-3 rounded-md px-3 py-2.5'
+            ? 'gap-3 rounded-lg px-3 py-2.5'
             : 'gap-3 rounded-lg px-3 py-2.5',
         isActive
           ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
@@ -189,7 +189,7 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
       <>
         {/* Franja activa solo con sidebar expandido */}
         {isActive && !collapsed && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-emerald-500 dark:bg-emerald-400" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-lg bg-emerald-500 dark:bg-emerald-400" />
         )}
         <span className={`transition-colors duration-200 ${
           isActive
@@ -335,7 +335,7 @@ const MainLayout = () => {
           {collapsed ? (
             <div className="flex justify-center py-2">
               <div
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm"
+                className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm"
                 title={user?.fullName ?? 'Usuario'}
               >
                 {userInitial}
@@ -343,7 +343,7 @@ const MainLayout = () => {
             </div>
           ) : (
             <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
                 {userInitial}
               </div>
               <div className="flex-1 min-w-0">
@@ -388,7 +388,7 @@ const MainLayout = () => {
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
+            className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
             aria-label="Menu de usuario"
           >
             {userInitial}
@@ -473,7 +473,7 @@ const MainLayout = () => {
                 </span>
                 <span className="leading-none">{item.label}</span>
                 {isActive && (
-                  <span className="absolute top-0 w-8 h-0.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                  <span className="absolute top-0 w-8 h-0.5 rounded-lg bg-emerald-500 dark:bg-emerald-400" />
                 )}
               </>
             )}
@@ -503,10 +503,10 @@ const MainLayout = () => {
           />
 
           {/* Panel deslizable desde abajo */}
-          <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 rounded-t-2xl shadow-2xl border-t border-slate-200/80 dark:border-slate-800 animate-slide-up">
+          <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 rounded-t-lg shadow-2xl border-t border-slate-200/80 dark:border-slate-800 animate-slide-up">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="w-10 h-1 rounded-lg bg-slate-200 dark:bg-slate-700" />
             </div>
 
             {/* Header del drawer */}

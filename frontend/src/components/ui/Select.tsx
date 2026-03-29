@@ -5,8 +5,6 @@ export interface SelectOption {
   label: string;
 }
 
-export type SelectRadius = 'xl' | '2xl';
-
 export interface SelectProps {
   label?: string;
   error?: string;
@@ -20,8 +18,6 @@ export interface SelectProps {
   id?: string;
   name?: string;
   className?: string;
-  /** Por defecto `xl`; usar `2xl` para alinear con tablas `rounded-2xl` */
-  radius?: SelectRadius;
 }
 
 const Select = ({
@@ -37,9 +33,8 @@ const Select = ({
   id,
   name,
   className = '',
-  radius = 'xl',
 }: SelectProps) => {
-  const radiusClass = radius === '2xl' ? 'rounded-2xl' : 'rounded-xl';
+  const radiusClass = 'rounded-lg';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');

@@ -59,9 +59,6 @@ function calculateAge(dateStr: string): number {
   return age;
 }
 
-/** Mismo radio que tablas (`rounded-2xl`) — ver PatientsListView */
-const BTN_RX = '!rounded-2xl';
-
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 type TabKey = 'info' | 'record' | 'evolutions' | 'files' | 'appointments';
@@ -149,7 +146,7 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Este paciente no tiene expediente clinico aun.</p>
-        <Button className={BTN_RX} onClick={() => setEditing(true)} size="sm">Crear Expediente</Button>
+        <Button onClick={() => setEditing(true)} size="sm">Crear Expediente</Button>
       </div>
     );
   }
@@ -169,7 +166,7 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button className={BTN_RX} variant="secondary" size="sm" onClick={() => setEditing(true)}>Editar</Button>
+        <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>Editar</Button>
       </div>
       <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Expediente clínico</h3>
       <div className={DETAIL_INFO_GRID_CLASS}>
@@ -220,7 +217,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
         <Link to={`/patients/${patientId}/evolutions/new`}>
-          <Button className={BTN_RX} size="sm">Nueva Evolucion</Button>
+          <Button size="sm">Nueva Evolucion</Button>
         </Link>
       </div>
     );
@@ -230,7 +227,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
     <div className="space-y-4">
       <div className="flex justify-end">
         <Link to={`/patients/${patientId}/evolutions/new`}>
-          <Button className={BTN_RX} size="sm">
+          <Button size="sm">
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Nueva Evolucion
           </Button>
@@ -242,7 +239,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
         <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
         {data.data.map((evolution) => (
           <div key={evolution.id} className="relative">
-            <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
+            <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-lg bg-emerald-500 border-2 border-white dark:border-slate-900" />
             <ClinicalEvolutionCard evolution={evolution} />
           </div>
         ))}
@@ -250,7 +247,6 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 
       {data.meta.totalPages > 1 && (
         <Pagination
-          radius="2xl"
           page={data.meta.page}
           totalPages={data.meta.totalPages}
           total={data.meta.totalItems}
@@ -299,7 +295,6 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
           </div>
           {data.meta.totalPages > 1 && (
             <Pagination
-              radius="2xl"
               page={data.meta.page}
               totalPages={data.meta.totalPages}
               total={data.meta.totalItems}
@@ -369,7 +364,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay citas registradas para este paciente.</p>
         <Link to="/appointments/new">
-          <Button className={BTN_RX} size="sm">Agendar Cita</Button>
+          <Button size="sm">Agendar Cita</Button>
         </Link>
       </div>
     );
@@ -380,7 +375,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
       <div className="space-y-4">
         <div className="flex justify-end">
           <Link to="/appointments/new">
-            <Button className={BTN_RX} size="sm">
+            <Button size="sm">
               <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               Agendar Cita
             </Button>
@@ -392,7 +387,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
             <button
               key={apt.id}
               onClick={() => setViewTarget(apt)}
-              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
@@ -417,7 +412,6 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
 
         {data.meta.totalPages > 1 && (
           <Pagination
-            radius="2xl"
             page={data.meta.page}
             totalPages={data.meta.totalPages}
             total={data.meta.totalItems}
@@ -460,7 +454,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
               <button
                 type="button"
                 onClick={() => { setEditTarget(viewTarget); setViewTarget(null); }}
-                className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -522,7 +516,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
                         )
                       }
                       className={[
-                        'px-3 py-1.5 rounded-2xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        'px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
                         STATUS_BUTTON_CLASSES[status],
                       ].join(' ')}
                     >
@@ -592,7 +586,7 @@ const PatientDetailView = () => {
 
       <Card padding="sm" className="shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
             <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
               {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
             </span>
@@ -612,7 +606,7 @@ const PatientDetailView = () => {
             <Button
               type="button"
               variant="secondary"
-              className={`${BTN_RX} shrink-0`}
+              className="shrink-0"
               onClick={() => setEditModalOpen(true)}
             >
               Editar
@@ -629,7 +623,7 @@ const PatientDetailView = () => {
               type="button"
               onClick={() => setActiveTab(tab.key)}
               className={[
-                'flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-medium transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
                 activeTab === tab.key
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',

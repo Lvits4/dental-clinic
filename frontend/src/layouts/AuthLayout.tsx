@@ -44,9 +44,9 @@ const AuthLayout = () => {
       <div className="hidden lg:flex lg:w-[480px] xl:w-[520px] relative overflow-hidden flex-col justify-between bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 dark:from-emerald-900 dark:via-emerald-950 dark:to-slate-950 p-10 xl:p-12">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-white/5 blur-2xl" />
-          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-full bg-teal-400/10 blur-2xl" />
-          <div className="absolute -bottom-16 left-1/4 w-64 h-64 rounded-full bg-emerald-300/10 blur-3xl" />
+          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-lg bg-white/5 blur-2xl" />
+          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-lg bg-teal-400/10 blur-2xl" />
+          <div className="absolute -bottom-16 left-1/4 w-64 h-64 rounded-lg bg-emerald-300/10 blur-3xl" />
           {/* Patron de puntos sutil */}
           <div
             className="absolute inset-0 opacity-[0.03]"
@@ -106,15 +106,15 @@ const AuthLayout = () => {
       <div className="flex-1 flex flex-col min-h-screen lg:min-h-0 bg-slate-50 dark:bg-slate-950 relative">
         {/* Fondo decorativo sutil */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-40 right-0 w-96 h-96 rounded-full bg-emerald-50/60 dark:bg-emerald-950/20 blur-3xl" />
-          <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-full bg-teal-50/40 dark:bg-teal-950/10 blur-3xl" />
+          <div className="absolute -top-40 right-0 w-96 h-96 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/20 blur-3xl" />
+          <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-lg bg-teal-50/40 dark:bg-teal-950/10 blur-3xl" />
         </div>
 
         {/* Theme toggle */}
         <div className="relative z-10 flex justify-end p-4 lg:p-6">
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-white dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800/60 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+            className="p-2.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800/60 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             aria-label="Cambiar tema"
           >
             {isDark ? <SunIcon /> : <MoonIcon />}

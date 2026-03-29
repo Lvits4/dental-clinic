@@ -1,13 +1,9 @@
-export type PaginationRadius = 'xl' | '2xl';
-
 export interface PaginationProps {
   page: number;
   totalPages: number;
   total: number;
   limit: number;
   onPageChange: (page: number) => void;
-  /** Radio de botones; `2xl` alinea con tablas `rounded-2xl` */
-  radius?: PaginationRadius;
   /** Dentro del pie de tabla: sin padding superior extra */
   embedded?: boolean;
 }
@@ -44,12 +40,11 @@ const Pagination = ({
   total,
   limit,
   onPageChange,
-  radius = 'xl',
   embedded = false,
 }: PaginationProps) => {
   if (total < 1) return null;
 
-  const r = radius === '2xl' ? 'rounded-2xl' : 'rounded-xl';
+  const r = 'rounded-lg';
   const from = (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
   /** Siempre mostrar barra (Anterior / páginas / Siguiente); con una sola página los botones quedan deshabilitados */

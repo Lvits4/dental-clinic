@@ -62,7 +62,7 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
             href={downloadUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:text-emerald-400 dark:hover:bg-emerald-900/20 transition-colors"
             title="Descargar"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,7 +79,7 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
           <button
             onClick={() => onDelete(file.id)}
             disabled={deleteLoading}
-            className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
             title="Eliminar"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

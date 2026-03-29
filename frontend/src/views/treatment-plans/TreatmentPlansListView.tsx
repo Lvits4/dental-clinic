@@ -236,7 +236,7 @@ const TreatmentPlansListView = () => {
                         })
                       }
                       className={[
-                        'px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        'px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
                         PLAN_STATUS_BUTTON_CLASSES[status] ?? 'border-slate-300 text-slate-700 hover:bg-slate-50',
                       ].join(' ')}
                     >
