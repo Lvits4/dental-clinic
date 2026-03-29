@@ -3,7 +3,8 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
-import logoIcon from '../assets/logo-icon-clean.png';
+import logoIcon from '../assets/logo-icon.png';
+import { Role } from '../enums';
 
 // ─── Iconos SVG inline ────────────────────────────────────────────────────────
 
@@ -93,6 +94,14 @@ const IconMoon = () => (
   </svg>
 );
 
+const IconUsers = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+    />
+  </svg>
+);
+
 const IconLogout = () => (
   <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -133,6 +142,10 @@ const secondaryNavItems: NavItem[] = [
   { to: '/doctors', label: 'Doctores', icon: <IconDoctors /> },
   { to: '/treatment-plans', label: 'Planes', icon: <IconPlans /> },
   { to: '/performed-procedures', label: 'Procedimientos', icon: <IconProcedures /> },
+];
+
+const adminNavItems: NavItem[] = [
+  { to: '/users', label: 'Usuarios', icon: <IconUsers /> },
 ];
 
 // ─── Sidebar widths ───────────────────────────────────────────────────────────
@@ -199,6 +212,7 @@ const MainLayout = () => {
     navigate('/login');
   };
 
+  const isAdmin = user?.role === Role.ADMIN;
   const userInitial = user?.fullName?.charAt(0)?.toUpperCase() ?? 'U';
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
 
@@ -271,6 +285,20 @@ const MainLayout = () => {
           {secondaryNavItems.map((item) => (
             <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
           ))}
+
+          {isAdmin && (
+            <>
+              <div className={`my-4 border-t border-slate-100 dark:border-slate-800/80 ${collapsed ? 'mx-2' : 'mx-3'}`} />
+              {!collapsed && (
+                <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
+                  Sistema
+                </p>
+              )}
+              {adminNavItems.map((item) => (
+                <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
+              ))}
+            </>
+          )}
         </nav>
 
         {/* Footer del sidebar */}
@@ -483,7 +511,7 @@ const MainLayout = () => {
 
             {/* Items secundarios */}
             <nav className="px-3 py-3 space-y-1 pb-8">
-              {secondaryNavItems.map((item) => (
+              {[...secondaryNavItems, ...(isAdmin ? adminNavItems : [])].map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

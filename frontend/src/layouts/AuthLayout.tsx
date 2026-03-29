@@ -1,8 +1,8 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import logoHorizontal from '../assets/logo-horizontal-clean.png';
-import logoIcon from '../assets/logo-icon-clean.png';
-import logoSquare from '../assets/logo-square-clean.png';
+import logoHorizontal from '../assets/logo-horizontal.png';
+import logoIcon from '../assets/logo-icon.png';
+import logoSquare from '../assets/logo-square.png';
 
 const SunIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

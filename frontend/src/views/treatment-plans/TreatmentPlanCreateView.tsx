@@ -46,7 +46,7 @@ const EmptyState = ({ title, message, linkTo, linkLabel }: { title: string; mess
 
 const TreatmentPlanCreateView = () => {
   const createMutation = useCreateTreatmentPlan();
-  const { data: patientsData, isLoading: lp } = usePatientsList({ limit: 500 });
+  const { data: patientsData, isLoading: lp } = usePatientsList({ limit: 100 });
   const { data: doctors, isLoading: ld } = useDoctorsList();
 
   const loading = lp || ld;

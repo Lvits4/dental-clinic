@@ -45,13 +45,18 @@ const MultiStepForm = ({
     onSubmit(e);
   };
 
-  // Prevenir que Enter envíe el formulario en pasos intermedios
+  // Prevenir que Enter envíe el formulario en TODOS los pasos.
+  // Solo se debe enviar haciendo clic en el botón "Guardar" del último paso.
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    if (e.key === 'Enter' && !isLast) {
+    if (e.key === 'Enter') {
       const target = e.target as HTMLElement;
       // Permitir Enter en textareas (para salto de línea)
       if (target.tagName === 'TEXTAREA') return;
       e.preventDefault();
+      // En pasos intermedios, avanzar al siguiente paso
+      if (!isLast) {
+        goNext();
+      }
     }
   };
 

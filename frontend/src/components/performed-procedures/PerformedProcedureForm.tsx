@@ -60,7 +60,7 @@ const PerformedProcedureForm = ({
       tooth: tooth.trim() || undefined,
       description: description.trim() || undefined,
       notes: notes.trim() || undefined,
-      performedAt: `${performedAt}T00:00:00`,
+      performedAt: `${performedAt}T00:00:00.000Z`,
     });
   };
 

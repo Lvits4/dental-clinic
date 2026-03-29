@@ -25,7 +25,7 @@ export class PerformedProceduresController {
   constructor(private readonly proceduresService: PerformedProceduresService) {}
 
   @Post()
-  @Roles(Role.DOCTOR)
+  @Roles(Role.DOCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Register a performed procedure' })
   create(@Body() createDto: CreatePerformedProcedureDto) {
     return this.proceduresService.create(createDto);
