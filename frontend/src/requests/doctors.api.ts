@@ -28,4 +28,8 @@ export const doctorsApi = {
   deactivate(id: string): Promise<Doctor> {
     return http.delete<Doctor>(`/doctors/${id}`);
   },
+
+  activate(id: string): Promise<Doctor> {
+    return http.patch<Doctor>(`/doctors/${id}`, { isActive: true });
+  },
 };

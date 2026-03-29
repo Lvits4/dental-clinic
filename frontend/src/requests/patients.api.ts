@@ -34,4 +34,8 @@ export const patientsApi = {
   deactivate(id: string): Promise<void> {
     return http.delete<void>(`/patients/${id}`);
   },
+
+  activate(id: string): Promise<Patient> {
+    return http.patch<Patient>(`/patients/${id}`, { isActive: true });
+  },
 };

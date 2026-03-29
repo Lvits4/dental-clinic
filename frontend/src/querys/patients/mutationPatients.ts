@@ -70,6 +70,26 @@ export const useDeletePatient = () => {
   });
 };
 
+export const useActivatePatient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => patientsApi.activate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      toast.success('Paciente activado exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al activar el paciente');
+      }
+    },
+  });
+};
+
 export const useTogglePatientStatus = (id: string) => {
   const queryClient = useQueryClient();
 

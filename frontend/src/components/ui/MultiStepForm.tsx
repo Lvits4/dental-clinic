@@ -35,13 +35,28 @@ const MultiStepForm = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    // Si NO estamos en el último paso, avanzar en lugar de enviar
+    if (!isLast) {
+      goNext();
+      return;
+    }
     const step = steps[current];
     if (step.validate && !step.validate()) return;
     onSubmit(e);
   };
 
+  // Prevenir que Enter envíe el formulario en pasos intermedios
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === 'Enter' && !isLast) {
+      const target = e.target as HTMLElement;
+      // Permitir Enter en textareas (para salto de línea)
+      if (target.tagName === 'TEXTAREA') return;
+      e.preventDefault();
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
       {/* ── Step Indicator ── */}
       <div className="mb-6">
         {/* Desktop indicator */}

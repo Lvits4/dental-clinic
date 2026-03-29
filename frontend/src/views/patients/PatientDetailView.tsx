@@ -194,7 +194,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
-        <Link to="/clinical-evolutions/new">
+        <Link to={`/patients/${patientId}/evolutions/new`}>
           <Button size="sm">Nueva Evolucion</Button>
         </Link>
       </div>
@@ -204,7 +204,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Link to="/clinical-evolutions/new">
+        <Link to={`/patients/${patientId}/evolutions/new`}>
           <Button size="sm">
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Nueva Evolucion
@@ -418,18 +418,9 @@ const PatientDetailView = () => {
           { label: `${patient.firstName} ${patient.lastName}` },
         ]}
         action={
-          <div className="flex items-center gap-3">
-            <ToggleSwitch
-              checked={patient.isActive}
-              onChange={handleToggleRequest}
-              label={patient.isActive ? 'Activo' : 'Inactivo'}
-              size="sm"
-              disabled={toggleStatusMutation.isPending}
-            />
-            <Link to={`/patients/${id}/edit`}>
-              <Button variant="secondary" size="sm">Editar</Button>
-            </Link>
-          </div>
+          <Link to={`/patients/${id}/edit`}>
+            <Button variant="secondary">Editar</Button>
+          </Link>
         }
       />
 

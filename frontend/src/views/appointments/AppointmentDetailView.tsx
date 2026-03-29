@@ -100,7 +100,7 @@ const AppointmentDetailView = () => {
             <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Doctor</dt>
             <dd className="text-sm text-slate-900 dark:text-white">
               {appointment.doctor
-                ? <Link to={`/doctors/${appointment.doctorId}`} className="text-emerald-600 dark:text-emerald-400 hover:underline">Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}</Link>
+                ? <span>Dr. {appointment.doctor.firstName} {appointment.doctor.lastName}</span>
                 : '—'}
             </dd>
           </div>

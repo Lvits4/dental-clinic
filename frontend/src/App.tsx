@@ -29,7 +29,6 @@ const PatientEditView = React.lazy(() => import('./views/patients/PatientEditVie
 // ─── Doctors ───────────────────────────────────────────────────────────────────
 const DoctorsListView = React.lazy(() => import('./views/doctors/DoctorsListView'));
 const DoctorCreateView = React.lazy(() => import('./views/doctors/DoctorCreateView'));
-const DoctorDetailView = React.lazy(() => import('./views/doctors/DoctorDetailView'));
 const DoctorEditView = React.lazy(() => import('./views/doctors/DoctorEditView'));
 
 // ─── Appointments ──────────────────────────────────────────────────────────────
@@ -96,15 +95,14 @@ const App = () => {
             <Route path="/patients/:id/edit" element={<PatientEditView />} />
 
             {/* Expediente clinico (anidados a paciente) */}
-            <Route path="/patients/:patientId/clinical-record" element={<ClinicalRecordView />} />
-            <Route path="/patients/:patientId/clinical-evolutions" element={<ClinicalEvolutionsListView />} />
-            <Route path="/clinical-evolutions/new" element={<ClinicalEvolutionCreateView />} />
-            <Route path="/patients/:patientId/clinical-files" element={<ClinicalFilesListView />} />
+            <Route path="/patients/:id/clinical-record" element={<ClinicalRecordView />} />
+            <Route path="/patients/:id/evolutions" element={<ClinicalEvolutionsListView />} />
+            <Route path="/patients/:id/evolutions/new" element={<ClinicalEvolutionCreateView />} />
+            <Route path="/patients/:id/clinical-files" element={<ClinicalFilesListView />} />
 
             {/* Doctores */}
             <Route path="/doctors" element={<DoctorsListView />} />
             <Route path="/doctors/new" element={<DoctorCreateView />} />
-            <Route path="/doctors/:id" element={<DoctorDetailView />} />
             <Route path="/doctors/:id/edit" element={<DoctorEditView />} />
 
             {/* Citas */}

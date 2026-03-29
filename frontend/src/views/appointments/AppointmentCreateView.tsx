@@ -43,13 +43,12 @@ const EmptyState = ({ title, message, linkTo, linkLabel }: { title: string; mess
 
 const AppointmentCreateView = () => {
   const createMutation = useCreateAppointment();
-  const { data: patientsData, isLoading: loadingPatients } = usePatientsList({ limit: 500 });
+  const { data: patientsData, isLoading: loadingPatients } = usePatientsList({ limit: 100, isActive: true });
   const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
 
   const loading = loadingPatients || loadingDoctors;
 
-  const allPatients = patientsData?.data || [];
-  const activePatients = allPatients.filter((p) => p.isActive);
+  const activePatients = patientsData?.data || [];
   const activeDoctors = (doctors || []).filter((d) => d.isActive);
 
   return (
@@ -69,13 +68,9 @@ const AppointmentCreateView = () => {
         ) : activePatients.length === 0 ? (
           <EmptyState
             title="No hay pacientes activos"
-            message={
-              allPatients.length > 0
-                ? 'Todos los pacientes están desactivados. Active al menos uno para crear una cita.'
-                : 'Debe crear al menos un paciente antes de agendar una cita.'
-            }
+            message="Debe crear o activar al menos un paciente antes de agendar una cita."
             linkTo="/patients"
-            linkLabel={allPatients.length > 0 ? 'Ir a Pacientes' : 'Crear Paciente'}
+            linkLabel="Ir a Pacientes"
           />
         ) : (
           <AppointmentForm
