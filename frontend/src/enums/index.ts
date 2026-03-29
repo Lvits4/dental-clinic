@@ -8,12 +8,12 @@ export type Role = (typeof Role)[keyof typeof Role];
 
 // Estados de citas
 export const AppointmentStatus = {
-  SCHEDULED: 'SCHEDULED',
-  CONFIRMED: 'CONFIRMED',
-  IN_PROGRESS: 'IN_PROGRESS',
-  ATTENDED: 'ATTENDED',
-  CANCELLED: 'CANCELLED',
-  NO_SHOW: 'NO_SHOW',
+  SCHEDULED: 'scheduled',
+  CONFIRMED: 'confirmed',
+  IN_PROGRESS: 'in_progress',
+  ATTENDED: 'attended',
+  CANCELLED: 'cancelled',
+  NO_SHOW: 'no_show',
 } as const;
 export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus];
 
