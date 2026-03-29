@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
+import logoIcon from '../assets/logo-icon-clean.png';
 
 // ─── Iconos SVG inline ────────────────────────────────────────────────────────
 
@@ -216,24 +217,20 @@ const MainLayout = () => {
             <button
               onClick={() => setCollapsed(false)}
               title="Expandir menu"
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              className="w-10 h-10 rounded-xl overflow-hidden shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
             >
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              </svg>
+              <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
             </button>
           ) : (
             /* Cuando esta expandido: logo + boton colapsar */
             <>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0">
-                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C9.243 2 7 4.243 7 7c0 1.642.8 3.093 2.024 4H7.5C5.015 11 3 13.015 3 15.5c0 2.063 1.398 3.794 3.293 4.333C6.577 20.416 7 21 7.5 21h9c.5 0 .923-.584 1.207-1.167C19.602 19.294 21 17.563 21 15.5c0-2.485-2.015-4.5-4.5-4.5h-1.524C16.2 10.093 17 8.642 17 7c0-2.757-2.243-5-5-5z" />
-                  </svg>
+                <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
+                  <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
                 </div>
                 <div className="min-w-0">
                   <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
-                    Rubia Dental
+                    SmileCare
                   </span>
                   <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-0.5">
                     Gestion Clinica
@@ -337,13 +334,11 @@ const MainLayout = () => {
       <header className="md:hidden sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-b border-slate-200/60 dark:border-slate-800/60">
         {/* Logo */}
         <NavLink to="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-            <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C9.243 2 7 4.243 7 7c0 1.642.8 3.093 2.024 4H7.5C5.015 11 3 13.015 3 15.5c0 2.063 1.398 3.794 3.293 4.333C6.577 20.416 7 21 7.5 21h9c.5 0 .923-.584 1.207-1.167C19.602 19.294 21 17.563 21 15.5c0-2.485-2.015-4.5-4.5-4.5h-1.524C16.2 10.093 17 8.642 17 7c0-2.757-2.243-5-5-5z" />
-            </svg>
+          <div className="w-8 h-8 rounded-lg overflow-hidden">
+            <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
           </div>
           <span className="text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-            Rubia Dental
+            SmileCare
           </span>
         </NavLink>
 

@@ -37,7 +37,7 @@ export const useUpdateDoctor = (id: string) => {
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
       queryClient.invalidateQueries({ queryKey: ['doctors', id] });
       toast.success('Doctor actualizado exitosamente');
-      navigate(`/doctors/${id}`);
+      navigate('/doctors');
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -45,6 +45,47 @@ export const useUpdateDoctor = (id: string) => {
         toast.error(msg);
       } else {
         toast.error('Error al actualizar el doctor');
+      }
+    },
+  });
+};
+
+export const useActivateDoctor = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => doctorsApi.activate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['doctors'] });
+      toast.success('Doctor activado exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al activar el doctor');
+      }
+    },
+  });
+};
+
+export const useToggleDoctorStatus = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (isActive: boolean) => doctorsApi.update(id, { isActive }),
+    onSuccess: (_data, isActive) => {
+      queryClient.invalidateQueries({ queryKey: ['doctors'] });
+      queryClient.invalidateQueries({ queryKey: ['doctors', id] });
+      toast.success(isActive ? 'Doctor activado exitosamente' : 'Doctor desactivado exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al cambiar el estado del doctor');
       }
     },
   });

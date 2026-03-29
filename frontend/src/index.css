@@ -50,6 +50,7 @@
 /* ── Global Resets & Defaults ── */
 
 html {
+  font-size: 18px; /* Base size increased from 16px for better readability */
   scroll-behavior: smooth;
 }
 

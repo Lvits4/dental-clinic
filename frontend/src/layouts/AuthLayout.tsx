@@ -1,5 +1,8 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import logoHorizontal from '../assets/logo-horizontal-clean.png';
+import logoIcon from '../assets/logo-icon-clean.png';
+import logoSquare from '../assets/logo-square-clean.png';
 
 const SunIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -56,15 +59,7 @@ const AuthLayout = () => {
 
         {/* Logo y marca */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/10">
-              <ToothIcon />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white tracking-tight">Rubia Dental</h1>
-              <p className="text-emerald-200/70 text-xs">Sistema de Gestion Dental</p>
-            </div>
-          </div>
+          <img src={logoHorizontal} alt="SmileCare" className="h-14 w-auto object-contain" />
         </div>
 
         {/* Contenido central */}
@@ -102,7 +97,7 @@ const AuthLayout = () => {
         {/* Footer del panel */}
         <div className="relative z-10">
           <p className="text-[11px] text-emerald-200/40">
-            &copy; {new Date().getFullYear()} Rubia Dental. Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
           </p>
         </div>
       </div>
@@ -131,11 +126,9 @@ const AuthLayout = () => {
           <div className="w-full max-w-[420px] animate-fade-in-up">
             {/* Logo mobile only */}
             <div className="lg:hidden text-center mb-8">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg shadow-emerald-500/20">
-                <ToothIcon />
-              </div>
+              <img src={logoIcon} alt="SmileCare" className="h-20 w-20 mx-auto object-contain mb-4" />
               <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                Rubia Dental
+                SmileCare
               </h1>
             </div>
 
@@ -146,7 +139,7 @@ const AuthLayout = () => {
         {/* Footer mobile */}
         <div className="lg:hidden relative z-10 pb-6 text-center">
           <p className="text-[11px] text-slate-400 dark:text-slate-600">
-            &copy; {new Date().getFullYear()} Rubia Dental. Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
           </p>
         </div>
       </div>
