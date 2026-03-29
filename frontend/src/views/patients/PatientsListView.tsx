@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, PageHeader, Pagination } from '../../components/ui';
+import { Button, PageHeader } from '../../components/ui';
 import { HttpError } from '../../helpers/http';
 import PatientsTable from '../../components/patients/PatientsTable';
 import PatientFilters from '../../components/patients/PatientFilters';
@@ -13,8 +13,6 @@ import type { PatientSortBy, PatientSortOrder } from '../../types';
 
 type PatientListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
 
-type StatusFilterValue = '' | 'true' | 'false';
-
 const PatientsListView = () => {
   const { user } = useAuth();
   const canEditPatient =
@@ -23,7 +21,6 @@ const PatientsListView = () => {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('true');
   const [sortBy, setSortBy] = useState<PatientSortBy>('createdAt');
   const [sortOrder, setSortOrder] = useState<PatientSortOrder>('desc');
   const [modal, setModal] = useState<PatientListModal>(null);
@@ -31,16 +28,10 @@ const PatientsListView = () => {
   const navigate = useNavigate();
   const limit = 10;
 
-  const isActiveParam = useMemo(() => {
-    if (statusFilter === '') return undefined;
-    return statusFilter === 'true';
-  }, [statusFilter]);
-
   const { data, isLoading, isError, error, refetch } = usePatientsList({
     page,
     limit,
     name: search || undefined,
-    isActive: isActiveParam,
     sortBy,
     sortOrder,
   });
@@ -58,11 +49,6 @@ const PatientsListView = () => {
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1);
-  };
-
-  const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value as StatusFilterValue);
     setPage(1);
   };
 
@@ -100,16 +86,14 @@ const PatientsListView = () => {
         <PatientFilters
           search={search}
           onSearchChange={handleSearchChange}
-          statusFilter={statusFilter}
-          onStatusFilterChange={handleStatusFilterChange}
           trailingActions={
             canEditPatient ? (
               <Button
                 type="button"
-                className="!rounded-2xl whitespace-nowrap"
+                className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap"
                 onClick={() => setModal({ mode: 'create' })}
               >
-                <svg className="w-5 h-5 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Nuevo paciente
@@ -126,7 +110,7 @@ const PatientsListView = () => {
             className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-red-200 bg-red-50/90 px-6 py-12 text-center dark:border-red-900/50 dark:bg-red-950/30"
           >
             <p className="text-sm text-red-800 dark:text-red-200 max-w-md">{listErrorMessage}</p>
-            <Button type="button" className="!rounded-2xl" onClick={() => refetch()}>
+            <Button type="button" onClick={() => refetch()}>
               Reintentar
             </Button>
           </div>
@@ -141,6 +125,17 @@ const PatientsListView = () => {
             sortDirection={sortOrder}
             onSort={handleSort}
             fillHeight
+            pagination={
+              data && !isError
+                ? {
+                    page: data.meta.page,
+                    totalPages: data.meta.totalPages,
+                    total: data.meta.totalItems,
+                    limit: data.meta.limit,
+                    onPageChange: setPage,
+                  }
+                : undefined
+            }
           />
         )}
       </div>
@@ -152,18 +147,6 @@ const PatientsListView = () => {
         onClose={() => setModal(null)}
       />
 
-      {data && !isError && (
-        <div className="shrink-0">
-          <Pagination
-            radius="2xl"
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
-            total={data.meta.totalItems}
-            limit={data.meta.limit}
-            onPageChange={setPage}
-          />
-        </div>
-      )}
     </div>
   );
 };

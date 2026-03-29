@@ -57,7 +57,7 @@ const Button = ({
     <button
       disabled={disabled || loading}
       className={[
-        'inline-flex items-center justify-center rounded-xl font-semibold',
+        'inline-flex items-center justify-center rounded-2xl font-semibold',
         'transition-all duration-200',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
         'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',

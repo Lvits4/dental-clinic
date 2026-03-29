@@ -25,6 +25,13 @@ interface TableProps<T> {
   onSort?: (sortKey: string) => void;
   /** Tabla con altura flexible: el padre debe ser flex con flex-1 min-h-0 */
   fillHeight?: boolean;
+  /**
+   * `sentence`: cabeceras tipo cuadrícula (texto en oración, iconos ↑ activo / ↕ inactivo).
+   * `default`: estilo compacto en mayúsculas con doble cheurón.
+   */
+  headerVariant?: 'default' | 'sentence';
+  /** Pie de la tarjeta de escritorio (p. ej. paginación), dentro del mismo borde redondeado */
+  footer?: ReactNode;
 }
 
 const SortChevrons = ({
@@ -54,6 +61,54 @@ const SortChevrons = ({
     </svg>
   </span>
 );
+
+/** Iconos alineados con referencia tipo “data grid”: columna activa ↑/↓; resto ↕ */
+const SortSentenceIcons = ({
+  active,
+  direction,
+}: {
+  active: boolean;
+  direction: 'asc' | 'desc';
+}) => {
+  const muted = 'text-slate-400 dark:text-slate-500';
+  const accent = 'text-emerald-600 dark:text-emerald-400';
+
+  if (active && direction === 'asc') {
+    return (
+      <svg
+        viewBox="0 0 12 12"
+        className={`h-3 w-3 shrink-0 ${accent}`}
+        fill="currentColor"
+        aria-hidden
+      >
+        <path d="M6 2.25L10.75 9h-9.5L6 2.25z" />
+      </svg>
+    );
+  }
+  if (active && direction === 'desc') {
+    return (
+      <svg
+        viewBox="0 0 12 12"
+        className={`h-3 w-3 shrink-0 ${accent}`}
+        fill="currentColor"
+        aria-hidden
+      >
+        <path d="M6 9.75L1.25 3h9.5L6 9.75z" />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      viewBox="0 0 12 12"
+      className={`h-3 w-3 shrink-0 ${muted}`}
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M6 1.75L9.25 6.25H2.75L6 1.75z" opacity={0.65} />
+      <path d="M6 10.25L2.75 5.75h6.5L6 10.25z" opacity={0.65} />
+    </svg>
+  );
+};
 
 const SkeletonRow = ({ cols }: { cols: number }) => (
   <tr>
@@ -86,8 +141,11 @@ const Table = <T,>({
   sortDirection = 'asc',
   onSort,
   fillHeight = false,
+  headerVariant = 'default',
+  footer,
 }: TableProps<T>) => {
   const visibleColumns = columns.filter((c) => !c.hideOnMobile);
+  const sentenceHeaders = headerVariant === 'sentence';
 
   const desktopOuter = fillHeight
     ? 'hidden md:flex md:flex-col md:flex-1 md:min-h-0 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 overflow-hidden'
@@ -99,7 +157,9 @@ const Table = <T,>({
 
   const thBase = (col: Column<T>) =>
     [
-      'px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider align-middle',
+      sentenceHeaders
+        ? 'px-5 py-3.5 min-h-[44px] text-sm font-medium text-slate-400 dark:text-slate-500 align-middle'
+        : 'px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider align-middle',
       'sticky top-0 z-[1] bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800/80',
       isRightAligned(col) ? 'text-right' : 'text-left',
       col.className ?? '',
@@ -121,7 +181,8 @@ const Table = <T,>({
           <button
             type="button"
             className={[
-              'group flex w-full items-center gap-2 rounded-lg -mx-1 px-1 py-1.5 transition-colors',
+              'group flex w-full items-center rounded-lg -mx-1 px-1 transition-colors',
+              sentenceHeaders ? 'gap-1.5 py-0.5' : 'gap-2 py-1.5',
               right ? 'justify-end' : 'justify-start',
               'hover:bg-slate-100/80 dark:hover:bg-slate-800/80',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-0',
@@ -135,12 +196,20 @@ const Table = <T,>({
             {!right && (
               <>
                 <span className="whitespace-nowrap">{col.header}</span>
-                <SortChevrons active={active} direction={sortDirection} />
+                {sentenceHeaders ? (
+                  <SortSentenceIcons active={active} direction={sortDirection} />
+                ) : (
+                  <SortChevrons active={active} direction={sortDirection} />
+                )}
               </>
             )}
             {right && (
               <>
-                <SortChevrons active={active} direction={sortDirection} />
+                {sentenceHeaders ? (
+                  <SortSentenceIcons active={active} direction={sortDirection} />
+                ) : (
+                  <SortChevrons active={active} direction={sortDirection} />
+                )}
                 <span className="whitespace-nowrap">{col.header}</span>
               </>
             )}
@@ -161,11 +230,22 @@ const Table = <T,>({
   const renderSkeletonTh = (col: Column<T>) => (
     <th
       key={col.key}
-      className={`px-5 py-3.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${isRightAligned(col) ? 'text-right' : 'text-left'} ${col.className ?? ''}`}
+      className={
+        sentenceHeaders
+          ? `px-5 py-3.5 min-h-[44px] text-sm font-medium text-slate-400 dark:text-slate-500 ${isRightAligned(col) ? 'text-right' : 'text-left'} sticky top-0 z-[1] bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800/80 ${col.className ?? ''}`
+          : `px-5 py-3.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${isRightAligned(col) ? 'text-right' : 'text-left'} ${col.className ?? ''}`
+      }
     >
       {col.header}
     </th>
   );
+
+  const desktopFooter =
+    footer != null ? (
+      <div className="shrink-0 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 px-3 sm:px-4">
+        {footer}
+      </div>
+    ) : null;
 
   if (loading) {
     return (
@@ -183,6 +263,7 @@ const Table = <T,>({
               </tbody>
             </table>
           </div>
+          {desktopFooter}
         </div>
 
         <div className={fillHeight ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-3' : 'md:hidden space-y-3'}>
@@ -250,6 +331,7 @@ const Table = <T,>({
             </tbody>
           </table>
         </div>
+        {desktopFooter}
       </div>
 
       <div className={fillHeight ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-3' : 'md:hidden space-y-3'}>

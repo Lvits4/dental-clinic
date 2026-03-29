@@ -67,7 +67,7 @@ const SearchInput = ({
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
         className={[
-          'w-full pl-10 pr-9 py-2.5 text-sm border transition-all duration-200',
+          'w-full h-10 box-border pl-10 pr-9 py-0 text-sm border transition-all duration-200',
           RADIUS_CLASS[radius],
           'bg-white dark:bg-slate-800/50',
           'text-slate-900 dark:text-white',

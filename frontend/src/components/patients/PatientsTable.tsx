@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Table, ConfirmDialog } from '../ui';
+import { Table, ConfirmDialog, Pagination } from '../ui';
 import type { Column } from '../ui';
 import type { Patient, PatientSortBy, PatientSortOrder } from '../../types';
 import { useDeletePatient } from '../../querys/patients/mutationPatients';
@@ -15,6 +15,14 @@ interface PatientsTableProps {
   sortDirection?: PatientSortOrder;
   onSort?: (sortKey: string) => void;
   fillHeight?: boolean;
+  /** Paginación en el pie de la tarjeta de tabla (escritorio y móvil) */
+  pagination?: {
+    page: number;
+    totalPages: number;
+    total: number;
+    limit: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
 const SEX_LABELS: Record<string, string> = {
@@ -43,6 +51,7 @@ const PatientsTable = ({
   sortDirection = 'asc',
   onSort,
   fillHeight = false,
+  pagination,
 }: PatientsTableProps) => {
   const navigate = useNavigate();
   const deletePatient = useDeletePatient();
@@ -140,7 +149,11 @@ const PatientsTable = ({
     },
   ];
 
-  const rootClass = fillHeight ? 'flex flex-col flex-1 min-h-0 min-w-0' : '';
+  const rootClass = fillHeight ? 'flex flex-col flex-1 min-h-0 min-w-0 gap-2' : 'flex flex-col gap-2';
+
+  const paginationProps = pagination
+    ? { embedded: true as const, radius: '2xl' as const, ...pagination }
+    : null;
   const mobileWrap = fillHeight
     ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-2'
     : 'md:hidden space-y-2';
@@ -179,7 +192,13 @@ const PatientsTable = ({
         )}
       </div>
 
-      <div className={fillHeight ? 'hidden md:flex md:flex-1 md:min-h-0 md:flex-col' : 'hidden md:block'}>
+      {paginationProps && (
+        <div className="md:hidden shrink-0 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+          <Pagination {...paginationProps} />
+        </div>
+      )}
+
+      <div className={fillHeight ? 'hidden md:flex md:flex-1 md:min-h-0 md:flex-col min-w-0' : 'hidden md:block min-w-0'}>
         <Table<Patient>
           columns={columns}
           data={data}
@@ -191,6 +210,8 @@ const PatientsTable = ({
           sortDirection={sortDirection}
           onSort={onSort}
           fillHeight={fillHeight}
+          headerVariant="sentence"
+          footer={paginationProps ? <Pagination {...paginationProps} /> : undefined}
         />
       </div>
 
