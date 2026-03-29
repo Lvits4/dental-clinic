@@ -27,19 +27,19 @@ export class PerformedProceduresService {
       .leftJoinAndSelect('procedure.treatment', 'treatment');
 
     if (patientId) {
-      query.andWhere('procedure.patient_id = :patientId', { patientId });
+      query.andWhere('procedure.patientId = :patientId', { patientId });
     }
     if (doctorId) {
-      query.andWhere('procedure.doctor_id = :doctorId', { doctorId });
+      query.andWhere('procedure.doctorId = :doctorId', { doctorId });
     }
     if (dateFrom) {
-      query.andWhere('procedure.performed_at >= :dateFrom', { dateFrom });
+      query.andWhere('procedure.performedAt >= :dateFrom', { dateFrom });
     }
     if (dateTo) {
-      query.andWhere('procedure.performed_at <= :dateTo', { dateTo });
+      query.andWhere('procedure.performedAt <= :dateTo', { dateTo });
     }
 
-    query.orderBy('procedure.performed_at', 'DESC');
+    query.orderBy('procedure.performedAt', 'DESC');
     query.skip((page - 1) * limit).take(limit);
 
     const [data, totalItems] = await query.getManyAndCount();

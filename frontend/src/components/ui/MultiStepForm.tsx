@@ -38,6 +38,8 @@ const MultiStepForm = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    // Ignorar si ya hay una petición en curso (evita doble-submit)
+    if (loading) return;
     // Si NO estamos en el último paso, avanzar en lugar de enviar
     if (!isLast) {
       goNext();
@@ -171,7 +173,8 @@ const MultiStepForm = ({
             <button
               type="button"
               onClick={goBack}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
