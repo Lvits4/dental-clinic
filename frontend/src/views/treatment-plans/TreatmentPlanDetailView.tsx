@@ -27,7 +27,7 @@ const TreatmentPlanDetailView = () => {
     );
   }
 
-  const config = PLAN_STATUS_CONFIG[plan.status as TreatmentPlanStatus];
+  const config = PLAN_STATUS_CONFIG[plan.status as TreatmentPlanStatus] ?? { label: plan.status, className: 'bg-slate-100 text-slate-600' };
 
   return (
     <div className="space-y-4">

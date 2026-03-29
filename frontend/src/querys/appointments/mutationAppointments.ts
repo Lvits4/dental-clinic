@@ -37,7 +37,7 @@ export function useUpdateAppointmentStatus(id: string) {
     onSuccess: (_data, status) => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       queryClient.invalidateQueries({ queryKey: ['appointments', id] });
-      toast.success(`Estado cambiado a: ${STATUS_CONFIG[status].label}`);
+      toast.success(`Estado cambiado a: ${STATUS_CONFIG[status]?.label ?? status}`);
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {

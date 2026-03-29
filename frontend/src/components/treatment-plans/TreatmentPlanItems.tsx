@@ -19,7 +19,7 @@ const TreatmentPlanItems = ({ items }: TreatmentPlanItemsProps) => {
   return (
     <div className="space-y-2">
       {items.map((item, i) => {
-        const itemConfig = PLAN_STATUS_CONFIG[item.status as TreatmentPlanStatus];
+        const itemConfig = PLAN_STATUS_CONFIG[item.status as TreatmentPlanStatus] ?? { label: item.status, className: 'bg-slate-100 text-slate-600' };
         return (
           <div
             key={item.id}
