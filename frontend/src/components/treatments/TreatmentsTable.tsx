@@ -42,6 +42,7 @@ const TreatmentsTable = ({ data, loading, onToggle, togglePending }: TreatmentsT
     {
       key: 'actions',
       header: 'Acciones',
+      className: 'text-right',
       render: (t) => (
         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <Link to={`/treatments/${t.id}/edit`}>

@@ -66,7 +66,7 @@ const Table = <T,>({
                 {columns.map((col) => (
                   <th
                     key={col.key}
-                    className={`px-5 py-3.5 text-left text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${col.className ?? ''}`}
+                    className={`px-5 py-3.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider ${col.className?.includes('text-right') ? 'text-right' : 'text-left'} ${col.className ?? ''}`}
                   >
                     {col.header}
                   </th>
@@ -104,7 +104,7 @@ const Table = <T,>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-5 py-3.5 text-left text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider sticky top-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm first:rounded-tl-2xl last:rounded-tr-2xl ${col.className ?? ''}`}
+                  className={`px-5 py-3.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider sticky top-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm first:rounded-tl-2xl last:rounded-tr-2xl ${col.className?.includes('text-right') ? 'text-right' : 'text-left'} ${col.className ?? ''}`}
                 >
                   {col.header}
                 </th>

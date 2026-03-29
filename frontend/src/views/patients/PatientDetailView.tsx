@@ -1,9 +1,25 @@
 import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Button, Badge, Card, PageHeader, Spinner, ConfirmDialog, ToggleSwitch } from '../../components/ui';
+import {
+  Button, Badge, Card, PageHeader, Spinner, ConfirmDialog,
+  ToggleSwitch, Pagination,
+} from '../../components/ui';
+import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
+import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
+import ClinicalEvolutionCard from '../../components/clinical-evolutions/ClinicalEvolutionCard';
+import FileUploadZone from '../../components/clinical-files/FileUploadZone';
+import ClinicalFileCard from '../../components/clinical-files/ClinicalFileCard';
 import { usePatientDetail } from '../../querys/patients/queryPatients';
 import { useTogglePatientStatus } from '../../querys/patients/mutationPatients';
-import type { Patient } from '../../types';
+import { useAppointmentsList } from '../../querys/appointments/queryAppointments';
+import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
+import { useCreateClinicalRecord, useUpdateClinicalRecord } from '../../querys/clinical-records/mutationClinicalRecords';
+import { useClinicalEvolutionsList } from '../../querys/clinical-evolutions/queryClinicalEvolutions';
+import { useClinicalFilesList } from '../../querys/clinical-files/queryClinicalFiles';
+import { useUploadClinicalFile, useDeleteClinicalFile } from '../../querys/clinical-files/mutationClinicalFiles';
+import type { Patient, UpdateClinicalRecordDto } from '../../types';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const SEX_LABELS: Record<string, string> = {
   male: 'Masculino',
@@ -12,8 +28,13 @@ const SEX_LABELS: Record<string, string> = {
 };
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('es', { year: 'numeric', month: 'long', day: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('es', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function formatDateTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('es', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
 }
 
 function calculateAge(dateStr: string): number {
@@ -25,27 +46,32 @@ function calculateAge(dateStr: string): number {
   return age;
 }
 
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+
 type TabKey = 'info' | 'record' | 'evolutions' | 'files' | 'appointments';
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'info', label: 'Datos' },
-  { key: 'record', label: 'Expediente' },
-  { key: 'evolutions', label: 'Evoluciones' },
-  { key: 'files', label: 'Archivos' },
-  { key: 'appointments', label: 'Citas' },
+const TABS: { key: TabKey; label: string; icon: string }[] = [
+  { key: 'info', label: 'Datos', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
+  { key: 'record', label: 'Expediente', icon: 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z' },
+  { key: 'evolutions', label: 'Evoluciones', icon: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z' },
+  { key: 'files', label: 'Archivos', icon: 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z' },
+  { key: 'appointments', label: 'Citas', icon: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5' },
 ];
 
-interface PatientInfoTabProps {
-  patient: Patient;
-}
+const RECORD_SECTIONS = [
+  { key: 'medicalBackground' as const, label: 'Antecedentes Medicos' },
+  { key: 'dentalBackground' as const, label: 'Antecedentes Odontologicos' },
+  { key: 'consultationReason' as const, label: 'Motivo de Consulta' },
+  { key: 'diagnosis' as const, label: 'Diagnostico' },
+  { key: 'observations' as const, label: 'Observaciones' },
+];
 
-const PatientInfoTab = ({ patient }: PatientInfoTabProps) => {
+// ─── Tab: Info ────────────────────────────────────────────────────────────────
+
+const PatientInfoTab = ({ patient }: { patient: Patient }) => {
   const rows = [
     { label: 'Sexo', value: SEX_LABELS[patient.sex] || patient.sex },
-    {
-      label: 'Fecha de nacimiento',
-      value: `${formatDate(patient.dateOfBirth)} (${calculateAge(patient.dateOfBirth)} anos)`,
-    },
+    { label: 'Fecha de nacimiento', value: `${formatDate(patient.dateOfBirth)} (${calculateAge(patient.dateOfBirth)} anos)` },
     { label: 'Telefono', value: patient.phone },
     { label: 'Correo', value: patient.email || '—' },
     { label: 'Direccion', value: patient.address || '—' },
@@ -56,9 +82,7 @@ const PatientInfoTab = ({ patient }: PatientInfoTabProps) => {
       <dl className="space-y-3">
         {rows.map((row) => (
           <div key={row.label} className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-40 shrink-0">
-              {row.label}
-            </dt>
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-40 shrink-0">{row.label}</dt>
             <dd className="text-sm text-slate-900 dark:text-white">{row.value}</dd>
           </div>
         ))}
@@ -66,55 +90,291 @@ const PatientInfoTab = ({ patient }: PatientInfoTabProps) => {
 
       {(patient.medicalHistory || patient.allergies || patient.medications || patient.observations) && (
         <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-4">
-          {patient.medicalHistory && (
-            <div>
-              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                Antecedentes Medicos
-              </h4>
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
-                {patient.medicalHistory}
-              </p>
-            </div>
-          )}
-          {patient.allergies && (
-            <div>
-              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                Alergias
-              </h4>
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
-                {patient.allergies}
-              </p>
-            </div>
-          )}
-          {patient.medications && (
-            <div>
-              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                Medicamentos
-              </h4>
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
-                {patient.medications}
-              </p>
-            </div>
-          )}
-          {patient.observations && (
-            <div>
-              <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                Observaciones
-              </h4>
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">
-                {patient.observations}
-              </p>
-            </div>
-          )}
+          {[
+            { key: 'medicalHistory', label: 'Antecedentes Medicos' },
+            { key: 'allergies', label: 'Alergias' },
+            { key: 'medications', label: 'Medicamentos' },
+            { key: 'observations', label: 'Observaciones' },
+          ].map(({ key, label }) => {
+            const value = (patient as Record<string, unknown>)[key] as string | undefined;
+            return value ? (
+              <div key={key}>
+                <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</h4>
+                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{value}</p>
+              </div>
+            ) : null;
+          })}
         </div>
       )}
     </div>
   );
 };
 
+// ─── Tab: Expediente ──────────────────────────────────────────────────────────
+
+const RecordTab = ({ patientId }: { patientId: string }) => {
+  const { data: record, isLoading, error } = useClinicalRecord(patientId);
+  const createMutation = useCreateClinicalRecord();
+  const updateMutation = useUpdateClinicalRecord(record?.id || '', patientId);
+  const [editing, setEditing] = useState(false);
+  const noRecord = !!error && !record;
+
+  const handleSubmit = (data: UpdateClinicalRecordDto) => {
+    if (record) {
+      updateMutation.mutate(data, { onSuccess: () => setEditing(false) });
+    } else {
+      createMutation.mutate({ patientId, ...data }, { onSuccess: () => setEditing(false) });
+    }
+  };
+
+  if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
+
+  if (noRecord && !editing) {
+    return (
+      <div className="text-center py-8">
+        <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+        </svg>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Este paciente no tiene expediente clinico aun.</p>
+        <Button onClick={() => setEditing(true)} size="sm">Crear Expediente</Button>
+      </div>
+    );
+  }
+
+  if (editing) {
+    return (
+      <ClinicalRecordForm
+        initialData={record}
+        loading={createMutation.isPending || updateMutation.isPending}
+        submitLabel={record ? 'Guardar' : 'Crear Expediente'}
+        onSubmit={handleSubmit}
+        onCancel={() => setEditing(false)}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>Editar</Button>
+      </div>
+      {RECORD_SECTIONS.map((s) => (
+        <div key={s.key}>
+          <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{s.label}</h3>
+          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{record?.[s.key] || '—'}</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ─── Tab: Evoluciones ─────────────────────────────────────────────────────────
+
+const EvolutionsTab = ({ patientId }: { patientId: string }) => {
+  const [page, setPage] = useState(1);
+  const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId);
+  const { data, isLoading } = useClinicalEvolutionsList({ page, limit: 5, recordId: record?.id });
+
+  if (loadingRecord || isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
+
+  if (!record) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Debe crear el expediente clinico primero para registrar evoluciones.
+        </p>
+      </div>
+    );
+  }
+
+  if (!data?.data?.length) {
+    return (
+      <div className="text-center py-8">
+        <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
+        <Link to="/clinical-evolutions/new">
+          <Button size="sm">Nueva Evolucion</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Link to="/clinical-evolutions/new">
+          <Button size="sm">
+            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Nueva Evolucion
+          </Button>
+        </Link>
+      </div>
+
+      {/* Timeline */}
+      <div className="relative space-y-3 pl-5">
+        <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
+        {data.data.map((evolution) => (
+          <div key={evolution.id} className="relative">
+            <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
+            <ClinicalEvolutionCard evolution={evolution} />
+          </div>
+        ))}
+      </div>
+
+      {data.meta.totalPages > 1 && (
+        <Pagination
+          page={data.meta.page}
+          totalPages={data.meta.totalPages}
+          total={data.meta.totalItems}
+          limit={data.meta.limit}
+          onPageChange={setPage}
+        />
+      )}
+    </div>
+  );
+};
+
+// ─── Tab: Archivos ────────────────────────────────────────────────────────────
+
+const FilesTab = ({ patientId }: { patientId: string }) => {
+  const [page, setPage] = useState(1);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const { data, isLoading } = useClinicalFilesList({ page, limit: 6, patientId });
+  const uploadMutation = useUploadClinicalFile(patientId);
+  const deleteMutation = useDeleteClinicalFile();
+
+  const handleDelete = () => {
+    if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
+  };
+
+  if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
+
+  return (
+    <div className="space-y-4">
+      <FileUploadZone onUpload={(file) => uploadMutation.mutate({ file })} loading={uploadMutation.isPending} />
+
+      {!data?.data?.length ? (
+        <div className="text-center py-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">No hay archivos clinicos.</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {data.data.map((file) => (
+              <ClinicalFileCard
+                key={file.id}
+                file={file}
+                onDelete={(id) => setDeleteId(id)}
+                deleteLoading={deleteMutation.isPending && deleteId === file.id}
+              />
+            ))}
+          </div>
+          {data.meta.totalPages > 1 && (
+            <Pagination
+              page={data.meta.page}
+              totalPages={data.meta.totalPages}
+              total={data.meta.totalItems}
+              limit={data.meta.limit}
+              onPageChange={setPage}
+            />
+          )}
+        </>
+      )}
+
+      <ConfirmDialog
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Eliminar archivo"
+        message="¿Estas seguro de eliminar este archivo? Esta accion no se puede deshacer."
+        confirmLabel="Eliminar"
+        loading={deleteMutation.isPending}
+      />
+    </div>
+  );
+};
+
+// ─── Tab: Citas ───────────────────────────────────────────────────────────────
+
+const AppointmentsTab = ({ patientId }: { patientId: string }) => {
+  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useAppointmentsList({ page, limit: 8, patientId });
+
+  if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
+
+  if (!data?.data?.length) {
+    return (
+      <div className="text-center py-8">
+        <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay citas registradas para este paciente.</p>
+        <Link to="/appointments/new">
+          <Button size="sm">Agendar Cita</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Link to="/appointments/new">
+          <Button size="sm">
+            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Agendar Cita
+          </Button>
+        </Link>
+      </div>
+
+      <div className="space-y-2">
+        {data.data.map((apt) => (
+          <button
+            key={apt.id}
+            onClick={() => navigate(`/appointments/${apt.id}`)}
+            className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  {formatDateTime(apt.dateTime)}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {apt.doctor ? `Dr. ${apt.doctor.firstName} ${apt.doctor.lastName}` : '—'}
+                  {apt.reason ? ` · ${apt.reason}` : ''}
+                </p>
+              </div>
+              <div className="shrink-0 flex items-center gap-2">
+                <AppointmentStatusBadge status={apt.status} />
+                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {data.meta.totalPages > 1 && (
+        <Pagination
+          page={data.meta.page}
+          totalPages={data.meta.totalPages}
+          total={data.meta.totalItems}
+          limit={data.meta.limit}
+          onPageChange={setPage}
+        />
+      )}
+    </div>
+  );
+};
+
+// ─── Vista principal ──────────────────────────────────────────────────────────
+
 const PatientDetailView = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { data: patient, isLoading } = usePatientDetail(id!);
   const toggleStatusMutation = useTogglePatientStatus(id!);
   const [showToggleDialog, setShowToggleDialog] = useState(false);
@@ -144,9 +404,7 @@ const PatientDetailView = () => {
 
   const handleToggleConfirm = () => {
     toggleStatusMutation.mutate(pendingStatus, {
-      onSuccess: () => {
-        setShowToggleDialog(false);
-      },
+      onSuccess: () => setShowToggleDialog(false),
     });
   };
 
@@ -203,7 +461,7 @@ const PatientDetailView = () => {
         </div>
       </Card>
 
-      {/* Tabs - pills scrollables horizontalmente en mobile */}
+      {/* Tabs */}
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex gap-1 min-w-max sm:min-w-0">
           {TABS.map((tab) => (
@@ -211,12 +469,15 @@ const PatientDetailView = () => {
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={[
-                'px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
                 activeTab === tab.key
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
               ].join(' ')}
             >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
+              </svg>
               {tab.label}
             </button>
           ))}
@@ -226,50 +487,10 @@ const PatientDetailView = () => {
       {/* Contenido de la tab activa */}
       <Card>
         {activeTab === 'info' && <PatientInfoTab patient={patient} />}
-
-        {activeTab === 'record' && (
-          <div className="text-center py-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-              Ver expediente clinico del paciente
-            </p>
-            <Link to={`/patients/${id}/clinical-record`}>
-              <Button variant="secondary">Ir al Expediente</Button>
-            </Link>
-          </div>
-        )}
-
-        {activeTab === 'evolutions' && (
-          <div className="text-center py-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-              Ver evoluciones clinicas del paciente
-            </p>
-            <Link to={`/patients/${id}/evolutions`}>
-              <Button variant="secondary">Ver Evoluciones</Button>
-            </Link>
-          </div>
-        )}
-
-        {activeTab === 'files' && (
-          <div className="text-center py-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-              Archivos clinicos del paciente
-            </p>
-            <Link to={`/patients/${id}/files`}>
-              <Button variant="secondary">Ver Archivos</Button>
-            </Link>
-          </div>
-        )}
-
-        {activeTab === 'appointments' && (
-          <div className="text-center py-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-              Historial de citas del paciente
-            </p>
-            <Link to={`/appointments?patient=${id}`}>
-              <Button variant="secondary">Ver Citas</Button>
-            </Link>
-          </div>
-        )}
+        {activeTab === 'record' && <RecordTab patientId={id!} />}
+        {activeTab === 'evolutions' && <EvolutionsTab patientId={id!} />}
+        {activeTab === 'files' && <FilesTab patientId={id!} />}
+        {activeTab === 'appointments' && <AppointmentsTab patientId={id!} />}
       </Card>
 
       <ConfirmDialog
@@ -279,8 +500,8 @@ const PatientDetailView = () => {
         title={pendingStatus ? 'Activar paciente' : 'Desactivar paciente'}
         message={
           pendingStatus
-            ? `¿Deseas activar a ${patient.firstName} ${patient.lastName}? El paciente volverá a aparecer en las listas de selección.`
-            : `¿Deseas desactivar a ${patient.firstName} ${patient.lastName}? El paciente no será eliminado, solo se marcará como inactivo.`
+            ? `¿Deseas activar a ${patient.firstName} ${patient.lastName}? El paciente volvera a aparecer en las listas de seleccion.`
+            : `¿Deseas desactivar a ${patient.firstName} ${patient.lastName}? El paciente no sera eliminado, solo se marcara como inactivo.`
         }
         confirmLabel={pendingStatus ? 'Activar' : 'Desactivar'}
         loading={toggleStatusMutation.isPending}

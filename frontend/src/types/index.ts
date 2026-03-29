@@ -48,7 +48,7 @@ export type {
   AppointmentFilters,
   AppointmentFormErrors,
 } from './appointment.types';
-export { STATUS_CONFIG, STATUS_OPTIONS, DURATION_OPTIONS } from './appointment.types';
+export { STATUS_CONFIG, STATUS_OPTIONS, DURATION_OPTIONS, VALID_STATUS_TRANSITIONS } from './appointment.types';
 
 export type {
   Treatment,

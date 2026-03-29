@@ -93,6 +93,31 @@ export const STATUS_OPTIONS = Object.entries(STATUS_CONFIG).map(([value, { label
   label,
 }));
 
+/**
+ * Transiciones validas de estado para citas.
+ * Define a que estados se puede pasar desde cada estado actual.
+ * CANCELLED, ATTENDED y NO_SHOW son estados finales (sin transiciones).
+ */
+export const VALID_STATUS_TRANSITIONS: Record<AppointmentStatus, AppointmentStatus[]> = {
+  [AppointmentStatus.SCHEDULED]: [
+    AppointmentStatus.CONFIRMED,
+    AppointmentStatus.IN_PROGRESS,
+    AppointmentStatus.NO_SHOW,
+  ],
+  [AppointmentStatus.CONFIRMED]: [
+    AppointmentStatus.IN_PROGRESS,
+    AppointmentStatus.NO_SHOW,
+  ],
+  [AppointmentStatus.IN_PROGRESS]: [
+    AppointmentStatus.ATTENDED,
+    AppointmentStatus.NO_SHOW,
+  ],
+  // Estados finales — no se puede transicionar a nada
+  [AppointmentStatus.ATTENDED]: [],
+  [AppointmentStatus.CANCELLED]: [],
+  [AppointmentStatus.NO_SHOW]: [],
+};
+
 // Opciones de duración
 export const DURATION_OPTIONS = [
   { value: '15', label: '15 minutos' },

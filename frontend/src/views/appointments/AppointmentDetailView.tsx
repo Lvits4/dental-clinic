@@ -5,7 +5,7 @@ import AppointmentStatusBadge from '../../components/appointments/AppointmentSta
 import { useAppointmentDetail } from '../../querys/appointments/queryAppointments';
 import { useUpdateAppointmentStatus, useCancelAppointment } from '../../querys/appointments/mutationAppointments';
 import { AppointmentStatus } from '../../enums';
-import { STATUS_OPTIONS } from '../../types';
+import { STATUS_CONFIG, VALID_STATUS_TRANSITIONS } from '../../types';
 
 function formatDateTime(dateStr: string): string {
   const date = new Date(dateStr);
@@ -52,12 +52,14 @@ const AppointmentDetailView = () => {
     });
   };
 
-  const canChangeStatus = appointment.status !== AppointmentStatus.CANCELLED
-    && appointment.status !== AppointmentStatus.ATTENDED;
+  // Transiciones validas desde el estado actual
+  const allowedTransitions = VALID_STATUS_TRANSITIONS[appointment.status as AppointmentStatus] ?? [];
+  const canChangeStatus = allowedTransitions.length > 0;
 
-  const nextStatuses = STATUS_OPTIONS.filter(
-    (s) => s.value !== appointment.status && s.value !== AppointmentStatus.CANCELLED,
-  );
+  const nextStatuses = allowedTransitions.map((status) => ({
+    value: status,
+    label: STATUS_CONFIG[status]?.label ?? status,
+  }));
 
   return (
     <div className="space-y-4">
