@@ -1,6 +1,5 @@
 import { IsUUID, IsOptional, IsString, IsDateString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 
 export class CreatePerformedProcedureDto {
   @ApiProperty()
@@ -37,6 +36,5 @@ export class CreatePerformedProcedureDto {
 
   @ApiProperty({ example: '2025-06-15T10:00:00Z' })
   @IsDateString()
-  @Type(() => Date)
-  performedAt: Date;
+  performedAt: string;
 }
