@@ -7,7 +7,7 @@ export { default as Input } from './Input';
 export type { InputProps } from './Input';
 
 export { default as Select } from './Select';
-export type { SelectProps, SelectOption } from './Select';
+export type { SelectProps, SelectOption, SelectRadius } from './Select';
 
 export { default as DatePicker } from './DatePicker';
 export type { DatePickerProps } from './DatePicker';
@@ -37,13 +37,13 @@ export { default as Table } from './Table';
 export type { Column } from './Table';
 
 export { default as Pagination } from './Pagination';
-export type { PaginationProps } from './Pagination';
+export type { PaginationProps, PaginationRadius } from './Pagination';
 
 export { default as Spinner } from './Spinner';
 export type { SpinnerProps, SpinnerSize } from './Spinner';
 
 export { default as SearchInput } from './SearchInput';
-export type { SearchInputProps } from './SearchInput';
+export type { SearchInputProps, SearchInputRadius } from './SearchInput';
 
 export { default as EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
+export type SearchInputRadius = 'xl' | '2xl';
+
 export interface SearchInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -7,7 +9,14 @@ export interface SearchInputProps {
   debounceMs?: number;
   fullWidth?: boolean;
   className?: string;
+  /** Por defecto `xl`; usar `2xl` para alinear con tablas tipo `rounded-2xl` */
+  radius?: SearchInputRadius;
 }
+
+const RADIUS_CLASS: Record<SearchInputRadius, string> = {
+  xl: 'rounded-xl',
+  '2xl': 'rounded-2xl',
+};
 
 const SearchInput = ({
   value,
@@ -16,6 +25,7 @@ const SearchInput = ({
   debounceMs = 400,
   fullWidth = false,
   className = '',
+  radius = 'xl',
 }: SearchInputProps) => {
   const [localValue, setLocalValue] = useState(value);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -56,13 +66,16 @@ const SearchInput = ({
         value={localValue}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border transition-all duration-200
-          bg-white dark:bg-slate-800/50
-          text-slate-900 dark:text-white
-          border-slate-200 dark:border-slate-700
-          placeholder-slate-400 dark:placeholder-slate-500
-          hover:border-slate-300 dark:hover:border-slate-600
-          focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+        className={[
+          'w-full pl-10 pr-9 py-2.5 text-sm border transition-all duration-200',
+          RADIUS_CLASS[radius],
+          'bg-white dark:bg-slate-800/50',
+          'text-slate-900 dark:text-white',
+          'border-slate-200 dark:border-slate-700',
+          'placeholder-slate-400 dark:placeholder-slate-500',
+          'hover:border-slate-300 dark:hover:border-slate-600',
+          'focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500',
+        ].join(' ')}
       />
 
       {/* Boton limpiar */}

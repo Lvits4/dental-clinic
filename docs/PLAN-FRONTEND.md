@@ -221,10 +221,9 @@ Si no hay token, redirige a login. Si el rol no está permitido, muestra vista d
 
 **Vistas:**
 
-- PatientsListView: tabla paginada con búsqueda y filtros
-- PatientCreateView: formulario de creación
-- PatientEditView: formulario de edición
-- PatientDetailView: detalle completo con tabs (datos, historial, citas, planes)
+- PatientsListView: tabla paginada con búsqueda, filtro de estado (activo/inactivo/todos) y modal de creación/edición (`PatientFormModal`)
+- PatientDetailView: detalle completo con tabs (datos, expediente, evoluciones, archivos, citas) y modal de edición
+- Rutas de compatibilidad: `#/patients/new` y `#/patients/:id/edit` redirigen a la lista o al detalle con `location.state` para abrir el modal
 
 **Componentes:**
 
@@ -497,9 +496,9 @@ Cada sección es editable inline o mediante modal.
 #/login                                    → LoginView
 #/                                         → DashboardView
 #/patients                                 → PatientsListView
-#/patients/new                             → PatientCreateView
+#/patients/new                             → redirección a `#/patients` (state: abrir modal crear)
 #/patients/:id                             → PatientDetailView
-#/patients/:id/edit                        → PatientEditView
+#/patients/:id/edit                        → redirección a `#/patients/:id` (state: abrir modal editar)
 #/patients/:id/clinical-record             → ClinicalRecordView
 #/patients/:id/evolutions                  → ClinicalEvolutionsListView
 #/patients/:id/evolutions/new              → ClinicalEvolutionCreateView

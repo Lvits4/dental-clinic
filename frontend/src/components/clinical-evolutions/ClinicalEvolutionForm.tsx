@@ -8,6 +8,7 @@ interface ClinicalEvolutionFormProps {
   doctors: Doctor[];
   loading?: boolean;
   onSubmit: (data: CreateClinicalEvolutionDto) => void;
+  onCancel?: () => void;
 }
 
 /* ── Iconos de sección ── */
@@ -32,6 +33,7 @@ const ClinicalEvolutionForm = ({
   doctors,
   loading = false,
   onSubmit,
+  onCancel,
 }: ClinicalEvolutionFormProps) => {
   const [doctorId, setDoctorId] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -71,7 +73,6 @@ const ClinicalEvolutionForm = ({
   const steps: Step[] = [
     {
       title: 'General',
-      validate: validateStep1,
       content: (
         <FormSection title="Información General" icon={<IconInfo />} description="Doctor y fecha de la evolución">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -93,7 +94,6 @@ const ClinicalEvolutionForm = ({
     },
     {
       title: 'Evaluación',
-      validate: validateStep2,
       content: (
         <FormSection title="Evaluación Clínica" icon={<IconClipboard />} description="Hallazgos, diagnóstico y procedimiento">
           <div className="space-y-4">
@@ -156,6 +156,7 @@ const ClinicalEvolutionForm = ({
       onSubmit={handleSubmit}
       submitLabel="Registrar Evolución"
       loading={loading}
+      onCancel={onCancel}
     />
   );
 };

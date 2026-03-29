@@ -34,7 +34,7 @@ export class TreatmentPlansService {
 
   async findAll(): Promise<TreatmentPlan[]> {
     return this.planRepository.find({
-      relations: ['patient', 'doctor', 'items', 'items.treatment'],
+      relations: ['patient', 'doctor', 'items', 'items.treatment', 'items.performedProcedures'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -42,7 +42,7 @@ export class TreatmentPlansService {
   async findOne(id: string): Promise<TreatmentPlan> {
     const plan = await this.planRepository.findOne({
       where: { id },
-      relations: ['patient', 'doctor', 'items', 'items.treatment'],
+      relations: ['patient', 'doctor', 'items', 'items.treatment', 'items.performedProcedures', 'items.performedProcedures.doctor'],
     });
     if (!plan) {
       throw new NotFoundException(`Treatment plan with ID ${id} not found`);

@@ -7,12 +7,14 @@ export interface BreadcrumbItem {
 }
 
 export interface PageHeaderProps {
-  title: string;
+  title?: string;
   subtitle?: string;
   breadcrumb?: BreadcrumbItem[];
   action?: ReactNode;
   /** Margen inferior menor (vistas con altura fija, p. ej. dashboard) */
   dense?: boolean;
+  /** Solo migas de pan; sin bloque de titulo, subtitulo ni accion */
+  hideTitle?: boolean;
 }
 
 const ChevronRightIcon = () => (
@@ -27,12 +29,17 @@ const PageHeader = ({
   breadcrumb,
   action,
   dense = false,
+  hideTitle = false,
 }: PageHeaderProps) => {
+  const rootMb = hideTitle ? 'mb-0' : dense ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8';
+  const navMb = hideTitle ? 'mb-1.5' : 'mb-3';
+  const showTitleBlock = !hideTitle && (title != null || subtitle || action);
+
   return (
-    <div className={dense ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8'}>
+    <div className={rootMb}>
       {/* Breadcrumb */}
       {breadcrumb && breadcrumb.length > 0 && (
-        <nav aria-label="Migas de pan" className="mb-3">
+        <nav aria-label="Migas de pan" className={navMb}>
           <ol className="flex items-center flex-wrap gap-1">
             {breadcrumb.map((item, index) => {
               const isLast = index === breadcrumb.length - 1;
@@ -69,32 +76,36 @@ const PageHeader = ({
         </nav>
       )}
 
-      {/* Titulo + accion */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight tracking-tight truncate">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
-              {subtitle}
-            </p>
-          )}
-        </div>
+      {showTitleBlock && (
+        <>
+          {/* Titulo + accion */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              {title != null && title !== '' && (
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight tracking-tight truncate">
+                  {title}
+                </h1>
+              )}
+              {subtitle && (
+                <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                  {subtitle}
+                </p>
+              )}
+            </div>
 
-        {/* Accion: en desktop a la derecha, en mobile debajo */}
-        {action && (
-          <div className="hidden sm:flex items-center shrink-0">
-            {action}
+            {action && (
+              <div className="hidden sm:flex items-center shrink-0">
+                {action}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Accion mobile (debajo del titulo) */}
-      {action && (
-        <div className="sm:hidden mt-4">
-          {action}
-        </div>
+          {action && (
+            <div className="sm:hidden mt-4">
+              {action}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

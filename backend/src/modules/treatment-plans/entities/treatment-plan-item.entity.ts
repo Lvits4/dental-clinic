@@ -5,12 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { TreatmentPlan } from './treatment-plan.entity';
 import { Treatment } from '../../treatments/entities/treatment.entity';
 import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
+import { PerformedProcedure } from '../../performed-procedures/entities/performed-procedure.entity';
 
 @Entity('treatment_plan_items')
 export class TreatmentPlanItem {
@@ -46,6 +48,9 @@ export class TreatmentPlanItem {
 
   @Column({ name: 'order', type: 'int', default: 0 })
   order: number;
+
+  @OneToMany(() => PerformedProcedure, (pp) => pp.treatmentPlanItem)
+  performedProcedures: PerformedProcedure[];
 
   @Exclude()
   @CreateDateColumn({ name: 'created_at' })

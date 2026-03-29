@@ -11,6 +11,8 @@ export interface CardProps {
   variant?: CardVariant;
   padding?: CardPadding;
   className?: string;
+  /** Clases extra en el contenedor del cuerpo (debajo de title/actions) */
+  bodyClassName?: string;
 }
 
 const variantClasses: Record<CardVariant, string> = {
@@ -37,6 +39,7 @@ const Card = ({
   variant = 'default',
   padding = 'md',
   className = '',
+  bodyClassName = '',
 }: CardProps) => {
   return (
     <div
@@ -63,7 +66,11 @@ const Card = ({
         </div>
       )}
 
-      <div className={paddingClasses[padding]}>{children}</div>
+      <div
+        className={[paddingClasses[padding], bodyClassName].filter(Boolean).join(' ')}
+      >
+        {children}
+      </div>
 
       {footer && (
         <div className="px-5 py-4 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/20">

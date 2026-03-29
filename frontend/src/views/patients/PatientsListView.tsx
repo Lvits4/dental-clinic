@@ -1,67 +1,168 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, PageHeader, Pagination } from '../../components/ui';
+import { HttpError } from '../../helpers/http';
 import PatientsTable from '../../components/patients/PatientsTable';
 import PatientFilters from '../../components/patients/PatientFilters';
+import PatientFormModal from '../../components/patients/PatientFormModal';
 import { usePatientsList } from '../../querys/patients/queryPatients';
+import { useAuth } from '../../context/AuthContext';
+import { Role } from '../../enums';
+import type { PatientModalLocationState } from './PatientRouteRedirects';
+import type { PatientSortBy, PatientSortOrder } from '../../types';
+
+type PatientListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
+
+type StatusFilterValue = '' | 'true' | 'false';
 
 const PatientsListView = () => {
+  const { user } = useAuth();
+  const canEditPatient =
+    user?.role === Role.ADMIN || user?.role === Role.RECEPTIONIST;
+  const canDeactivatePatient = user?.role === Role.ADMIN;
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('true');
+  const [sortBy, setSortBy] = useState<PatientSortBy>('createdAt');
+  const [sortOrder, setSortOrder] = useState<PatientSortOrder>('desc');
+  const [modal, setModal] = useState<PatientListModal>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
   const limit = 10;
 
-  const { data, isLoading } = usePatientsList({
+  const isActiveParam = useMemo(() => {
+    if (statusFilter === '') return undefined;
+    return statusFilter === 'true';
+  }, [statusFilter]);
+
+  const { data, isLoading, isError, error, refetch } = usePatientsList({
     page,
     limit,
     name: search || undefined,
-    isActive: statusFilter !== '' ? statusFilter === 'true' : undefined,
+    isActive: isActiveParam,
+    sortBy,
+    sortOrder,
   });
+
+  const listErrorMessage =
+    error instanceof HttpError
+      ? (typeof error.details === 'string'
+          ? error.details
+          : Array.isArray(error.details)
+            ? error.details.join(', ')
+            : error.message)
+      : error instanceof Error
+        ? error.message
+        : 'No se pudo cargar la lista de pacientes.';
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
   };
 
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value as StatusFilterValue);
     setPage(1);
   };
 
+  const handleSort = (sortKey: string) => {
+    const k = sortKey as PatientSortBy;
+    if (sortBy === k) {
+      setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(k);
+      setSortOrder(k === 'createdAt' ? 'desc' : 'asc');
+    }
+    setPage(1);
+  };
+
+  useEffect(() => {
+    const st = location.state as PatientModalLocationState | null;
+    if (st?.openPatientModal !== 'create') return;
+    navigate(location.pathname, { replace: true, state: {} });
+    if (canEditPatient) {
+      setModal({ mode: 'create' });
+    }
+  }, [location.state, location.pathname, navigate, canEditPatient]);
+
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Pacientes"
-        breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Pacientes' }]}
-        action={
-          <Link to="/patients/new">
-            <Button>
-              <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nuevo Paciente
-            </Button>
-          </Link>
-        }
-      />
-
-      <PatientFilters
-        search={search}
-        onSearchChange={handleSearchChange}
-        statusFilter={statusFilter}
-        onStatusFilterChange={handleStatusChange}
-      />
-
-      <PatientsTable data={data?.data || []} loading={isLoading} />
-
-      {data && (
-        <Pagination
-          page={data.meta.page}
-          totalPages={data.meta.totalPages}
-          total={data.meta.totalItems}
-          limit={data.meta.limit}
-          onPageChange={setPage}
+    <div className="flex flex-col gap-4 h-[calc(100dvh-12rem)] md:h-[calc(100dvh-8rem)] min-h-0">
+      <div className="shrink-0">
+        <PageHeader
+          dense
+          title="Pacientes"
+          breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Pacientes' }]}
         />
+      </div>
+
+      <div className="shrink-0">
+        <PatientFilters
+          search={search}
+          onSearchChange={handleSearchChange}
+          statusFilter={statusFilter}
+          onStatusFilterChange={handleStatusFilterChange}
+          trailingActions={
+            canEditPatient ? (
+              <Button
+                type="button"
+                className="!rounded-2xl whitespace-nowrap"
+                onClick={() => setModal({ mode: 'create' })}
+              >
+                <svg className="w-5 h-5 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nuevo paciente
+              </Button>
+            ) : null
+          }
+        />
+      </div>
+
+      <div className="flex-1 flex flex-col min-h-0 min-w-0">
+        {isError ? (
+          <div
+            role="alert"
+            className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-red-200 bg-red-50/90 px-6 py-12 text-center dark:border-red-900/50 dark:bg-red-950/30"
+          >
+            <p className="text-sm text-red-800 dark:text-red-200 max-w-md">{listErrorMessage}</p>
+            <Button type="button" className="!rounded-2xl" onClick={() => refetch()}>
+              Reintentar
+            </Button>
+          </div>
+        ) : (
+          <PatientsTable
+            data={data?.data || []}
+            loading={isLoading}
+            onEditPatient={(p) => setModal({ mode: 'edit', id: p.id })}
+            showEdit={canEditPatient}
+            showDeactivate={canDeactivatePatient}
+            sortColumn={sortBy}
+            sortDirection={sortOrder}
+            onSort={handleSort}
+            fillHeight
+          />
+        )}
+      </div>
+
+      <PatientFormModal
+        mode={modal?.mode === 'edit' ? 'edit' : 'create'}
+        patientId={modal?.mode === 'edit' ? modal.id : undefined}
+        isOpen={modal !== null}
+        onClose={() => setModal(null)}
+      />
+
+      {data && !isError && (
+        <div className="shrink-0">
+          <Pagination
+            radius="2xl"
+            page={data.meta.page}
+            totalPages={data.meta.totalPages}
+            total={data.meta.totalItems}
+            limit={data.meta.limit}
+            onPageChange={setPage}
+          />
+        </div>
       )}
     </div>
   );

@@ -38,6 +38,17 @@ export type UpdatePatientDto = Partial<CreatePatientDto> & {
   isActive?: boolean;
 };
 
+export type PatientSortBy =
+  | 'createdAt'
+  | 'firstName'
+  | 'lastName'
+  | 'name'
+  | 'sex'
+  | 'phone'
+  | 'email';
+
+export type PatientSortOrder = 'asc' | 'desc';
+
 // Filtros para listado
 export interface PatientFilters {
   page?: number;
@@ -46,6 +57,8 @@ export interface PatientFilters {
   phone?: string;
   email?: string;
   isActive?: boolean;
+  sortBy?: PatientSortBy;
+  sortOrder?: PatientSortOrder;
 }
 
 // Errores del formulario

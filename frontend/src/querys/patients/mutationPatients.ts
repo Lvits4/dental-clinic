@@ -5,7 +5,9 @@ import { patientsApi } from '../../requests/patients.api';
 import { HttpError } from '../../helpers/http';
 import type { CreatePatientDto, UpdatePatientDto } from '../../types';
 
-export const useCreatePatient = () => {
+type PatientMutationNavOptions = { skipNavigation?: boolean };
+
+export const useCreatePatient = (options?: PatientMutationNavOptions) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -14,7 +16,9 @@ export const useCreatePatient = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       toast.success('Paciente creado exitosamente');
-      navigate('/patients');
+      if (!options?.skipNavigation) {
+        navigate('/patients');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -27,7 +31,7 @@ export const useCreatePatient = () => {
   });
 };
 
-export const useUpdatePatient = (id: string) => {
+export const useUpdatePatient = (id: string, options?: PatientMutationNavOptions) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -37,7 +41,9 @@ export const useUpdatePatient = (id: string) => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       queryClient.invalidateQueries({ queryKey: ['patients', id] });
       toast.success('Paciente actualizado exitosamente');
-      navigate(`/patients/${id}`);
+      if (!options?.skipNavigation) {
+        navigate(`/patients/${id}`);
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -57,7 +63,7 @@ export const useDeletePatient = () => {
     mutationFn: (id: string) => patientsApi.deactivate(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
-      toast.success('Paciente desactivado exitosamente');
+      toast.success('Paciente quitado de la lista (desactivado)');
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -70,43 +76,3 @@ export const useDeletePatient = () => {
   });
 };
 
-export const useActivatePatient = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => patientsApi.activate(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['patients'] });
-      toast.success('Paciente activado exitosamente');
-    },
-    onError: (error: Error) => {
-      if (error instanceof HttpError) {
-        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
-        toast.error(msg);
-      } else {
-        toast.error('Error al activar el paciente');
-      }
-    },
-  });
-};
-
-export const useTogglePatientStatus = (id: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (isActive: boolean) => patientsApi.update(id, { isActive }),
-    onSuccess: (_data, isActive) => {
-      queryClient.invalidateQueries({ queryKey: ['patients'] });
-      queryClient.invalidateQueries({ queryKey: ['patients', id] });
-      toast.success(isActive ? 'Paciente activado exitosamente' : 'Paciente desactivado exitosamente');
-    },
-    onError: (error: Error) => {
-      if (error instanceof HttpError) {
-        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
-        toast.error(msg);
-      } else {
-        toast.error('Error al cambiar el estado del paciente');
-      }
-    },
-  });
-};

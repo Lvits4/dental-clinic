@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo, type FormEvent } from 'react';
 import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment } from '../../types';
+import { useTreatmentPlansByPatient } from '../../querys/treatment-plans/queryTreatmentPlans';
+import { TreatmentPlanStatus } from '../../enums';
 
 interface ProcedureFormErrors {
   patientId?: string;
@@ -15,9 +17,9 @@ interface PerformedProcedureFormProps {
   treatments: Treatment[];
   loading?: boolean;
   onSubmit: (data: CreatePerformedProcedureDto) => void;
+  onCancel?: () => void;
 }
 
-/* ── Iconos de sección ── */
 const IconProcedure = () => (
   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
@@ -35,6 +37,7 @@ const PerformedProcedureForm = ({
   treatments,
   loading = false,
   onSubmit,
+  onCancel,
 }: PerformedProcedureFormProps) => {
   const [patientId, setPatientId] = useState('');
   const [doctorId, setDoctorId] = useState('');
@@ -45,6 +48,13 @@ const PerformedProcedureForm = ({
   const [performedAt, setPerformedAt] = useState(new Date().toISOString().split('T')[0]);
   const [errors, setErrors] = useState<ProcedureFormErrors>({});
 
+  // Vinculación con plan
+  const [linkToPlan, setLinkToPlan] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState('');
+
+  const { data: patientPlans = [] } = useTreatmentPlansByPatient(patientId);
+
   const patientOptions = useMemo(() => patients
     .map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` })), [patients]);
 
@@ -54,6 +64,46 @@ const PerformedProcedureForm = ({
   const treatmentOptions = useMemo(() => treatments
     .filter((t) => t.isActive)
     .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` })), [treatments]);
+
+  const planOptions = useMemo(() => patientPlans.map((plan) => ({
+    value: plan.id,
+    label: `Plan ${new Date(plan.createdAt ?? '').toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })} — ${plan.status}`,
+  })), [patientPlans]);
+
+  const selectedPlan = useMemo(
+    () => patientPlans.find((p) => p.id === selectedPlanId),
+    [patientPlans, selectedPlanId],
+  );
+
+  const pendingItems = useMemo(
+    () => (selectedPlan?.items ?? []).filter(
+      (i) => i.status !== TreatmentPlanStatus.COMPLETED && i.status !== TreatmentPlanStatus.CANCELLED,
+    ),
+    [selectedPlan],
+  );
+
+  const itemOptions = useMemo(() => pendingItems.map((item) => ({
+    value: item.id,
+    label: `${item.treatment?.name ?? 'Tratamiento'}${item.tooth ? ` — Pieza ${item.tooth}` : ''}`,
+  })), [pendingItems]);
+
+  // Al seleccionar un ítem del plan, pre-llenar treatmentId
+  const handleItemSelect = (itemId: string) => {
+    setSelectedItemId(itemId);
+    const item = pendingItems.find((i) => i.id === itemId);
+    if (item?.treatmentId) {
+      setTreatmentId(item.treatmentId);
+    }
+  };
+
+  // Al cambiar paciente, resetear vinculación
+  const handlePatientChange = (id: string) => {
+    setPatientId(id);
+    setLinkToPlan(false);
+    setSelectedPlanId('');
+    setSelectedItemId('');
+    setErrors((p) => ({ ...p, patientId: undefined }));
+  };
 
   const validateStep1 = useCallback(() => {
     const stepErrors: ProcedureFormErrors = {};
@@ -73,6 +123,7 @@ const PerformedProcedureForm = ({
       description: description.trim() || undefined,
       notes: notes.trim() || undefined,
       performedAt: `${performedAt}T00:00:00.000Z`,
+      treatmentPlanItemId: linkToPlan && selectedItemId ? selectedItemId : undefined,
     });
   };
 
@@ -87,7 +138,6 @@ const PerformedProcedureForm = ({
   const steps: Step[] = [
     {
       title: 'Procedimiento',
-      validate: validateStep1,
       content: (
         <FormSection title="Datos del Procedimiento" icon={<IconProcedure />} description="Paciente, doctor, tratamiento y fecha">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -95,7 +145,7 @@ const PerformedProcedureForm = ({
               label="Paciente *"
               options={patientOptions}
               value={patientId}
-              onChange={(e) => { setPatientId(e.target.value); setErrors((p) => ({ ...p, patientId: undefined })); }}
+              onChange={(e) => handlePatientChange(e.target.value)}
               placeholder="Seleccionar..."
               error={errors.patientId}
             />
@@ -127,6 +177,50 @@ const PerformedProcedureForm = ({
               onChange={(e) => setTooth(e.target.value)}
             />
           </div>
+
+          {/* Vinculación con plan — solo si el paciente tiene planes activos */}
+          {patientId && patientPlans.length > 0 && (
+            <div className="mt-5 pt-5 border-t border-slate-200 dark:border-slate-700">
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={linkToPlan}
+                  onChange={(e) => {
+                    setLinkToPlan(e.target.checked);
+                    if (!e.target.checked) {
+                      setSelectedPlanId('');
+                      setSelectedItemId('');
+                    }
+                  }}
+                  className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700"
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Vincular a un plan de tratamiento
+                </span>
+              </label>
+
+              {linkToPlan && (
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Select
+                    label="Plan de tratamiento"
+                    options={planOptions}
+                    value={selectedPlanId}
+                    onChange={(e) => { setSelectedPlanId(e.target.value); setSelectedItemId(''); }}
+                    placeholder="Seleccionar plan..."
+                  />
+                  {selectedPlanId && (
+                    <Select
+                      label="Ítem del plan"
+                      options={itemOptions}
+                      value={selectedItemId}
+                      onChange={(e) => handleItemSelect(e.target.value)}
+                      placeholder={pendingItems.length === 0 ? 'Sin ítems pendientes' : 'Seleccionar ítem...'}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </FormSection>
       ),
     },
@@ -159,6 +253,8 @@ const PerformedProcedureForm = ({
       onSubmit={handleSubmit}
       submitLabel="Registrar"
       loading={loading}
+      onCancel={onCancel}
+      onStepChange={() => setErrors({})}
     />
   );
 };

@@ -5,6 +5,8 @@ export interface SelectOption {
   label: string;
 }
 
+export type SelectRadius = 'xl' | '2xl';
+
 export interface SelectProps {
   label?: string;
   error?: string;
@@ -18,6 +20,8 @@ export interface SelectProps {
   id?: string;
   name?: string;
   className?: string;
+  /** Por defecto `xl`; usar `2xl` para alinear con tablas `rounded-2xl` */
+  radius?: SelectRadius;
 }
 
 const Select = ({
@@ -33,7 +37,9 @@ const Select = ({
   id,
   name,
   className = '',
+  radius = 'xl',
 }: SelectProps) => {
+  const radiusClass = radius === '2xl' ? 'rounded-2xl' : 'rounded-xl';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
@@ -99,7 +105,8 @@ const Select = ({
           disabled={disabled}
           onClick={() => !disabled && setOpen((v) => !v)}
           className={[
-            'w-full rounded-xl border text-sm transition-all duration-200 text-left',
+            'w-full border text-sm transition-all duration-200 text-left',
+            radiusClass,
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
@@ -138,7 +145,10 @@ const Select = ({
         {open && (
           <ul
             role="listbox"
-            className="absolute z-50 mt-1.5 w-full max-h-60 overflow-auto rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none"
+            className={[
+              'absolute z-50 mt-1.5 w-full max-h-60 overflow-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none',
+              radiusClass,
+            ].join(' ')}
           >
             {placeholder && (
               <li

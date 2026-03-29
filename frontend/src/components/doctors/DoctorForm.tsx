@@ -46,6 +46,7 @@ interface DoctorFormProps {
   onSubmit: (data: CreateDoctorDto) => void;
   loading?: boolean;
   submitLabel?: string;
+  onCancel?: () => void;
 }
 
 /* ── Iconos de sección ── */
@@ -65,6 +66,7 @@ const DoctorForm = ({
   onSubmit,
   loading = false,
   submitLabel = 'Guardar',
+  onCancel,
 }: DoctorFormProps) => {
   const [firstName, setFirstName] = useState(initialData?.firstName || '');
   const [lastName, setLastName] = useState(initialData?.lastName || '');
@@ -111,7 +113,6 @@ const DoctorForm = ({
   const steps: Step[] = [
     {
       title: 'Datos Personales',
-      validate: validateStep1,
       content: (
         <FormSection title="Datos Personales" icon={<IconUser />} description="Nombre, especialidad y licencia">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -180,6 +181,8 @@ const DoctorForm = ({
       onSubmit={handleSubmit}
       submitLabel={submitLabel}
       loading={loading}
+      onCancel={onCancel}
+      onStepChange={() => setErrors({})}
     />
   );
 };

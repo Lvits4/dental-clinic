@@ -28,6 +28,8 @@ export type {
   UpdatePatientDto,
   PatientFilters,
   PatientFormErrors,
+  PatientSortBy,
+  PatientSortOrder,
 } from './patient.types';
 export { SEX_OPTIONS } from './patient.types';
 

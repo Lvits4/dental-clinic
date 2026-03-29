@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader, Card } from '../../components/ui';
 import AppointmentForm from '../../components/appointments/AppointmentForm';
 import { useCreateAppointment } from '../../querys/appointments/mutationAppointments';
@@ -42,6 +42,7 @@ const EmptyState = ({ title, message, linkTo, linkLabel }: { title: string; mess
 );
 
 const AppointmentCreateView = () => {
+  const navigate = useNavigate();
   const createMutation = useCreateAppointment();
   const { data: patientsData, isLoading: loadingPatients } = usePatientsList({ limit: 100, isActive: true });
   const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
@@ -79,6 +80,7 @@ const AppointmentCreateView = () => {
             onSubmit={(data) => createMutation.mutate(data)}
             loading={createMutation.isPending}
             submitLabel="Crear Cita"
+            onCancel={() => navigate(-1)}
           />
         )}
       </Card>

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PageHeader, Card } from '../../components/ui';
 import PerformedProcedureForm from '../../components/performed-procedures/PerformedProcedureForm';
 import { useCreatePerformedProcedure } from '../../querys/performed-procedures/mutationPerformedProcedures';
@@ -45,6 +45,7 @@ const EmptyState = ({ title, message, linkTo, linkLabel }: { title: string; mess
 );
 
 const PerformedProcedureCreateView = () => {
+  const navigate = useNavigate();
   const createMutation = useCreatePerformedProcedure();
   const { data: patientsData, isLoading: lp } = usePatientsList({ limit: 100 });
   const { data: doctors, isLoading: ld } = useDoctorsList();
@@ -88,6 +89,7 @@ const PerformedProcedureCreateView = () => {
             treatments={treatments || []}
             loading={createMutation.isPending}
             onSubmit={(data) => createMutation.mutate(data)}
+            onCancel={() => navigate(-1)}
           />
         )}
       </Card>

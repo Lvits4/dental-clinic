@@ -5,6 +5,7 @@ import AuthLayout from './layouts/AuthLayout';
 import ProtectedRoute from './components/ui/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import { Role } from './enums';
+import { RedirectPatientEditToDetail, RedirectPatientNewToList } from './views/patients/PatientRouteRedirects';
 
 // ─── Spinner de carga ──────────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -22,9 +23,7 @@ const DashboardView = React.lazy(() => import('./views/DashboardView'));
 
 // ─── Patients ──────────────────────────────────────────────────────────────────
 const PatientsListView = React.lazy(() => import('./views/patients/PatientsListView'));
-const PatientCreateView = React.lazy(() => import('./views/patients/PatientCreateView'));
 const PatientDetailView = React.lazy(() => import('./views/patients/PatientDetailView'));
-const PatientEditView = React.lazy(() => import('./views/patients/PatientEditView'));
 
 // ─── Doctors ───────────────────────────────────────────────────────────────────
 const DoctorsListView = React.lazy(() => import('./views/doctors/DoctorsListView'));
@@ -90,9 +89,9 @@ const App = () => {
 
             {/* Pacientes */}
             <Route path="/patients" element={<PatientsListView />} />
-            <Route path="/patients/new" element={<PatientCreateView />} />
+            <Route path="/patients/new" element={<RedirectPatientNewToList />} />
+            <Route path="/patients/:id/edit" element={<RedirectPatientEditToDetail />} />
             <Route path="/patients/:id" element={<PatientDetailView />} />
-            <Route path="/patients/:id/edit" element={<PatientEditView />} />
 
             {/* Expediente clinico (anidados a paciente) */}
             <Route path="/patients/:id/clinical-record" element={<ClinicalRecordView />} />

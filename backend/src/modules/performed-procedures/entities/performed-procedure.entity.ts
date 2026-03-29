@@ -42,7 +42,7 @@ export class PerformedProcedure {
   @Column({ name: 'treatment_plan_item_id', nullable: true })
   treatmentPlanItemId: string;
 
-  @ManyToOne(() => TreatmentPlanItem, { nullable: true })
+  @ManyToOne(() => TreatmentPlanItem, (item) => item.performedProcedures, { nullable: true })
   @JoinColumn({ name: 'treatment_plan_item_id' })
   treatmentPlanItem: TreatmentPlanItem;
 

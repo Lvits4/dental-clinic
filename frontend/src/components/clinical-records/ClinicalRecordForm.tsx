@@ -100,25 +100,13 @@ const ClinicalRecordForm = ({
   ];
 
   return (
-    <div>
-      {onCancel && (
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
-          >
-            Cancelar
-          </button>
-        </div>
-      )}
-      <MultiStepForm
-        steps={steps}
-        onSubmit={handleSubmit}
-        submitLabel={submitLabel}
-        loading={loading}
-      />
-    </div>
+    <MultiStepForm
+      steps={steps}
+      onSubmit={handleSubmit}
+      submitLabel={submitLabel}
+      loading={loading}
+      onCancel={onCancel}
+    />
   );
 };
 

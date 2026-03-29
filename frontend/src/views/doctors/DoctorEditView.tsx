@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, PageHeader, Spinner, ConfirmDialog, ToggleSwitch } from '../../components/ui';
 import DoctorForm from '../../components/doctors/DoctorForm';
 import { useDoctorDetail } from '../../querys/doctors/queryDoctors';
@@ -7,6 +7,7 @@ import { useUpdateDoctor, useToggleDoctorStatus } from '../../querys/doctors/mut
 
 const DoctorEditView = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: doctor, isLoading } = useDoctorDetail(id!);
   const updateMutation = useUpdateDoctor(id!);
   const toggleStatusMutation = useToggleDoctorStatus(id!);
@@ -89,6 +90,7 @@ const DoctorEditView = () => {
           onSubmit={(data) => updateMutation.mutate(data)}
           loading={updateMutation.isPending}
           submitLabel="Guardar Cambios"
+          onCancel={() => navigate(-1)}
         />
       </Card>
 

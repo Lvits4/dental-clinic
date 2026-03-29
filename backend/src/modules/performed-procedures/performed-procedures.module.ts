@@ -5,11 +5,12 @@ import { Patient } from '../patients/entities/patient.entity';
 import { Doctor } from '../doctors/entities/doctor.entity';
 import { Treatment } from '../treatments/entities/treatment.entity';
 import { TreatmentPlanItem } from '../treatment-plans/entities/treatment-plan-item.entity';
+import { TreatmentPlan } from '../treatment-plans/entities/treatment-plan.entity';
 import { PerformedProceduresService } from './services/performed-procedures.service';
 import { PerformedProceduresController } from './controllers/performed-procedures.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PerformedProcedure, Patient, Doctor, Treatment, TreatmentPlanItem])],
+  imports: [TypeOrmModule.forFeature([PerformedProcedure, Patient, Doctor, Treatment, TreatmentPlanItem, TreatmentPlan])],
   controllers: [PerformedProceduresController],
   providers: [PerformedProceduresService],
   exports: [PerformedProceduresService],

@@ -55,6 +55,7 @@ interface AppointmentFormProps {
   };
   /** Contenido extra que aparece antes del botón Guardar/Siguiente (e.g. sección de estado) */
   footerContent?: ReactNode;
+  onCancel?: () => void;
 }
 
 /* ── Iconos de sección ── */
@@ -79,6 +80,7 @@ const AppointmentForm = ({
   defaultDoctorId = '',
   initialValues = {},
   footerContent,
+  onCancel,
 }: AppointmentFormProps) => {
   const [patientId, setPatientId] = useState(initialValues.patientId ?? defaultPatientId);
   const [doctorId, setDoctorId] = useState(initialValues.doctorId ?? defaultDoctorId);
@@ -139,7 +141,6 @@ const AppointmentForm = ({
   const steps: Step[] = [
     {
       title: 'Datos de la Cita',
-      validate: validateStep1,
       content: (
         <FormSection title="Información de la Cita" icon={<IconCalendar />} description="Paciente, doctor, fecha y duración">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -216,6 +217,8 @@ const AppointmentForm = ({
       submitLabel={submitLabel}
       loading={loading}
       beforeButtons={footerContent}
+      onCancel={onCancel}
+      onStepChange={() => setErrors({})}
     />
   );
 };

@@ -1,9 +1,12 @@
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { SearchInput, Select } from '../ui';
 
 interface PatientFiltersProps {
   search: string;
   onSearchChange: (value: string) => void;
+  /** Controles a la derecha del buscador (p. ej. “Nuevo paciente”), alineados en altura */
+  trailingActions?: ReactNode;
   statusFilter?: string;
   onStatusFilterChange?: (value: string) => void;
 }
@@ -17,6 +20,7 @@ const STATUS_OPTIONS = [
 const PatientFilters = ({
   search,
   onSearchChange,
+  trailingActions,
   statusFilter = '',
   onStatusFilterChange,
 }: PatientFiltersProps) => {
@@ -25,14 +29,20 @@ const PatientFilters = ({
   return (
     <div className="space-y-2">
       {/* Fila principal - siempre visible */}
-      <div className="flex gap-2">
-        <div className="flex-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="w-full max-w-sm md:max-w-md min-w-0 shrink-0">
           <SearchInput
             value={search}
             onChange={onSearchChange}
             placeholder="Buscar por nombre..."
+            radius="2xl"
+            fullWidth
           />
         </div>
+
+        {trailingActions && (
+          <div className="flex shrink-0 items-center">{trailingActions}</div>
+        )}
 
         {/* Boton para mostrar filtros adicionales en mobile */}
         {onStatusFilterChange && (
@@ -40,7 +50,7 @@ const PatientFilters = ({
             type="button"
             onClick={() => setExpanded((v) => !v)}
             className={[
-              'sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-colors',
+              'sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-2xl text-sm font-medium border transition-colors',
               expanded
                 ? 'bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-700 dark:text-emerald-400'
                 : 'bg-white border-slate-300 text-slate-600 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300',
@@ -57,6 +67,7 @@ const PatientFilters = ({
         {onStatusFilterChange && (
           <div className="hidden sm:block w-40">
             <Select
+              radius="2xl"
               options={STATUS_OPTIONS}
               value={statusFilter}
               onChange={(e) => onStatusFilterChange(e.target.value)}
@@ -69,6 +80,7 @@ const PatientFilters = ({
       {onStatusFilterChange && expanded && (
         <div className="sm:hidden">
           <Select
+            radius="2xl"
             options={STATUS_OPTIONS}
             value={statusFilter}
             onChange={(e) => onStatusFilterChange(e.target.value)}

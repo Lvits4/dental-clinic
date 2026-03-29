@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { PageHeader, Card } from '../../components/ui';
 import ClinicalEvolutionForm from '../../components/clinical-evolutions/ClinicalEvolutionForm';
 import { useCreateClinicalEvolution } from '../../querys/clinical-evolutions/mutationClinicalEvolutions';
@@ -25,6 +25,7 @@ const FormSkeleton = () => (
 
 const ClinicalEvolutionCreateView = () => {
   const { id: patientId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId!);
   const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
   const createMutation = useCreateClinicalEvolution(patientId!);
@@ -59,6 +60,7 @@ const ClinicalEvolutionCreateView = () => {
             doctors={doctors || []}
             loading={createMutation.isPending}
             onSubmit={(data) => createMutation.mutate(data)}
+            onCancel={() => navigate(-1)}
           />
         )}
       </Card>

@@ -15,3 +15,18 @@ export const useTreatmentPlanDetail = (id: string) => {
     enabled: !!id,
   });
 };
+
+export const useTreatmentPlansByPatient = (patientId: string) => {
+  return useQuery({
+    queryKey: ['treatment-plans', 'by-patient', patientId],
+    queryFn: () => treatmentPlansApi.getAll(),
+    select: (plans) =>
+      plans.filter(
+        (p) =>
+          p.patientId === patientId &&
+          p.status !== 'cancelled' &&
+          p.status !== 'completed',
+      ),
+    enabled: !!patientId,
+  });
+};

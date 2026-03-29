@@ -16,6 +16,8 @@ export const patientsApi = {
       phone: filters.phone,
       email: filters.email,
       isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
     } as Record<string, string | number | undefined>);
   },
 

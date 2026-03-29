@@ -1,22 +1,29 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Button, Badge, Card, PageHeader, Spinner, ConfirmDialog,
-  ToggleSwitch, Pagination, Modal,
+  Button, Card, PageHeader, Spinner, ConfirmDialog,
+  Pagination, Modal,
 } from '../../components/ui';
+import {
+  DETAIL_INFO_GRID_CLASS,
+  DETAIL_INFO_SECTION_TITLE_CLASS,
+  DETAIL_INFO_TILE_CLASS,
+} from '../../components/ui/detailInfoLayout';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
 import AppointmentForm from '../../components/appointments/AppointmentForm';
 import { useUpdateStatus, useUpdateAppointment } from '../../querys/appointments/mutationAppointments';
 import { usePatientsList } from '../../querys/patients/queryPatients';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
-import { AppointmentStatus } from '../../enums';
+import { AppointmentStatus, Role } from '../../enums';
 import { STATUS_CONFIG } from '../../types';
 import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
 import ClinicalEvolutionCard from '../../components/clinical-evolutions/ClinicalEvolutionCard';
 import FileUploadZone from '../../components/clinical-files/FileUploadZone';
 import ClinicalFileCard from '../../components/clinical-files/ClinicalFileCard';
 import { usePatientDetail } from '../../querys/patients/queryPatients';
-import { useTogglePatientStatus } from '../../querys/patients/mutationPatients';
+import PatientFormModal from '../../components/patients/PatientFormModal';
+import { useAuth } from '../../context/AuthContext';
+import type { PatientModalLocationState } from './PatientRouteRedirects';
 import { useAppointmentsList } from '../../querys/appointments/queryAppointments';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
 import { useCreateClinicalRecord, useUpdateClinicalRecord } from '../../querys/clinical-records/mutationClinicalRecords';
@@ -52,6 +59,9 @@ function calculateAge(dateStr: string): number {
   return age;
 }
 
+/** Mismo radio que tablas (`rounded-2xl`) — ver PatientsListView */
+const BTN_RX = '!rounded-2xl';
+
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 type TabKey = 'info' | 'record' | 'evolutions' | 'files' | 'appointments';
@@ -69,49 +79,46 @@ const RECORD_SECTIONS = [
   { key: 'dentalBackground' as const, label: 'Antecedentes Odontologicos' },
   { key: 'consultationReason' as const, label: 'Motivo de Consulta' },
   { key: 'diagnosis' as const, label: 'Diagnostico' },
-  { key: 'observations' as const, label: 'Observaciones' },
+  { key: 'observations' as const, label: 'Observaciones', fullWidth: true },
 ];
 
 // ─── Tab: Info ────────────────────────────────────────────────────────────────
 
 const PatientInfoTab = ({ patient }: { patient: Patient }) => {
-  const rows = [
+  const items: { label: string; value: string; fullWidth?: boolean; breakWords?: boolean }[] = [
     { label: 'Sexo', value: SEX_LABELS[patient.sex] || patient.sex },
-    { label: 'Fecha de nacimiento', value: `${formatDate(patient.dateOfBirth)} (${calculateAge(patient.dateOfBirth)} anos)` },
+    {
+      label: 'Fecha de nacimiento',
+      value: `${formatDate(patient.dateOfBirth)} (${calculateAge(patient.dateOfBirth)} anos)`,
+    },
     { label: 'Telefono', value: patient.phone },
-    { label: 'Correo', value: patient.email || '—' },
-    { label: 'Direccion', value: patient.address || '—' },
+    { label: 'Correo', value: patient.email || '—', breakWords: true },
+    { label: 'Direccion', value: patient.address || '—', fullWidth: true, breakWords: true },
   ];
 
   return (
-    <div className="space-y-5">
-      <dl className="space-y-3">
-        {rows.map((row) => (
-          <div key={row.label} className="flex flex-col sm:flex-row sm:gap-2">
-            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-40 shrink-0">{row.label}</dt>
-            <dd className="text-sm text-slate-900 dark:text-white">{row.value}</dd>
+    <div>
+      <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Información general</h3>
+      <div className={DETAIL_INFO_GRID_CLASS}>
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className={[DETAIL_INFO_TILE_CLASS, item.fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
+          >
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{item.label}</p>
+            <p
+              className={[
+                'text-sm font-medium text-slate-900 dark:text-white',
+                item.breakWords ? 'break-words' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {item.value}
+            </p>
           </div>
         ))}
-      </dl>
-
-      {(patient.medicalHistory || patient.allergies || patient.medications || patient.observations) && (
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-4">
-          {[
-            { key: 'medicalHistory', label: 'Antecedentes Medicos' },
-            { key: 'allergies', label: 'Alergias' },
-            { key: 'medications', label: 'Medicamentos' },
-            { key: 'observations', label: 'Observaciones' },
-          ].map(({ key, label }) => {
-            const value = (patient as Record<string, unknown>)[key] as string | undefined;
-            return value ? (
-              <div key={key}>
-                <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</h4>
-                <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{value}</p>
-              </div>
-            ) : null;
-          })}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -142,7 +149,7 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Este paciente no tiene expediente clinico aun.</p>
-        <Button onClick={() => setEditing(true)} size="sm">Crear Expediente</Button>
+        <Button className={BTN_RX} onClick={() => setEditing(true)} size="sm">Crear Expediente</Button>
       </div>
     );
   }
@@ -162,14 +169,26 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>Editar</Button>
+        <Button className={BTN_RX} variant="secondary" size="sm" onClick={() => setEditing(true)}>Editar</Button>
       </div>
-      {RECORD_SECTIONS.map((s) => (
-        <div key={s.key}>
-          <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">{s.label}</h3>
-          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{record?.[s.key] || '—'}</p>
-        </div>
-      ))}
+      <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Expediente clínico</h3>
+      <div className={DETAIL_INFO_GRID_CLASS}>
+        {RECORD_SECTIONS.map((s) => {
+          const text = record?.[s.key] || '—';
+          const fullWidth = 'fullWidth' in s && s.fullWidth;
+          return (
+            <div
+              key={s.key}
+              className={[DETAIL_INFO_TILE_CLASS, fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
+            >
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{s.label}</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white whitespace-pre-line break-words">
+                {text}
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -201,7 +220,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
         <Link to={`/patients/${patientId}/evolutions/new`}>
-          <Button size="sm">Nueva Evolucion</Button>
+          <Button className={BTN_RX} size="sm">Nueva Evolucion</Button>
         </Link>
       </div>
     );
@@ -211,7 +230,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
     <div className="space-y-4">
       <div className="flex justify-end">
         <Link to={`/patients/${patientId}/evolutions/new`}>
-          <Button size="sm">
+          <Button className={BTN_RX} size="sm">
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Nueva Evolucion
           </Button>
@@ -231,6 +250,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 
       {data.meta.totalPages > 1 && (
         <Pagination
+          radius="2xl"
           page={data.meta.page}
           totalPages={data.meta.totalPages}
           total={data.meta.totalItems}
@@ -279,6 +299,7 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
           </div>
           {data.meta.totalPages > 1 && (
             <Pagination
+              radius="2xl"
               page={data.meta.page}
               totalPages={data.meta.totalPages}
               total={data.meta.totalItems}
@@ -348,7 +369,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
         </svg>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay citas registradas para este paciente.</p>
         <Link to="/appointments/new">
-          <Button size="sm">Agendar Cita</Button>
+          <Button className={BTN_RX} size="sm">Agendar Cita</Button>
         </Link>
       </div>
     );
@@ -359,7 +380,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
       <div className="space-y-4">
         <div className="flex justify-end">
           <Link to="/appointments/new">
-            <Button size="sm">
+            <Button className={BTN_RX} size="sm">
               <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               Agendar Cita
             </Button>
@@ -371,7 +392,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
             <button
               key={apt.id}
               onClick={() => setViewTarget(apt)}
-              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
@@ -396,6 +417,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
 
         {data.meta.totalPages > 1 && (
           <Pagination
+            radius="2xl"
             page={data.meta.page}
             totalPages={data.meta.totalPages}
             total={data.meta.totalItems}
@@ -438,7 +460,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
               <button
                 type="button"
                 onClick={() => { setEditTarget(viewTarget); setViewTarget(null); }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -500,7 +522,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
                         )
                       }
                       className={[
-                        'px-3 py-1.5 rounded-xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        'px-3 py-1.5 rounded-2xl border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
                         STATUS_BUTTON_CLASSES[status],
                       ].join(' ')}
                     >
@@ -521,11 +543,23 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
 
 const PatientDetailView = () => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const canEditPatient =
+    user?.role === Role.ADMIN || user?.role === Role.RECEPTIONIST;
   const { data: patient, isLoading } = usePatientDetail(id!);
-  const toggleStatusMutation = useTogglePatientStatus(id!);
-  const [showToggleDialog, setShowToggleDialog] = useState(false);
-  const [pendingStatus, setPendingStatus] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('info');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
+  useEffect(() => {
+    const st = location.state as PatientModalLocationState | null;
+    if (st?.openPatientModal !== 'edit') return;
+    navigate(location.pathname, { replace: true, state: {} });
+    if (canEditPatient) {
+      setEditModalOpen(true);
+    }
+  }, [location.state, location.pathname, navigate, canEditPatient]);
 
   if (isLoading) {
     return (
@@ -543,70 +577,59 @@ const PatientDetailView = () => {
     );
   }
 
-  const handleToggleRequest = (newStatus: boolean) => {
-    setPendingStatus(newStatus);
-    setShowToggleDialog(true);
-  };
-
-  const handleToggleConfirm = () => {
-    toggleStatusMutation.mutate(pendingStatus, {
-      onSuccess: () => setShowToggleDialog(false),
-    });
-  };
-
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title={`${patient.firstName} ${patient.lastName}`}
-        subtitle={patient.isActive ? undefined : 'Paciente inactivo'}
-        breadcrumb={[
-          { label: 'Pacientes', to: '/patients' },
-          { label: `${patient.firstName} ${patient.lastName}` },
-        ]}
-        action={
-          <Link to={`/patients/${id}/edit`}>
-            <Button variant="secondary">Editar</Button>
-          </Link>
-        }
-      />
+    <div className="flex flex-col gap-2 min-h-0 h-[calc(100dvh-12rem)] md:h-[calc(100dvh-8rem)]">
+      <div className="shrink-0">
+        <PageHeader
+          dense
+          hideTitle
+          breadcrumb={[
+            { label: 'Pacientes', to: '/patients' },
+            { label: `${patient.firstName} ${patient.lastName}` },
+          ]}
+        />
+      </div>
 
-      {/* Cabecera del paciente */}
-      <Card padding="sm">
+      <Card padding="sm" className="shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
             <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
               {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
             </span>
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">
               {patient.firstName} {patient.lastName}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               {SEX_LABELS[patient.sex]} &middot; {calculateAge(patient.dateOfBirth)} anos
+              {!patient.isActive && (
+                <span className="text-amber-600 dark:text-amber-400"> &middot; Paciente inactivo</span>
+              )}
             </p>
           </div>
-          <Badge
-            className={`ml-auto shrink-0 ${
-              patient.isActive
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-            }`}
-          >
-            {patient.isActive ? 'Activo' : 'Inactivo'}
-          </Badge>
+          {canEditPatient && (
+            <Button
+              type="button"
+              variant="secondary"
+              className={`${BTN_RX} shrink-0`}
+              onClick={() => setEditModalOpen(true)}
+            >
+              Editar
+            </Button>
+          )}
         </div>
       </Card>
 
-      {/* Tabs */}
-      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="shrink-0 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex gap-1 min-w-max sm:min-w-0">
           {TABS.map((tab) => (
             <button
               key={tab.key}
+              type="button"
               onClick={() => setActiveTab(tab.key)}
               className={[
-                'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-medium transition-colors whitespace-nowrap',
                 activeTab === tab.key
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
@@ -621,28 +644,28 @@ const PatientDetailView = () => {
         </div>
       </div>
 
-      {/* Contenido de la tab activa */}
-      <Card>
-        {activeTab === 'info' && <PatientInfoTab patient={patient} />}
-        {activeTab === 'record' && <RecordTab patientId={id!} />}
-        {activeTab === 'evolutions' && <EvolutionsTab patientId={id!} />}
-        {activeTab === 'files' && <FilesTab patientId={id!} />}
-        {activeTab === 'appointments' && <AppointmentsTab patientId={id!} />}
+      <Card
+        padding="none"
+        className="flex flex-1 min-h-0 flex-col overflow-hidden"
+        bodyClassName="flex flex-1 min-h-0 flex-col overflow-hidden"
+      >
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5">
+          {activeTab === 'info' && <PatientInfoTab patient={patient} />}
+          {activeTab === 'record' && <RecordTab patientId={id!} />}
+          {activeTab === 'evolutions' && <EvolutionsTab patientId={id!} />}
+          {activeTab === 'files' && <FilesTab patientId={id!} />}
+          {activeTab === 'appointments' && <AppointmentsTab patientId={id!} />}
+        </div>
       </Card>
 
-      <ConfirmDialog
-        isOpen={showToggleDialog}
-        onClose={() => setShowToggleDialog(false)}
-        onConfirm={handleToggleConfirm}
-        title={pendingStatus ? 'Activar paciente' : 'Desactivar paciente'}
-        message={
-          pendingStatus
-            ? `¿Deseas activar a ${patient.firstName} ${patient.lastName}? El paciente volvera a aparecer en las listas de seleccion.`
-            : `¿Deseas desactivar a ${patient.firstName} ${patient.lastName}? El paciente no sera eliminado, solo se marcara como inactivo.`
-        }
-        confirmLabel={pendingStatus ? 'Activar' : 'Desactivar'}
-        loading={toggleStatusMutation.isPending}
-      />
+      {canEditPatient && id && (
+        <PatientFormModal
+          mode="edit"
+          patientId={id}
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

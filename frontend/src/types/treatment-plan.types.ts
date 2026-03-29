@@ -3,6 +3,13 @@ import type { Doctor } from './doctor.types';
 import type { Treatment } from './treatment.types';
 import { TreatmentPlanStatus } from '../enums';
 
+export interface PerformedProcedureSummary {
+  id: string;
+  performedAt: string;
+  doctor?: { firstName: string; lastName: string };
+  notes?: string;
+}
+
 export interface TreatmentPlanItem {
   id: string;
   treatmentPlanId: string;
@@ -12,6 +19,7 @@ export interface TreatmentPlanItem {
   notes?: string;
   status: TreatmentPlanStatus;
   order: number;
+  performedProcedures?: PerformedProcedureSummary[];
 }
 
 export interface TreatmentPlan {
@@ -23,6 +31,7 @@ export interface TreatmentPlan {
   status: TreatmentPlanStatus;
   observations?: string;
   items?: TreatmentPlanItem[];
+  createdAt?: string;
 }
 
 export interface CreateTreatmentPlanDto {

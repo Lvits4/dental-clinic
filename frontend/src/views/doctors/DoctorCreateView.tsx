@@ -1,8 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../components/ui';
 import DoctorForm from '../../components/doctors/DoctorForm';
 import { useCreateDoctor } from '../../querys/doctors/mutationDoctors';
 
 const DoctorCreateView = () => {
+  const navigate = useNavigate();
   const createMutation = useCreateDoctor();
 
   return (
@@ -21,6 +23,7 @@ const DoctorCreateView = () => {
           onSubmit={(data) => createMutation.mutate(data)}
           loading={createMutation.isPending}
           submitLabel="Crear Doctor"
+          onCancel={() => navigate(-1)}
         />
       </div>
     </div>
