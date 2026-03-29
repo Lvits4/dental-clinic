@@ -75,7 +75,7 @@ const Button = ({
       ) : leftIcon ? (
         <span className="shrink-0">{leftIcon}</span>
       ) : null}
-      <span>{children}</span>
+      <span className="inline-flex items-center">{children}</span>
       {!loading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
     </button>
   );
