@@ -53,6 +53,19 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Cursor pointer on all interactive elements */
+button,
+a,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+select,
+summary,
+label[for] {
+  cursor: pointer;
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
