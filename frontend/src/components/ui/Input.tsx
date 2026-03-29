@@ -5,6 +5,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   helperText?: string;
   leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 const Input = ({
@@ -12,6 +13,7 @@ const Input = ({
   error,
   helperText,
   leftIcon,
+  rightIcon,
   id,
   className = '',
   ...props
@@ -47,7 +49,9 @@ const Input = ({
             'placeholder-slate-400 dark:placeholder-slate-500',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
-            leftIcon ? 'pl-10 pr-3.5 py-2.5' : 'px-3.5 py-2.5',
+            leftIcon ? 'pl-10' : 'pl-3.5',
+            rightIcon ? 'pr-10' : 'pr-3.5',
+            'py-2.5',
             error
               ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
               : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
@@ -57,6 +61,11 @@ const Input = ({
             .join(' ')}
           {...props}
         />
+        {rightIcon && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center text-slate-400 dark:text-slate-500">
+            {rightIcon}
+          </span>
+        )}
       </div>
 
       {error && (
