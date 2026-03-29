@@ -7,7 +7,7 @@ import ErrorBoundary from '../components/ui/ErrorBoundary';
 // ─── Iconos SVG inline ────────────────────────────────────────────────────────
 
 const IconDashboard = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
     />
@@ -15,7 +15,7 @@ const IconDashboard = () => (
 );
 
 const IconPatients = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
     />
@@ -23,7 +23,7 @@ const IconPatients = () => (
 );
 
 const IconAppointments = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
     />
@@ -31,7 +31,7 @@ const IconAppointments = () => (
 );
 
 const IconTreatments = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
     />
@@ -39,7 +39,7 @@ const IconTreatments = () => (
 );
 
 const IconDoctors = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
     />
@@ -47,7 +47,7 @@ const IconDoctors = () => (
 );
 
 const IconPlans = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
     />
@@ -55,7 +55,7 @@ const IconPlans = () => (
 );
 
 const IconProcedures = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
     />
@@ -77,7 +77,7 @@ const IconClose = () => (
 );
 
 const IconSun = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
     />
@@ -85,7 +85,7 @@ const IconSun = () => (
 );
 
 const IconMoon = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
     />
@@ -93,14 +93,26 @@ const IconMoon = () => (
 );
 
 const IconLogout = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
       d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
     />
   </svg>
 );
 
-// ─── Definición de navegación ─────────────────────────────────────────────────
+const IconCollapse = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+  </svg>
+);
+
+const IconExpand = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+  </svg>
+);
+
+// ─── Definicion de navegacion ─────────────────────────────────────────────────
 
 interface NavItem {
   to: string;
@@ -122,24 +134,31 @@ const secondaryNavItems: NavItem[] = [
   { to: '/performed-procedures', label: 'Procedimientos', icon: <IconProcedures /> },
 ];
 
-const allNavItems: NavItem[] = [...primaryNavItems, ...secondaryNavItems];
+// ─── Sidebar widths ───────────────────────────────────────────────────────────
+
+const SIDEBAR_EXPANDED = 260;
+const SIDEBAR_COLLAPSED = 76;
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
 interface SidebarNavLinkProps {
   item: NavItem;
+  collapsed: boolean;
 }
 
-const SidebarNavLink = ({ item }: SidebarNavLinkProps) => (
+const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
   <NavLink
     to={item.to}
     end={item.end}
+    title={collapsed ? item.label : undefined}
     className={({ isActive }) =>
-      `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+      [
+        'relative flex items-center rounded-xl font-medium transition-all duration-200 group',
+        collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
         isActive
           ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
-          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
-      }`
+          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
+      ].join(' ')
     }
   >
     {({ isActive }) => (
@@ -155,7 +174,9 @@ const SidebarNavLink = ({ item }: SidebarNavLinkProps) => (
         }`}>
           {item.icon}
         </span>
-        <span className="tracking-tight">{item.label}</span>
+        {!collapsed && (
+          <span className="text-sm tracking-tight whitespace-nowrap overflow-hidden">{item.label}</span>
+        )}
       </>
     )}
   </NavLink>
@@ -166,6 +187,7 @@ const SidebarNavLink = ({ item }: SidebarNavLinkProps) => (
 const MainLayout = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -177,83 +199,122 @@ const MainLayout = () => {
   };
 
   const userInitial = user?.fullName?.charAt(0)?.toUpperCase() ?? 'U';
+  const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
       {/* ── SIDEBAR DESKTOP (>= md) ── */}
-      <aside className="hidden md:flex flex-col fixed inset-y-0 left-0 w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 z-30">
+      <aside
+        className="hidden md:flex flex-col fixed inset-y-0 left-0 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 z-30 transition-all duration-300"
+        style={{ width: sidebarWidth }}
+      >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 h-[72px] border-b border-slate-100 dark:border-slate-800/80 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
+        <div className={`flex items-center h-[72px] border-b border-slate-100 dark:border-slate-800/80 shrink-0 ${collapsed ? 'justify-center px-2' : 'gap-3 px-5'}`}>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20 shrink-0">
             <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C9.243 2 7 4.243 7 7c0 1.642.8 3.093 2.024 4H7.5C5.015 11 3 13.015 3 15.5c0 2.063 1.398 3.794 3.293 4.333C6.577 20.416 7 21 7.5 21h9c.5 0 .923-.584 1.207-1.167C19.602 19.294 21 17.563 21 15.5c0-2.485-2.015-4.5-4.5-4.5h-1.524C16.2 10.093 17 8.642 17 7c0-2.757-2.243-5-5-5z" />
             </svg>
           </div>
-          <div>
-            <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent tracking-tight">
-              Rubia Dental
-            </span>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-0.5">
-              Gestion Clinica
-            </p>
-          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+                Rubia Dental
+              </span>
+              <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-0.5">
+                Gestion Clinica
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Navegacion */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1">
-          <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
-            Menu principal
-          </p>
+        <nav className={`flex-1 overflow-y-auto py-5 space-y-1 ${collapsed ? 'px-2' : 'px-3'}`}>
+          {!collapsed && (
+            <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
+              Menu principal
+            </p>
+          )}
           {primaryNavItems.map((item) => (
-            <SidebarNavLink key={item.to} item={item} />
+            <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
           ))}
 
-          <div className="my-4 mx-3 border-t border-slate-100 dark:border-slate-800/80" />
+          <div className={`my-4 border-t border-slate-100 dark:border-slate-800/80 ${collapsed ? 'mx-2' : 'mx-3'}`} />
 
-          <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
-            Administracion
-          </p>
+          {!collapsed && (
+            <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
+              Administracion
+            </p>
+          )}
           {secondaryNavItems.map((item) => (
-            <SidebarNavLink key={item.to} item={item} />
+            <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
           ))}
         </nav>
 
         {/* Footer del sidebar */}
-        <div className="px-3 py-4 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
+        <div className={`py-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1 ${collapsed ? 'px-2' : 'px-3'}`}>
           {/* Toggle tema */}
           <button
             onClick={toggleTheme}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200"
+            title={collapsed ? (isDark ? 'Modo claro' : 'Modo oscuro') : undefined}
+            className={`w-full flex items-center rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200 ${
+              collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
+            }`}
           >
             <span className="text-slate-400 dark:text-slate-500">
               {isDark ? <IconSun /> : <IconMoon />}
             </span>
-            <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>
+            {!collapsed && <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>}
           </button>
 
           {/* Info usuario */}
-          <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
-              {userInitial}
+          {collapsed ? (
+            <div className="flex justify-center py-2">
+              <div
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm"
+                title={user?.fullName ?? 'Usuario'}
+              >
+                {userInitial}
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-800 dark:text-white truncate tracking-tight">
-                {user?.fullName ?? 'Usuario'}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                {user?.email}
-              </p>
+          ) : (
+            <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
+                {userInitial}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-slate-800 dark:text-white truncate tracking-tight">
+                  {user?.fullName ?? 'Usuario'}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  {user?.email}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Cerrar sesion */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200"
+            title={collapsed ? 'Cerrar sesion' : undefined}
+            className={`w-full flex items-center rounded-xl text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 ${
+              collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
+            }`}
           >
             <IconLogout />
-            <span>Cerrar sesion</span>
+            {!collapsed && <span>Cerrar sesion</span>}
+          </button>
+
+          {/* Boton colapsar/expandir */}
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            title={collapsed ? 'Expandir menu' : 'Colapsar menu'}
+            className={`w-full flex items-center rounded-xl text-sm font-medium text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-200 ${
+              collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
+            }`}
+          >
+            {collapsed ? <IconExpand /> : <IconCollapse />}
+            {!collapsed && <span>Colapsar menu</span>}
           </button>
         </div>
       </aside>
@@ -322,8 +383,13 @@ const MainLayout = () => {
       </header>
 
       {/* ── CONTENIDO PRINCIPAL ── */}
-      <main className="md:ml-[260px] pb-20 md:pb-0 min-h-screen">
-        <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-8 max-w-7xl mx-auto md:mx-0">
+      <style>{`
+        @media (min-width: 768px) {
+          .main-content { margin-left: ${sidebarWidth}px; }
+        }
+      `}</style>
+      <main className="main-content pb-20 md:pb-0 min-h-screen transition-all duration-300">
+        <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-10 max-w-7xl mx-auto">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>
