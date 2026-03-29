@@ -63,7 +63,7 @@ export type {
   TreatmentPlan,
   CreateTreatmentPlanDto,
 } from './treatment-plan.types';
-export { PLAN_STATUS_CONFIG } from './treatment-plan.types';
+export { PLAN_STATUS_CONFIG, VALID_PLAN_STATUS_TRANSITIONS } from './treatment-plan.types';
 
 export type {
   PerformedProcedure,

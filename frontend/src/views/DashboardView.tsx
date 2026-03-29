@@ -14,10 +14,10 @@ const STATUS_LABELS: Record<string, string> = {
   ATTENDED: 'Atendida',
   CANCELLED: 'Cancelada',
   NO_SHOW: 'No asistio',
-  PENDING: 'Pendiente',
-  APPROVED: 'Aprobado',
-  REJECTED: 'Rechazado',
-  COMPLETED: 'Completado',
+  pending: 'Pendiente',
+  in_progress: 'En progreso',
+  completed: 'Completado',
+  cancelled: 'Cancelado',
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -27,10 +27,10 @@ const STATUS_COLORS: Record<string, string> = {
   ATTENDED: 'bg-teal-500',
   CANCELLED: 'bg-red-500',
   NO_SHOW: 'bg-slate-400',
-  PENDING: 'bg-amber-500',
-  APPROVED: 'bg-emerald-500',
-  REJECTED: 'bg-red-500',
-  COMPLETED: 'bg-teal-500',
+  pending: 'bg-amber-500',
+  in_progress: 'bg-yellow-500',
+  completed: 'bg-teal-500',
+  cancelled: 'bg-red-500',
 };
 
 const BAR_COLORS: Record<string, string> = {

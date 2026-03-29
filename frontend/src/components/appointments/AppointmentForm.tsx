@@ -1,5 +1,5 @@
 import { useState, useCallback, type FormEvent } from 'react';
-import { Input, Select, Textarea, DatePicker, FormSection, MultiStepForm } from '../ui';
+import { TimePicker, Select, Textarea, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type {
   CreateAppointmentDto,
@@ -151,11 +151,12 @@ const AppointmentForm = ({
               error={errors.dateTime}
               min={new Date().toISOString().split('T')[0]}
             />
-            <Input
+            <TimePicker
               label="Hora *"
-              type="time"
               value={time}
               onChange={(e) => { setTime(e.target.value); clearError('dateTime'); }}
+              error={undefined}
+              placeholder="Seleccionar hora..."
             />
             <Select
               label="Duración"

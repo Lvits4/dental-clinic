@@ -19,10 +19,9 @@ export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof Appointm
 
 // Estados de planes de tratamiento
 export const TreatmentPlanStatus = {
-  PENDING: 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-  COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED',
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
 } as const;
 export type TreatmentPlanStatus = (typeof TreatmentPlanStatus)[keyof typeof TreatmentPlanStatus];

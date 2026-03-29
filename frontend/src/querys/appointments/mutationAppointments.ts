@@ -69,3 +69,45 @@ export function useCancelAppointment() {
     },
   });
 }
+
+export function useUpdateStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: AppointmentStatus }) =>
+      appointmentsApi.updateStatus(id, { status }),
+    onSuccess: (_data, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      toast.success(`Estado cambiado a: ${STATUS_CONFIG[status]?.label ?? status}`);
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al cambiar el estado');
+      }
+    },
+  });
+}
+
+export function useRescheduleAppointment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { dateTime: string; durationMinutes?: number } }) =>
+      appointmentsApi.reschedule(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      toast.success('Cita reprogramada exitosamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al reprogramar la cita');
+      }
+    },
+  });
+}
