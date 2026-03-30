@@ -17,9 +17,6 @@ export const treatmentsApi = {
       sortBy: filters.sortBy,
       sortOrder: filters.sortOrder,
     };
-    if (filters.isActive === true || filters.isActive === false) {
-      params.isActive = String(filters.isActive);
-    }
     return http.get<PaginatedResponse<Treatment>>('/treatments', params);
   },
 
@@ -35,7 +32,7 @@ export const treatmentsApi = {
     return http.patch<Treatment>(`/treatments/${id}`, data);
   },
 
-  toggle(id: string): Promise<Treatment> {
-    return http.patch<Treatment>(`/treatments/${id}/toggle`);
+  remove(id: string): Promise<void> {
+    return http.delete(`/treatments/${id}`);
   },
 };

@@ -19,6 +19,8 @@ export interface SelectOption {
   label: string;
 }
 
+export type SelectListPlacement = 'top-start' | 'bottom-start';
+
 export interface SelectProps {
   label?: string;
   error?: string;
@@ -32,6 +34,8 @@ export interface SelectProps {
   id?: string;
   name?: string;
   className?: string;
+  /** Posición preferida del listado; por defecto hacia abajo. Si no cabe en el viewport, `flip` alterna (p. ej. arriba). */
+  listPlacement?: SelectListPlacement;
 }
 
 const Select = ({
@@ -47,16 +51,20 @@ const Select = ({
   id,
   name,
   className = '',
+  listPlacement = 'bottom-start',
 }: SelectProps) => {
   const radiusClass = 'rounded-md';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const portalListRef = useRef<HTMLUListElement | null>(null);
 
+  const flipFallback: SelectListPlacement =
+    listPlacement === 'bottom-start' ? 'top-start' : 'bottom-start';
+
   const middleware = useMemo(
     () => [
       offset(6),
-      flip({ fallbackPlacements: ['bottom-start'] }),
+      flip({ fallbackPlacements: [flipFallback] }),
       shift({ padding: 8 }),
       size({
         apply({ availableHeight, rects, elements }) {
@@ -67,12 +75,12 @@ const Select = ({
         },
       }),
     ],
-    [],
+    [flipFallback],
   );
 
   const { refs, floatingStyles, isPositioned } = useFloating({
     open,
-    placement: 'top-start',
+    placement: listPlacement,
     strategy: 'fixed',
     middleware,
     whileElementsMounted: autoUpdate,

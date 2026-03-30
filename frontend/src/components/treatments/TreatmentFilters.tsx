@@ -1,14 +1,6 @@
 import type { ReactNode } from 'react';
-import { SearchInput, Select } from '../ui';
+import { SearchInput, Select, ClearFiltersButton } from '../ui';
 import { TREATMENT_CATEGORIES } from '../../types';
-
-export type TreatmentActiveFilter = 'all' | 'active' | 'inactive';
-
-const ACTIVE_OPTIONS = [
-  { value: 'all', label: 'Todos' },
-  { value: 'active', label: 'Solo activos' },
-  { value: 'inactive', label: 'Solo inactivos' },
-];
 
 const CATEGORY_OPTIONS = [
   { value: '', label: 'Todas las categorías' },
@@ -22,8 +14,6 @@ const FILTER_SELECT_TRIGGER_CLASS =
 interface TreatmentFiltersProps {
   search: string;
   onSearchChange: (value: string) => void;
-  activeFilter: TreatmentActiveFilter;
-  onActiveFilterChange: (value: TreatmentActiveFilter) => void;
   category: string;
   onCategoryChange: (value: string) => void;
   hasFilters: boolean;
@@ -34,8 +24,6 @@ interface TreatmentFiltersProps {
 const TreatmentFilters = ({
   search,
   onSearchChange,
-  activeFilter,
-  onActiveFilterChange,
   category,
   onCategoryChange,
   hasFilters,
@@ -61,15 +49,6 @@ const TreatmentFilters = ({
             rounding="compact"
           />
         </div>
-        <div className="shrink-0 sm:min-w-[9.5rem]">
-          <Select
-            label="Estado"
-            className={FILTER_SELECT_TRIGGER_CLASS}
-            options={ACTIVE_OPTIONS}
-            value={activeFilter}
-            onChange={(e) => onActiveFilterChange(e.target.value as TreatmentActiveFilter)}
-          />
-        </div>
         <div className="shrink-0 sm:min-w-[12rem]">
           <Select
             label="Categoría"
@@ -85,21 +64,13 @@ const TreatmentFilters = ({
               className="invisible mb-1.5 block select-none text-sm font-medium"
               aria-hidden="true"
             >
-              Estado
+              Categoría
             </span>
             <div className="flex h-10 min-h-10 items-center">{trailingActions}</div>
           </div>
         ) : null}
       </div>
-      {hasFilters && (
-        <button
-          type="button"
-          onClick={onResetFilters}
-          className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline self-start"
-        >
-          Limpiar filtros
-        </button>
-      )}
+      {hasFilters && <ClearFiltersButton onClick={onResetFilters} />}
     </div>
   );
 };

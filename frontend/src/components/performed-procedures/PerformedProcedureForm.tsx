@@ -63,13 +63,17 @@ const PerformedProcedureForm = ({
 
   useEffect(() => {
     if (mode !== 'edit' || !initialProcedure) return;
-    setPatientId(initialProcedure.patientId);
-    setDoctorId(initialProcedure.doctorId);
-    setTreatmentId(initialProcedure.treatmentId);
+    setPatientId(initialProcedure.patientId ?? initialProcedure.patient?.id ?? '');
+    setDoctorId(initialProcedure.doctorId ?? initialProcedure.doctor?.id ?? '');
+    setTreatmentId(initialProcedure.treatmentId ?? initialProcedure.treatment?.id ?? '');
     setTooth(initialProcedure.tooth ?? '');
     setDescription(initialProcedure.description ?? '');
     setNotes(initialProcedure.notes ?? '');
-    setPerformedAt(initialProcedure.performedAt.slice(0, 10));
+    setPerformedAt(
+      typeof initialProcedure.performedAt === 'string'
+        ? initialProcedure.performedAt.slice(0, 10)
+        : new Date(initialProcedure.performedAt).toISOString().slice(0, 10),
+    );
     setLinkToPlan(false);
     setSelectedPlanId('');
     setSelectedItemId('');
@@ -89,9 +93,16 @@ const PerformedProcedureForm = ({
       .filter((t) => t.isActive)
       .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` }));
     if (mode === 'edit' && initialProcedure) {
-      const cur = treatments.find((t) => t.id === initialProcedure.treatmentId);
-      if (cur && !cur.isActive && !active.some((o) => o.value === cur.id)) {
-        return [{ value: cur.id, label: `${cur.name} — ${cur.category} (inactivo)` }, ...active];
+      const tid = initialProcedure.treatmentId ?? initialProcedure.treatment?.id;
+      if (tid && !active.some((o) => o.value === tid)) {
+        const cur = treatments.find((t) => t.id === tid);
+        if (cur && !cur.isActive) {
+          return [{ value: cur.id, label: `${cur.name} — ${cur.category} (inactivo)` }, ...active];
+        }
+        if (initialProcedure.treatment?.id === tid) {
+          const tr = initialProcedure.treatment;
+          return [{ value: tr.id, label: `${tr.name} — ${tr.category} (no en catálogo activo)` }, ...active];
+        }
       }
     }
     return active;

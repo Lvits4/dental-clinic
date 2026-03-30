@@ -1,6 +1,6 @@
-import { IsOptional, IsString, IsBoolean, IsEnum, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsInt, Min, Max } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export enum TreatmentSortBy {
   NAME = 'name',
@@ -39,16 +39,6 @@ export class FilterTreatmentDto {
   @IsOptional()
   @IsString()
   category?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-  })
-  @IsBoolean()
-  isActive?: boolean;
 
   @ApiPropertyOptional({ enum: TreatmentSortBy })
   @IsOptional()

@@ -1,4 +1,4 @@
-import { Select, DatePicker } from '../ui';
+import { Select, DatePicker, ClearFiltersButton } from '../ui';
 import { STATUS_OPTIONS } from '../../types';
 
 export interface DoctorFilterOption {
@@ -92,15 +92,7 @@ const AppointmentFilters = ({
         </div>
       </div>
 
-      {hasFilters && (
-        <button
-          type="button"
-          onClick={onResetFilters}
-          className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline self-start"
-        >
-          Limpiar filtros
-        </button>
-      )}
+      {hasFilters && <ClearFiltersButton onClick={onResetFilters} />}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { SearchInput } from '../ui';
+import { SearchInput, ClearFiltersButton } from '../ui';
 
 interface DoctorFiltersProps {
   search: string;
@@ -49,13 +49,7 @@ const DoctorFilters = ({
       </div>
       {hasFilters ? (
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-          >
-            Limpiar filtros
-          </button>
+          <ClearFiltersButton onClick={onResetFilters} />
         </div>
       ) : null}
     </div>

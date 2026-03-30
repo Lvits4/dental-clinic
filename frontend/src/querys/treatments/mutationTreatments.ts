@@ -56,21 +56,21 @@ export function useUpdateTreatment(id: string, options?: TreatmentMutationNavOpt
   });
 }
 
-export function useToggleTreatment() {
+export function useDeleteTreatment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (tid: string) => treatmentsApi.toggle(tid),
-    onSuccess: (data) => {
+    mutationFn: (tid: string) => treatmentsApi.remove(tid),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['treatments'] });
-      toast.success(data.isActive ? 'Tratamiento activado' : 'Tratamiento desactivado');
+      toast.success('Tratamiento eliminado del catálogo');
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
         const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
         toast.error(msg);
       } else {
-        toast.error('Error al cambiar estado del tratamiento');
+        toast.error('Error al eliminar el tratamiento');
       }
     },
   });

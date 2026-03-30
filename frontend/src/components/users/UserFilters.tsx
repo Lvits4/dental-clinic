@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { SearchInput, Select } from '../ui';
+import { SearchInput, Select, ClearFiltersButton } from '../ui';
 import { Role } from '../../enums';
 
 const ROLE_OPTIONS = [
@@ -73,13 +73,7 @@ const UserFilters = ({
       </div>
       {hasFilters ? (
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-          >
-            Limpiar filtros
-          </button>
+          <ClearFiltersButton onClick={onResetFilters} />
         </div>
       ) : null}
     </div>

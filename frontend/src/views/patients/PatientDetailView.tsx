@@ -225,6 +225,62 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
     setPage(1);
   };
 
+  const dateFieldClass = 'py-2 pr-9 text-xs';
+  const dateFieldWrap = 'w-[8.5rem] sm:w-[9.5rem] shrink-0';
+
+  const evolutionsToolbar = (
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pb-3 border-b border-slate-200/70 dark:border-slate-700/60">
+      <div className="flex flex-wrap items-center gap-2 min-w-0">
+        <div className={dateFieldWrap}>
+          <DatePicker
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Desde"
+            className={dateFieldClass}
+          />
+        </div>
+        <div className={dateFieldWrap}>
+          <DatePicker
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Hasta"
+            className={dateFieldClass}
+            {...(dateFrom ? { min: dateFrom } : {})}
+          />
+        </div>
+        {hasDateFilters ? (
+          <button
+            type="button"
+            onClick={resetDateFilters}
+            className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 px-2 py-1 rounded-md hover:bg-emerald-500/10 transition-colors"
+          >
+            Limpiar fechas
+          </button>
+        ) : null}
+      </div>
+      <Button
+        type="button"
+        size="sm"
+        className="shrink-0"
+        onClick={() => setEvolutionModalOpen(true)}
+        leftIcon={
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        }
+      >
+        <span className="hidden sm:inline">Nueva evolución</span>
+        <span className="sm:hidden">Nueva</span>
+      </Button>
+    </div>
+  );
+
   if (loadingRecord || isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
 
   if (!record) {
@@ -240,60 +296,24 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   if (!data?.data?.length) {
     return (
       <>
-        <div className="space-y-4">
-          <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-3">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Filtrar por fecha</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <DatePicker
-                value={dateFrom}
-                onChange={(e) => {
-                  setDateFrom(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Desde"
-              />
-              <DatePicker
-                value={dateTo}
-                onChange={(e) => {
-                  setDateTo(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Hasta"
-                {...(dateFrom ? { min: dateFrom } : {})}
-              />
-            </div>
-            {hasDateFilters && (
-              <button
-                type="button"
-                onClick={resetDateFilters}
-                className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Limpiar fechas
-              </button>
-            )}
-          </div>
-          <div className="text-center py-6">
-            <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+        <div className="space-y-3">
+          {evolutionsToolbar}
+          <div className="text-center py-5">
+            <svg
+              className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.25}
+              aria-hidden
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {hasDateFilters
                 ? 'No hay evoluciones en este rango de fechas.'
                 : 'No hay evoluciones registradas.'}
             </p>
-            {hasDateFilters ? (
-              <button
-                type="button"
-                onClick={resetDateFilters}
-                className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Quitar filtro de fechas
-              </button>
-            ) : (
-              <Button type="button" size="sm" onClick={() => setEvolutionModalOpen(true)}>
-                Nueva Evolucion
-              </Button>
-            )}
           </div>
         </div>
         <ClinicalEvolutionFormModal
@@ -308,43 +328,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   return (
     <>
       <div className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-3 flex-1 min-w-0 max-w-xl">
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Filtrar por fecha</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <DatePicker
-                value={dateFrom}
-                onChange={(e) => {
-                  setDateFrom(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Desde"
-              />
-              <DatePicker
-                value={dateTo}
-                onChange={(e) => {
-                  setDateTo(e.target.value);
-                  setPage(1);
-                }}
-                placeholder="Hasta"
-                {...(dateFrom ? { min: dateFrom } : {})}
-              />
-            </div>
-            {hasDateFilters && (
-              <button
-                type="button"
-                onClick={resetDateFilters}
-                className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Limpiar fechas
-              </button>
-            )}
-          </div>
-          <Button type="button" size="sm" className="shrink-0 self-end sm:self-auto" onClick={() => setEvolutionModalOpen(true)}>
-            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Nueva Evolucion
-          </Button>
-        </div>
+        {evolutionsToolbar}
 
         <div className="relative space-y-3 pl-5">
           <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
@@ -458,19 +442,27 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
     setPage((p) => Math.min(p, tp));
   }, [data?.meta.totalPages, isError]);
 
-  if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 min-h-0 items-center justify-center py-8">
+        <Spinner />
+      </div>
+    );
+  }
 
   if (!data?.data?.length) {
     return (
       <>
-        <div className="text-center py-8">
-          <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-          </svg>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay citas registradas para este paciente.</p>
-          <Button type="button" size="sm" onClick={() => setCreateOpen(true)}>
-            Agendar cita
-          </Button>
+        <div className="flex flex-1 min-h-0 flex-col">
+          <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
+            <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+            </svg>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay citas registradas para este paciente.</p>
+            <Button type="button" size="sm" onClick={() => setCreateOpen(true)}>
+              Agendar cita
+            </Button>
+          </div>
         </div>
         <AppointmentFormModal
           mode="create"
@@ -484,8 +476,8 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
 
   return (
     <>
-      <div className="space-y-4">
-        <div className="flex justify-end">
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <div className="flex shrink-0 justify-end">
           <Button type="button" size="sm" onClick={() => setCreateOpen(true)}>
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -494,7 +486,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
           </Button>
         </div>
 
-        <div className="space-y-2">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
           {data.data.map((apt) => (
             <button
               key={apt.id}
@@ -523,16 +515,18 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
           ))}
         </div>
 
-        {data.meta.totalItems > 0 && (
-          <Pagination
-            compact
-            page={page}
-            totalPages={Math.max(1, data.meta.totalPages)}
-            total={data.meta.totalItems}
-            limit={data.meta.limit}
-            onPageChange={setPage}
-          />
-        )}
+        {data.meta.totalItems > 0 ? (
+          <div className="shrink-0 border-t border-slate-200/70 pt-3 dark:border-slate-700/60">
+            <Pagination
+              compact
+              page={page}
+              totalPages={Math.max(1, data.meta.totalPages)}
+              total={data.meta.totalItems}
+              limit={data.meta.limit}
+              onPageChange={setPage}
+            />
+          </div>
+        ) : null}
       </div>
 
       <AppointmentFormModal
@@ -663,7 +657,12 @@ const PatientDetailView = () => {
         className="flex flex-1 min-h-0 flex-col overflow-hidden"
         bodyClassName="flex flex-1 min-h-0 flex-col overflow-hidden"
       >
-        <div className="flex flex-1 min-h-0 flex-col overflow-y-auto p-4 sm:p-5">
+        <div
+          className={[
+            'flex flex-1 min-h-0 flex-col p-4 sm:p-5',
+            activeTab === 'appointments' ? 'overflow-hidden' : 'overflow-y-auto',
+          ].join(' ')}
+        >
           {activeTab === 'info' && <PatientInfoTab patient={patient} />}
           {activeTab === 'record' && <RecordTab patientId={id!} />}
           {activeTab === 'evolutions' && <EvolutionsTab patientId={id!} />}

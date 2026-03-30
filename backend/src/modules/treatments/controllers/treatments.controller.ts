@@ -4,10 +4,13 @@ import {
   Post,
   Body,
   Patch,
+  Delete,
   Param,
   Query,
   UseGuards,
   ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TreatmentsService } from '../services/treatments.service';
@@ -55,10 +58,11 @@ export class TreatmentsController {
     return this.treatmentsService.update(id, updateDto);
   }
 
-  @Patch(':id/toggle')
+  @Delete(':id')
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Toggle treatment active/inactive' })
-  toggle(@Param('id', ParseUUIDPipe) id: string) {
-    return this.treatmentsService.toggle(id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Remove treatment from catalog (sets inactive)' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.treatmentsService.remove(id);
   }
 }

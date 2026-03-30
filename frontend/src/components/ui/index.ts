@@ -50,6 +50,9 @@ export type { SpinnerProps, SpinnerSize } from './Spinner';
 export { default as SearchInput } from './SearchInput';
 export type { SearchInputProps } from './SearchInput';
 
+export { default as ClearFiltersButton } from './ClearFiltersButton';
+export type { ClearFiltersButtonProps } from './ClearFiltersButton';
+
 export { default as EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 

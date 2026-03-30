@@ -52,12 +52,13 @@ export class TreatmentsService {
       limit = 10,
       name,
       category,
-      isActive,
       sortBy,
       sortOrder,
     } = filterDto;
 
     const query = this.treatmentRepository.createQueryBuilder('treatment');
+
+    query.andWhere('treatment.isActive = :active', { active: true });
 
     if (name?.trim()) {
       query.andWhere('LOWER(treatment.name) LIKE LOWER(:name)', {
@@ -66,9 +67,6 @@ export class TreatmentsService {
     }
     if (category?.trim()) {
       query.andWhere('treatment.category = :category', { category: category.trim() });
-    }
-    if (isActive === true || isActive === false) {
-      query.andWhere('treatment.isActive = :isActive', { isActive });
     }
 
     const resolvedBy = sortBy ?? TreatmentSortBy.NAME;
@@ -99,9 +97,9 @@ export class TreatmentsService {
     return this.treatmentRepository.save(treatment);
   }
 
-  async toggle(id: string): Promise<Treatment> {
+  async remove(id: string): Promise<void> {
     const treatment = await this.findOne(id);
-    treatment.isActive = !treatment.isActive;
-    return this.treatmentRepository.save(treatment);
+    treatment.isActive = false;
+    await this.treatmentRepository.save(treatment);
   }
 }

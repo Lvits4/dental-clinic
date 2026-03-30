@@ -11,9 +11,9 @@ export function useTreatmentsList(filters: TreatmentFilters = {}) {
   });
 }
 
-/** Catálogo para selects (p. ej. procedimientos realizados): activos, hasta 500 ítems. */
+/** Catálogo para selects (p. ej. procedimientos realizados); el API solo lista activos. */
 export function useTreatmentsForSelect() {
-  return useTreatmentsList({ page: 1, limit: 500, isActive: true });
+  return useTreatmentsList({ page: 1, limit: 500 });
 }
 
 export function useTreatmentDetail(id: string) {

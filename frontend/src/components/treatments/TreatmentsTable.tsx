@@ -1,4 +1,4 @@
-import { Table, Badge, Pagination } from '../ui';
+import { Table, Pagination } from '../ui';
 import type { Column } from '../ui';
 import type { Treatment, TreatmentSortBy, TreatmentSortOrder } from '../../types';
 import { TREATMENT_CATEGORIES } from '../../types';
@@ -10,8 +10,8 @@ function categoryLabel(category: string): string {
 interface TreatmentsTableProps {
   data: Treatment[];
   loading?: boolean;
-  onToggle: (id: string) => void;
-  togglePending?: boolean;
+  onDelete?: (t: Treatment) => void;
+  deletePending?: boolean;
   onEditTreatment?: (t: Treatment) => void;
   showAdminActions?: boolean;
   sortColumn?: TreatmentSortBy | null;
@@ -30,8 +30,8 @@ interface TreatmentsTableProps {
 const TreatmentsTable = ({
   data,
   loading,
-  onToggle,
-  togglePending,
+  onDelete,
+  deletePending,
   onEditTreatment,
   showAdminActions = false,
   sortColumn,
@@ -58,27 +58,21 @@ const TreatmentsTable = ({
           </svg>
         </button>
       )}
-      {showAdminActions && (
+      {showAdminActions && onDelete && (
         <button
           type="button"
-          title={t.isActive ? 'Desactivar' : 'Activar'}
-          onClick={() => onToggle(t.id)}
-          disabled={togglePending}
-          className={`p-1.5 rounded-md transition-colors disabled:opacity-50 ${
-            t.isActive
-              ? 'text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20'
-              : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:text-emerald-300 dark:hover:bg-emerald-900/20'
-          }`}
+          title="Eliminar del catálogo"
+          onClick={() => onDelete(t)}
+          disabled={deletePending}
+          className="p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
         >
-          {t.isActive ? (
-            <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-            </svg>
-          ) : (
-            <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          )}
+          <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+            />
+          </svg>
         </button>
       )}
     </div>
@@ -110,27 +104,12 @@ const TreatmentsTable = ({
       render: (t) => (t.defaultPrice != null ? `$${Number(t.defaultPrice).toFixed(2)}` : '—'),
       hideOnMobile: true,
     },
-    {
-      key: 'isActive',
-      header: 'Estado',
-      render: (t) => (
-        <Badge
-          className={
-            t.isActive
-              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-              : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-          }
-        >
-          {t.isActive ? 'Activo' : 'Inactivo'}
-        </Badge>
-      ),
-    },
     ...(showAdminActions
       ? ([
           {
             key: 'actions',
             header: 'Acciones',
-            className: 'text-center w-[9.5rem]',
+            className: 'text-center w-[7rem]',
             hideOnMobile: true,
             render: (t: Treatment) => actionButtons(t),
           },
@@ -170,17 +149,6 @@ const TreatmentsTable = ({
                   {t.defaultPrice != null && (
                     <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">${Number(t.defaultPrice).toFixed(2)}</p>
                   )}
-                  <div className="mt-2">
-                    <Badge
-                      className={
-                        t.isActive
-                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                      }
-                    >
-                      {t.isActive ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </div>
                 </button>
               ) : (
                 <div className="w-full text-left mb-3">
@@ -189,17 +157,6 @@ const TreatmentsTable = ({
                   {t.defaultPrice != null && (
                     <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">${Number(t.defaultPrice).toFixed(2)}</p>
                   )}
-                  <div className="mt-2">
-                    <Badge
-                      className={
-                        t.isActive
-                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                      }
-                    >
-                      {t.isActive ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </div>
                 </div>
               )}
               {showAdminActions && (

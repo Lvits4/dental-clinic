@@ -477,8 +477,8 @@ const MainLayout = () => {
           .main-content { margin-left: ${sidebarWidth}px; }
         }
       `}</style>
-      <main className="main-content pb-20 md:pb-0 min-h-screen md:min-h-0 md:h-dvh md:flex md:flex-col md:overflow-y-auto transition-all duration-300">
-        <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-10 max-w-7xl mx-auto w-full md:flex-1 md:flex md:flex-col md:min-h-0">
+      <main className="main-content pb-20 md:pb-0 min-h-screen md:min-h-0 md:h-dvh flex flex-col md:overflow-y-auto transition-all duration-300">
+        <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-10 max-w-7xl mx-auto w-full flex-1 flex flex-col min-h-0 min-w-0">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>

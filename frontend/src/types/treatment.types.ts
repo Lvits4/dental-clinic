@@ -32,7 +32,6 @@ export interface TreatmentFilters {
   /** Búsqueda por nombre (coincide con query `name` del backend) */
   name?: string;
   category?: string;
-  isActive?: boolean;
   sortBy?: TreatmentSortBy;
   sortOrder?: TreatmentSortOrder;
 }

@@ -16,7 +16,14 @@ import {
 import { usePatientsList } from '../../querys/patients/queryPatients';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import { useTreatmentsForSelect } from '../../querys/treatments/queryTreatments';
-import type { PerformedProcedure, PerformedProcedureSortBy, PerformedProcedureSortOrder } from '../../types';
+import type {
+  Doctor,
+  Patient,
+  PerformedProcedure,
+  PerformedProcedureSortBy,
+  PerformedProcedureSortOrder,
+  Treatment,
+} from '../../types';
 
 const FormSkeleton = () => (
   <div className="animate-pulse space-y-5">
@@ -114,21 +121,40 @@ const PerformedProceduresListView = () => {
   const activeDoctors = (doctorsData ?? []).filter((d) => d.isActive);
   const createModalLoading = patientsLoading || doctorsLoading || treatmentsLoading;
 
-  const patientsForProcedureForm = useMemo(() => {
+  /** Incluye siempre al paciente/doctor/tratamiento del registro en edición aunque no estén en los listados (p. ej. >100 pacientes, doctor inactivo, tratamiento fuera del catálogo activo). */
+  const patientsForProcedureForm = useMemo((): Patient[] => {
     if (!editTarget) return activePatients;
-    const ids = new Set(activePatients.map((p) => p.id));
-    if (ids.has(editTarget.patientId)) return activePatients;
-    const p = allPatients.find((x) => x.id === editTarget.patientId);
-    return p ? [...activePatients, p] : activePatients;
+    const map = new Map<string, Patient>();
+    for (const p of activePatients) map.set(p.id, p);
+    const pid = editTarget.patientId ?? editTarget.patient?.id;
+    if (pid && !map.has(pid)) {
+      const fromList = allPatients.find((x) => x.id === pid);
+      if (fromList) map.set(fromList.id, fromList);
+      else if (editTarget.patient) map.set(editTarget.patient.id, editTarget.patient);
+    }
+    return Array.from(map.values());
   }, [activePatients, allPatients, editTarget]);
 
-  const doctorsForProcedureForm = useMemo(() => {
+  const doctorsForProcedureForm = useMemo((): Doctor[] => {
     if (!editTarget) return activeDoctors;
-    const ids = new Set(activeDoctors.map((d) => d.id));
-    if (ids.has(editTarget.doctorId)) return activeDoctors;
-    const d = (doctorsData ?? []).find((x) => x.id === editTarget.doctorId);
-    return d ? [...activeDoctors, d] : activeDoctors;
+    const map = new Map<string, Doctor>();
+    for (const d of activeDoctors) map.set(d.id, d);
+    const did = editTarget.doctorId ?? editTarget.doctor?.id;
+    if (did && !map.has(did)) {
+      const fromApi = (doctorsData ?? []).find((x) => x.id === did);
+      if (fromApi) map.set(fromApi.id, fromApi);
+      else if (editTarget.doctor) map.set(editTarget.doctor.id, editTarget.doctor);
+    }
+    return Array.from(map.values());
   }, [activeDoctors, doctorsData, editTarget]);
+
+  const treatmentsForProcedureForm = useMemo((): Treatment[] => {
+    const list = treatmentsPage?.data ?? [];
+    if (!editTarget?.treatment) return list;
+    const tid = editTarget.treatmentId ?? editTarget.treatment.id;
+    if (list.some((t) => t.id === tid)) return list;
+    return [...list, editTarget.treatment];
+  }, [treatmentsPage?.data, editTarget]);
 
   const listErrorMessage =
     error instanceof HttpError
@@ -285,7 +311,7 @@ const PerformedProceduresListView = () => {
               key={createFormKey}
               patients={patientsForProcedureForm}
               doctors={doctorsForProcedureForm}
-              treatments={treatmentsPage?.data ?? []}
+              treatments={treatmentsForProcedureForm}
               loading={createMutation.isPending}
               onSubmit={(payload) => {
                 createMutation.mutate(payload, {
@@ -317,7 +343,7 @@ const PerformedProceduresListView = () => {
                 initialProcedure={editTarget}
                 patients={patientsForProcedureForm}
                 doctors={doctorsForProcedureForm}
-                treatments={treatmentsPage?.data ?? []}
+                treatments={treatmentsForProcedureForm}
                 loading={updateMutation.isPending}
                 onUnchanged={() => {
                   toast(TOAST_NO_UPDATES, { duration: 2800 });

@@ -1,16 +1,16 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, PageHeader } from '../../components/ui';
+import { Button, PageHeader, ConfirmDialog } from '../../components/ui';
 import { HttpError } from '../../helpers/http';
 import TreatmentsTable from '../../components/treatments/TreatmentsTable';
-import TreatmentFilters, { type TreatmentActiveFilter } from '../../components/treatments/TreatmentFilters';
+import TreatmentFilters from '../../components/treatments/TreatmentFilters';
 import TreatmentFormModal from '../../components/treatments/TreatmentFormModal';
 import { useTreatmentsList } from '../../querys/treatments/queryTreatments';
-import { useToggleTreatment } from '../../querys/treatments/mutationTreatments';
+import { useDeleteTreatment } from '../../querys/treatments/mutationTreatments';
 import { useAuth } from '../../context/AuthContext';
 import { Role } from '../../enums';
 import type { TreatmentModalLocationState } from './TreatmentRouteRedirects';
-import type { TreatmentSortBy, TreatmentSortOrder } from '../../types';
+import type { Treatment, TreatmentSortBy, TreatmentSortOrder } from '../../types';
 
 type TreatmentListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
 
@@ -20,32 +20,25 @@ const TreatmentsListView = () => {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [activeFilter, setActiveFilter] = useState<TreatmentActiveFilter>('all');
   const [category, setCategory] = useState('');
   const [sortBy, setSortBy] = useState<TreatmentSortBy>('name');
   const [sortOrder, setSortOrder] = useState<TreatmentSortOrder>('asc');
   const [modal, setModal] = useState<TreatmentListModal>(null);
+  const [treatmentToDelete, setTreatmentToDelete] = useState<Treatment | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const limit = 10;
-
-  const isActiveParam = useMemo(() => {
-    if (activeFilter === 'active') return true;
-    if (activeFilter === 'inactive') return false;
-    return undefined;
-  }, [activeFilter]);
 
   const { data, isPending, isError, error, refetch } = useTreatmentsList({
     page,
     limit,
     name: search || undefined,
     category: category || undefined,
-    isActive: isActiveParam,
     sortBy,
     sortOrder,
   });
 
-  const toggleMutation = useToggleTreatment();
+  const deleteMutation = useDeleteTreatment();
 
   const listErrorMessage =
     error instanceof HttpError
@@ -74,12 +67,11 @@ const TreatmentsListView = () => {
     setPage(1);
   };
 
-  const hasFilters = !!(search || category || activeFilter !== 'all');
+  const hasFilters = !!(search || category);
 
   const resetFilters = () => {
     setSearch('');
     setCategory('');
-    setActiveFilter('all');
     setPage(1);
   };
 
@@ -106,6 +98,8 @@ const TreatmentsListView = () => {
     setPage((p) => Math.min(p, tp));
   }, [data?.meta.totalPages, isError]);
 
+  const deleteTargetLabel = treatmentToDelete?.name ?? 'este tratamiento';
+
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
       <div className="shrink-0">
@@ -128,11 +122,6 @@ const TreatmentsListView = () => {
         <TreatmentFilters
           search={search}
           onSearchChange={handleSearchChange}
-          activeFilter={activeFilter}
-          onActiveFilterChange={(v) => {
-            setActiveFilter(v);
-            setPage(1);
-          }}
           category={category}
           onCategoryChange={(v) => {
             setCategory(v);
@@ -172,8 +161,8 @@ const TreatmentsListView = () => {
           <TreatmentsTable
             data={data?.data || []}
             loading={isPending && !data}
-            onToggle={(id) => toggleMutation.mutate(id)}
-            togglePending={toggleMutation.isPending}
+            onDelete={canAdminTreatments ? (t) => setTreatmentToDelete(t) : undefined}
+            deletePending={deleteMutation.isPending}
             onEditTreatment={canAdminTreatments ? (t) => setModal({ mode: 'edit', id: t.id }) : undefined}
             showAdminActions={canAdminTreatments}
             sortColumn={sortBy}
@@ -200,6 +189,23 @@ const TreatmentsListView = () => {
         treatmentId={modal?.mode === 'edit' ? modal.id : undefined}
         isOpen={modal !== null}
         onClose={() => setModal(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={!!treatmentToDelete}
+        onClose={() => setTreatmentToDelete(null)}
+        onConfirm={() => {
+          if (treatmentToDelete) {
+            deleteMutation.mutate(treatmentToDelete.id, {
+              onSettled: () => setTreatmentToDelete(null),
+            });
+          }
+        }}
+        title="Eliminar tratamiento"
+        message={`¿Quitar «${deleteTargetLabel}» del catálogo? Dejará de aparecer en listas y selects; los registros ya vinculados se conservan.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        loading={deleteMutation.isPending}
       />
     </div>
   );

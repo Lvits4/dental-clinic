@@ -104,31 +104,38 @@ const AccountView = () => {
     return null;
   }
 
+  const sectionShell =
+    'min-w-0 h-full min-h-0 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 sm:p-4 flex flex-col';
+  const sectionFieldsetClear =
+    '!border-0 !bg-transparent !p-0 !shadow-none ring-0 focus-within:ring-0 flex h-full min-h-0 flex-col flex-1';
+  /** Campos más estrechos; el bloque no ocupa todo el ancho de la columna */
+  const fieldsCol = 'w-full max-w-[min(100%,17.5rem)] sm:max-w-xs';
+  /** Misma altura de descripción en ambas columnas → inputs alineados en horizontal */
+  const sectionDescAlign = 'min-h-[2.75rem] sm:min-h-10 text-balance';
+
   return (
-    <div className="space-y-4">
+    <div className="w-full max-w-4xl mx-auto flex flex-col gap-3">
       <PageHeader
         title="Mi cuenta"
         subtitle="Datos de acceso y seguridad"
         breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Mi cuenta' }]}
+        dense
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5 space-y-6">
-          <FormSection
-            title="Perfil"
-            icon={<IconAccount />}
-            description="Nombre visible, usuario e email de la cuenta"
-          >
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Rol en el sistema:{' '}
-              <span className="font-medium text-slate-800 dark:text-slate-200">
-                {ROLE_LABEL[user.role] ?? user.role}
-              </span>
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input label="Nombre completo" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-              <Input label="Usuario" value={username} onChange={(e) => setUsername(e.target.value)} required />
-              <div className="sm:col-span-2">
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 items-stretch">
+          <div className={sectionShell}>
+            <FormSection
+              title="Perfil"
+              icon={<IconAccount />}
+              description={`Nombre, usuario y correo. Rol: ${ROLE_LABEL[user.role] ?? user.role}.`}
+              descriptionClassName={sectionDescAlign}
+              dense
+              className={sectionFieldsetClear}
+            >
+              <div className={`grid grid-cols-1 gap-2.5 ${fieldsCol}`}>
+                <Input label="Nombre completo" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                <Input label="Usuario" value={username} onChange={(e) => setUsername(e.target.value)} required />
                 <Input
                   label="Correo electrónico"
                   type="email"
@@ -137,45 +144,52 @@ const AccountView = () => {
                   required
                 />
               </div>
-            </div>
-          </FormSection>
+            </FormSection>
+          </div>
 
-          <FormSection
-            title="Seguridad"
-            icon={<IconLock />}
-            description="Deja en blanco si no quieres cambiar la contraseña"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
-              <Input
-                label="Contraseña actual"
-                type="password"
-                autoComplete="current-password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-              <div className="hidden sm:block" aria-hidden />
-              <Input
-                label="Nueva contraseña"
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <Input
-                label="Confirmar nueva contraseña"
-                type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </FormSection>
+          <div className={sectionShell}>
+            <FormSection
+              title="Seguridad"
+              icon={<IconLock />}
+              description="Vacío = sin cambiar contraseña."
+              descriptionClassName={sectionDescAlign}
+              dense
+              className={sectionFieldsetClear}
+            >
+              <div className={`grid grid-cols-1 gap-2.5 ${fieldsCol}`}>
+                <Input
+                  label="Contraseña actual"
+                  type="password"
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+                <Input
+                  label="Nueva contraseña"
+                  type="password"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <Input
+                  label="Confirmar nueva contraseña"
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </div>
+            </FormSection>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Guardando…' : 'Guardar cambios'}
-          </Button>
+        <div className="flex justify-end border-t border-slate-200/80 dark:border-slate-700 pt-3 sm:grid sm:grid-cols-2 sm:gap-4">
+          <div className="hidden min-h-0 sm:block" aria-hidden />
+          <div className="flex w-full justify-end sm:w-auto">
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? 'Guardando…' : 'Guardar cambios'}
+            </Button>
+          </div>
         </div>
       </form>
     </div>
