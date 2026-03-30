@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Button, Card, PageHeader, Spinner, ConfirmDialog,
-  Pagination, Modal,
+  Pagination, Modal, DatePicker,
 } from '../../components/ui';
 import {
   DETAIL_INFO_GRID_CLASS,
@@ -95,7 +95,7 @@ const PatientInfoTab = ({ patient }: { patient: Patient }) => {
 
   return (
     <div className="flex flex-1 flex-col min-h-0">
-      <section className="flex flex-1 flex-col min-h-0 rounded-lg border border-slate-200/80 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/30 p-4 sm:p-5">
+      <section className="flex flex-1 flex-col min-h-0 rounded-md border border-slate-200/80 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/30 p-4 sm:p-5">
         <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Información general</h3>
         <div className={DETAIL_INFO_GRID_CLASS}>
           {items.map((item) => (
@@ -203,9 +203,25 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
 
 const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [evolutionModalOpen, setEvolutionModalOpen] = useState(false);
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId);
-  const { data, isLoading } = useClinicalEvolutionsList({ page, limit: 5, recordId: record?.id });
+  const { data, isLoading } = useClinicalEvolutionsList({
+    page,
+    limit: 5,
+    recordId: record?.id,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+  });
+
+  const hasDateFilters = !!(dateFrom || dateTo);
+
+  const resetDateFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
+  };
 
   if (loadingRecord || isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
 
@@ -222,14 +238,61 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   if (!data?.data?.length) {
     return (
       <>
-        <div className="text-center py-8">
-          <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
-          <Button type="button" size="sm" onClick={() => setEvolutionModalOpen(true)}>
-            Nueva Evolucion
-          </Button>
+        <div className="space-y-4">
+          <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-3">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Filtrar por fecha</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <DatePicker
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Desde"
+              />
+              <DatePicker
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Hasta"
+                {...(dateFrom ? { min: dateFrom } : {})}
+              />
+            </div>
+            {hasDateFilters && (
+              <button
+                type="button"
+                onClick={resetDateFilters}
+                className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                Limpiar fechas
+              </button>
+            )}
+          </div>
+          <div className="text-center py-6">
+            <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              {hasDateFilters
+                ? 'No hay evoluciones en este rango de fechas.'
+                : 'No hay evoluciones registradas.'}
+            </p>
+            {hasDateFilters ? (
+              <button
+                type="button"
+                onClick={resetDateFilters}
+                className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                Quitar filtro de fechas
+              </button>
+            ) : (
+              <Button type="button" size="sm" onClick={() => setEvolutionModalOpen(true)}>
+                Nueva Evolucion
+              </Button>
+            )}
+          </div>
         </div>
         <ClinicalEvolutionFormModal
           patientId={patientId}
@@ -243,8 +306,39 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   return (
     <>
       <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button type="button" size="sm" onClick={() => setEvolutionModalOpen(true)}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-3 flex-1 min-w-0 max-w-xl">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Filtrar por fecha</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <DatePicker
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Desde"
+              />
+              <DatePicker
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Hasta"
+                {...(dateFrom ? { min: dateFrom } : {})}
+              />
+            </div>
+            {hasDateFilters && (
+              <button
+                type="button"
+                onClick={resetDateFilters}
+                className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                Limpiar fechas
+              </button>
+            )}
+          </div>
+          <Button type="button" size="sm" className="shrink-0 self-end sm:self-auto" onClick={() => setEvolutionModalOpen(true)}>
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Nueva Evolucion
           </Button>
@@ -254,7 +348,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
           <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
           {data.data.map((evolution) => (
             <div key={evolution.id} className="relative">
-              <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-lg bg-emerald-500 border-2 border-white dark:border-slate-900" />
+              <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
               <ClinicalEvolutionCard evolution={evolution} />
             </div>
           ))}
@@ -262,6 +356,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 
         {data.meta.totalPages > 1 && (
           <Pagination
+            compact
             page={data.meta.page}
             totalPages={data.meta.totalPages}
             total={data.meta.totalItems}
@@ -316,6 +411,7 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
           </div>
           {data.meta.totalPages > 1 && (
             <Pagination
+              compact
               page={data.meta.page}
               totalPages={data.meta.totalPages}
               total={data.meta.totalItems}
@@ -408,7 +504,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
             <button
               key={apt.id}
               onClick={() => setViewTarget(apt)}
-              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
@@ -433,6 +529,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
 
         {data.meta.totalPages > 1 && (
           <Pagination
+            compact
             page={data.meta.page}
             totalPages={data.meta.totalPages}
             total={data.meta.totalItems}
@@ -448,6 +545,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
         onClose={() => setViewTarget(null)}
         title="Detalle de cita"
         size="md"
+        surfaceRounding="compact"
       >
         {viewTarget && (
           <div className="space-y-4 text-sm">
@@ -475,7 +573,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
               <button
                 type="button"
                 onClick={() => { setEditTarget(viewTarget); setViewTarget(null); }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -493,6 +591,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
         onClose={() => setEditTarget(null)}
         title="Editar cita"
         size="lg"
+        surfaceRounding="compact"
       >
         {editTarget && (
           <AppointmentForm
@@ -537,7 +636,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
                         )
                       }
                       className={[
-                        'px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        'px-3 py-1.5 rounded-md border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
                         STATUS_BUTTON_CLASSES[status],
                       ].join(' ')}
                     >
@@ -605,9 +704,9 @@ const PatientDetailView = () => {
         />
       </div>
 
-      <Card padding="sm" className="shrink-0">
+      <Card padding="sm" rounding="compact" className="shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-md bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
             <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
               {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
             </span>
@@ -627,7 +726,7 @@ const PatientDetailView = () => {
             <Button
               type="button"
               variant="secondary"
-              className="shrink-0"
+              className="shrink-0 rounded-md"
               onClick={() => setEditModalOpen(true)}
             >
               Editar
@@ -644,7 +743,7 @@ const PatientDetailView = () => {
               type="button"
               onClick={() => setActiveTab(tab.key)}
               className={[
-                'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                'flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap',
                 activeTab === tab.key
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
@@ -661,6 +760,7 @@ const PatientDetailView = () => {
 
       <Card
         padding="none"
+        rounding="compact"
         className="flex flex-1 min-h-0 flex-col overflow-hidden"
         bodyClassName="flex flex-1 min-h-0 flex-col overflow-hidden"
       >

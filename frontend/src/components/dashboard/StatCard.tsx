@@ -69,14 +69,14 @@ const StatCard = ({
     return (
       <div
         className={[
-          'group flex h-full min-h-[6.75rem] min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-200/50 transition-all duration-200',
+          'group flex h-full min-h-[6.75rem] min-w-0 flex-col overflow-hidden rounded-md border border-slate-200/80 bg-white shadow-sm ring-1 ring-slate-200/50 transition-all duration-200',
           'hover:shadow-md hover:ring-slate-300/70 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-700/60 dark:hover:ring-slate-600/50',
         ].join(' ')}
       >
         <div className="flex shrink-0 justify-center pt-3 pb-1">
           {icon && (
             <div
-              className={`flex size-10 items-center justify-center rounded-lg p-2 shadow-sm ${colors.iconBg} ${colors.iconText}`}
+              className={`flex size-10 items-center justify-center rounded-md p-2 shadow-sm ${colors.iconBg} ${colors.iconText}`}
             >
               <span className="flex [&_svg]:size-5">{icon}</span>
             </div>
@@ -102,8 +102,8 @@ const StatCard = ({
       className={[
         'bg-white dark:bg-slate-900 border shadow-sm hover:shadow-md transition-all duration-200 flex items-start min-w-0',
         compact
-          ? `rounded-lg p-3 gap-2 ${colors.card}`
-          : `rounded-lg p-5 gap-4 ${colors.card}`,
+          ? `rounded-md p-3 gap-2 ${colors.card}`
+          : `rounded-md p-5 gap-4 ${colors.card}`,
       ].join(' ')}
     >
       {icon && (
@@ -111,7 +111,7 @@ const StatCard = ({
           className={[
             colors.iconBg,
             'shrink-0',
-            compact ? 'rounded-lg p-1.5 [&_svg]:size-4' : 'rounded-lg p-2.5',
+            compact ? 'rounded-md p-1.5 [&_svg]:size-4' : 'rounded-md p-2.5',
           ].join(' ')}
         >
           <span className={`${colors.iconText} block`}>{icon}</span>

@@ -84,17 +84,11 @@ function getYearRange(min?: string, max?: string): { minY: number; maxY: number 
   return { minY, maxY };
 }
 
-const calendarMenuListClass =
-  'max-h-44 overflow-y-auto overscroll-contain rounded-lg border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-800 py-1 shadow-xl shadow-slate-900/12 dark:shadow-black/40 [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,0.5)_transparent]';
-
 const calendarMenuItemClass =
   'w-full px-3 py-2 text-left text-sm transition-colors duration-150 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60';
 
 const calendarMenuItemSelectedClass =
   'bg-emerald-50 dark:bg-emerald-900/35 text-emerald-800 dark:text-emerald-300 font-medium';
-
-const calendarTriggerBaseClass =
-  'flex min-w-0 w-full items-center justify-between gap-1.5 rounded-lg border text-sm font-medium transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:ring-offset-0 focus:border-emerald-500 dark:focus:border-emerald-400';
 
 const DatePicker = ({
   label,
@@ -111,6 +105,18 @@ const DatePicker = ({
   min,
   max,
 }: DatePickerProps) => {
+  const r = 'rounded-md';
+  const calendarMenuListClass = useMemo(
+    () =>
+      `max-h-44 overflow-y-auto overscroll-contain ${r} border border-slate-200/90 dark:border-slate-600 bg-white dark:bg-slate-800 py-1 shadow-xl shadow-slate-900/12 dark:shadow-black/40 [scrollbar-width:thin] [scrollbar-color:rgba(148,163,184,0.5)_transparent]`,
+    [r],
+  );
+  const calendarTriggerBaseClass = useMemo(
+    () =>
+      `flex min-w-0 w-full items-center justify-between gap-1.5 ${r} border text-sm font-medium transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/35 focus:ring-offset-0 focus:border-emerald-500 dark:focus:border-emerald-400`,
+    [r],
+  );
+
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -164,24 +170,24 @@ const DatePicker = ({
     if (!headerMenu) return;
     const el = headerMenu === 'month' ? monthTriggerRef.current : yearTriggerRef.current;
     if (!el) return;
-    const r = el.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
     const width =
       headerMenu === 'year'
-        ? Math.max(r.width, 5.5 * 16)
-        : Math.max(r.width, 11 * 16);
+        ? Math.max(rect.width, 5.5 * 16)
+        : Math.max(rect.width, 11 * 16);
     const listMax = 176; // ~max-h-44
-    let top = r.bottom + 6;
+    let top = rect.bottom + 6;
     if (typeof globalThis.window !== 'undefined') {
       if (top + listMax > globalThis.window.innerHeight - 10) {
-        top = Math.max(10, r.top - listMax - 6);
+        top = Math.max(10, rect.top - listMax - 6);
       }
-      let left = r.left;
+      let left = rect.left;
       left = Math.min(left, globalThis.window.innerWidth - width - 10);
       left = Math.max(10, left);
       setMenuRect({ top, left, width });
       return;
     }
-    setMenuRect({ top, left: r.left, width });
+    setMenuRect({ top, left: rect.left, width });
   }, [headerMenu]);
 
   useLayoutEffect(() => {
@@ -344,7 +350,7 @@ const DatePicker = ({
           disabled={disabled}
           onClick={() => !disabled && setOpen((v) => !v)}
           className={[
-            'w-full rounded-lg border text-sm transition-all duration-200 text-left',
+            `w-full ${r} border text-sm transition-all duration-200 text-left`,
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
@@ -398,14 +404,14 @@ const DatePicker = ({
               maxHeight: anchorRect.maxHeight,
               overflowY: anchorRect.maxHeight != null ? 'auto' : undefined,
             }}
-            className="w-80 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none p-3"
+            className={`w-80 ${r} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none p-3`}
           >
             {/* Mes y año: grid para que el mes nunca colapse a solo el chevron */}
             <div className="grid grid-cols-[auto_minmax(4.25rem,1fr)_auto_auto] gap-1.5 mb-3 items-center">
               <button
                 type="button"
                 onClick={prevMonth}
-                className="shrink-0 p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                className={`shrink-0 p-1.5 ${r} text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors`}
                 aria-label="Mes anterior"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -486,7 +492,7 @@ const DatePicker = ({
               <button
                 type="button"
                 onClick={nextMonth}
-                className="shrink-0 p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                className={`shrink-0 p-1.5 ${r} text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors`}
                 aria-label="Mes siguiente"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -533,7 +539,7 @@ const DatePicker = ({
                     disabled={disabledDay}
                     onClick={() => handleSelect(day)}
                     className={[
-                      'w-full aspect-square flex items-center justify-center text-xs rounded-lg transition-all duration-150',
+                      `w-full aspect-square flex items-center justify-center text-xs ${r} transition-all duration-150`,
                       disabledDay
                         ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
                         : selected

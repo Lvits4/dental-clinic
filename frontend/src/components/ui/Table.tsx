@@ -32,6 +32,8 @@ interface TableProps<T> {
   headerVariant?: 'default' | 'sentence';
   /** Pie de la tarjeta de escritorio (p. ej. paginación), dentro del mismo borde redondeado */
   footer?: ReactNode;
+  /** @deprecated Sin efecto: el marco siempre usa `rounded-md`. */
+  surfaceRounding?: 'default' | 'compact';
 }
 
 /** Siempre dos cheurones; el activo resalta según dirección (misma altura visual en todas las columnas). */
@@ -100,21 +102,21 @@ const SortSentenceIcons = ({
   );
 };
 
-const SkeletonRow = ({ cols }: { cols: number }) => (
+const SkeletonRow = ({ cols, r }: { cols: number; r: string }) => (
   <tr>
     {Array.from({ length: cols }).map((_, i) => (
       <td key={i} className="px-5 py-3.5">
-        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+        <div className={`h-4 bg-slate-100 dark:bg-slate-800 ${r} animate-pulse`} />
       </td>
     ))}
   </tr>
 );
 
-const SkeletonCard = () => (
-  <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-5 space-y-3">
-    <div className="h-4 w-1/2 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
-    <div className="h-3 w-3/4 bg-slate-50 dark:bg-slate-800/60 rounded-lg animate-pulse" />
-    <div className="h-3 w-2/3 bg-slate-50 dark:bg-slate-800/60 rounded-lg animate-pulse" />
+const SkeletonCard = ({ r }: { r: string }) => (
+  <div className={`bg-white dark:bg-slate-900 ${r} border border-slate-200/80 dark:border-slate-800 p-5 space-y-3`}>
+    <div className={`h-4 w-1/2 bg-slate-100 dark:bg-slate-800 ${r} animate-pulse`} />
+    <div className={`h-3 w-3/4 bg-slate-50 dark:bg-slate-800/60 ${r} animate-pulse`} />
+    <div className={`h-3 w-2/3 bg-slate-50 dark:bg-slate-800/60 ${r} animate-pulse`} />
   </div>
 );
 
@@ -133,13 +135,16 @@ const Table = <T,>({
   fillHeight = false,
   headerVariant = 'default',
   footer,
+  surfaceRounding = 'default',
 }: TableProps<T>) => {
+  void surfaceRounding;
   const visibleColumns = columns.filter((c) => !c.hideOnMobile);
   const sentenceHeaders = headerVariant === 'sentence';
+  const r = 'rounded-md';
 
   const desktopOuter = fillHeight
-    ? 'hidden md:flex md:flex-col md:flex-1 md:min-h-0 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 overflow-hidden'
-    : 'hidden md:block overflow-x-auto bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-sm';
+    ? `hidden md:flex md:flex-col md:flex-1 md:min-h-0 ${r} border border-slate-200/80 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 overflow-hidden`
+    : `hidden md:block overflow-x-auto bg-white dark:bg-slate-900 ${r} border border-slate-200/80 dark:border-slate-800 shadow-sm`;
 
   const desktopScroll = fillHeight ? 'flex-1 min-h-0 overflow-auto min-w-0' : 'overflow-x-auto';
 
@@ -185,7 +190,7 @@ const Table = <T,>({
           <button
             type="button"
             className={[
-              'table-sort-header-btn flex w-full items-center rounded-lg -mx-1 px-1.5',
+              `table-sort-header-btn flex w-full items-center ${r} -mx-1 px-1.5`,
               sentenceHeaders ? 'gap-2 py-1' : 'gap-2 py-1.5',
               flexJustifyClass(align),
               'appearance-none bg-transparent border-0 shadow-none ring-0 ring-offset-0',
@@ -269,7 +274,7 @@ const Table = <T,>({
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60">
                 {Array.from({ length: skeletonRows }).map((_, i) => (
-                  <SkeletonRow key={i} cols={columns.length} />
+                  <SkeletonRow key={i} cols={columns.length} r={r} />
                 ))}
               </tbody>
             </table>
@@ -279,7 +284,7 @@ const Table = <T,>({
 
         <div className={fillHeight ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-3' : 'md:hidden space-y-3'}>
           {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <SkeletonCard key={i} r={r} />
           ))}
         </div>
       </>
@@ -358,7 +363,7 @@ const Table = <T,>({
               key={keyExtractor(item)}
               onClick={() => onRowClick?.(item)}
               className={[
-                'bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200',
+                `bg-white dark:bg-slate-900 ${r} border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200`,
                 onRowClick
                   ? 'cursor-pointer active:scale-[0.98] active:shadow-none'
                   : '',

@@ -174,11 +174,11 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
         'relative flex items-center font-medium transition-all duration-200 group cursor-pointer',
         collapsed
           ? isActive
-            ? 'mx-auto size-10 shrink-0 justify-center rounded-lg p-0'
-            : 'justify-center rounded-lg px-0 py-2.5'
+            ? 'mx-auto size-10 shrink-0 justify-center rounded-md p-0'
+            : 'justify-center rounded-md px-0 py-2.5'
           : isActive
-            ? 'gap-3 rounded-lg px-3 py-2.5'
-            : 'gap-3 rounded-lg px-3 py-2.5',
+            ? 'gap-3 rounded-md px-3 py-2.5'
+            : 'gap-3 rounded-md px-3 py-2.5',
         isActive
           ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
@@ -189,7 +189,7 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
       <>
         {/* Franja activa solo con sidebar expandido */}
         {isActive && !collapsed && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-lg bg-emerald-500 dark:bg-emerald-400" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-md bg-emerald-500 dark:bg-emerald-400" />
         )}
         <span className={`transition-colors duration-200 ${
           isActive
@@ -242,7 +242,7 @@ const MainLayout = () => {
             <button
               onClick={() => setCollapsed(false)}
               title="Expandir menu"
-              className="w-10 h-10 rounded-lg overflow-hidden shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+              className="w-10 h-10 rounded-md overflow-hidden shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
             >
               <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
             </button>
@@ -250,7 +250,7 @@ const MainLayout = () => {
             /* Cuando esta expandido: logo + boton colapsar */
             <>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+                <div className="w-9 h-9 rounded-md overflow-hidden shrink-0">
                   <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
                 </div>
                 <div className="min-w-0">
@@ -265,7 +265,7 @@ const MainLayout = () => {
               <button
                 onClick={() => setCollapsed(true)}
                 title="Colapsar menu"
-                className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-200 cursor-pointer"
+                className="p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition-all duration-200 cursor-pointer"
               >
                 <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
@@ -321,7 +321,7 @@ const MainLayout = () => {
           <button
             onClick={toggleTheme}
             title={collapsed ? (isDark ? 'Modo claro' : 'Modo oscuro') : undefined}
-            className={`w-full flex items-center rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center rounded-md text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200 cursor-pointer ${
               collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
             }`}
           >
@@ -335,15 +335,15 @@ const MainLayout = () => {
           {collapsed ? (
             <div className="flex justify-center py-2">
               <div
-                className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm"
+                className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm"
                 title={user?.fullName ?? 'Usuario'}
               >
                 {userInitial}
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
+            <div className="flex items-center gap-3 px-3 py-3 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
+              <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
                 {userInitial}
               </div>
               <div className="flex-1 min-w-0">
@@ -361,7 +361,7 @@ const MainLayout = () => {
           <button
             onClick={handleLogout}
             title={collapsed ? 'Cerrar sesion' : undefined}
-            className={`w-full flex items-center rounded-lg text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 cursor-pointer ${
+            className={`w-full flex items-center rounded-md text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 cursor-pointer ${
               collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
             }`}
           >
@@ -376,7 +376,7 @@ const MainLayout = () => {
       <header className="md:hidden sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-b border-slate-200/60 dark:border-slate-800/60">
         {/* Logo */}
         <NavLink to="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg overflow-hidden">
+          <div className="w-8 h-8 rounded-md overflow-hidden">
             <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
           </div>
           <span className="text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
@@ -388,7 +388,7 @@ const MainLayout = () => {
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
+            className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
             aria-label="Menu de usuario"
           >
             {userInitial}
@@ -400,7 +400,7 @@ const MainLayout = () => {
                 className="fixed inset-0 z-10"
                 onClick={() => setUserMenuOpen(false)}
               />
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-md shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden">
                 <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
                   <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">
                     {user?.fullName ?? 'Usuario'}
@@ -412,7 +412,7 @@ const MainLayout = () => {
                 <div className="p-1.5">
                   <button
                     onClick={toggleTheme}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                   >
                     <span className="text-slate-400">
                       {isDark ? <IconSun /> : <IconMoon />}
@@ -421,7 +421,7 @@ const MainLayout = () => {
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-colors"
                   >
                     <IconLogout />
                     <span>Cerrar sesion</span>
@@ -473,7 +473,7 @@ const MainLayout = () => {
                 </span>
                 <span className="leading-none">{item.label}</span>
                 {isActive && (
-                  <span className="absolute top-0 w-8 h-0.5 rounded-lg bg-emerald-500 dark:bg-emerald-400" />
+                  <span className="absolute top-0 w-8 h-0.5 rounded-md bg-emerald-500 dark:bg-emerald-400" />
                 )}
               </>
             )}
@@ -503,10 +503,10 @@ const MainLayout = () => {
           />
 
           {/* Panel deslizable desde abajo */}
-          <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 rounded-t-lg shadow-2xl border-t border-slate-200/80 dark:border-slate-800 animate-slide-up">
+          <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 rounded-t-md shadow-2xl border-t border-slate-200/80 dark:border-slate-800 animate-slide-up">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-lg bg-slate-200 dark:bg-slate-700" />
+              <div className="w-10 h-1 rounded-md bg-slate-200 dark:bg-slate-700" />
             </div>
 
             {/* Header del drawer */}
@@ -516,7 +516,7 @@ const MainLayout = () => {
               </h3>
               <button
                 onClick={() => setDrawerOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 aria-label="Cerrar"
               >
                 <IconClose />
@@ -531,7 +531,7 @@ const MainLayout = () => {
                   to={item.to}
                   onClick={() => setDrawerOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    `flex items-center gap-3 px-4 py-3.5 rounded-md text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'

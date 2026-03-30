@@ -18,6 +18,8 @@ export interface ModalProps {
   containBodyHeight?: boolean;
   /** Clases extra en el panel (p. ej. tope de ancho). */
   panelClassName?: string;
+  /** @deprecated Sin efecto: el panel siempre usa `rounded-md` (misma vista que pacientes). */
+  surfaceRounding?: 'default' | 'compact';
 }
 
 const desktopSizeClasses: Record<ModalSize, string> = {
@@ -38,7 +40,9 @@ const Modal = ({
   fitContent = false,
   containBodyHeight = false,
   panelClassName = '',
+  surfaceRounding = 'compact',
 }: ModalProps) => {
+  void surfaceRounding;
   useEffect(() => {
     if (!isOpen) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -61,13 +65,10 @@ const Modal = ({
 
   const isFullscreen = size === 'fullscreen';
 
-  const panelRounded = fitContent
-    ? 'rounded-t-lg md:rounded-lg'
-    : 'rounded-t-lg md:rounded-lg';
-
-  const footerRounded = fitContent ? 'rounded-b-lg' : 'rounded-b-lg';
-
-  const closeBtnRounded = 'rounded-lg';
+  const panelRounded = 'rounded-t-md md:rounded-md';
+  const footerRounded = 'rounded-b-md';
+  const closeBtnRounded = 'rounded-md';
+  const handleBarRounded = 'rounded-md';
 
   return (
     <div
@@ -103,7 +104,7 @@ const Modal = ({
       >
         {/* Handle (solo mobile) */}
         <div className="md:hidden flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 rounded-lg bg-slate-200 dark:bg-slate-700" />
+          <div className={`w-10 h-1 ${handleBarRounded} bg-slate-200 dark:bg-slate-700`} />
         </div>
 
         {/* Header */}

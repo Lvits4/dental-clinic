@@ -89,7 +89,7 @@ const UsersTable = ({ data, loading }: UsersTableProps) => {
           <button
             title="Editar"
             onClick={() => navigate(`/users/${u.id}/edit`)}
-            className="p-2 rounded-lg text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
+            className="p-2 rounded-md text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -103,7 +103,7 @@ const UsersTable = ({ data, loading }: UsersTableProps) => {
             <button
               title="Desactivar"
               onClick={() => setUserToDeactivate(u)}
-              className="p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 cursor-pointer"
+              className="p-2 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-150 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -115,7 +115,7 @@ const UsersTable = ({ data, loading }: UsersTableProps) => {
             <button
               title="Activar"
               onClick={() => setUserToActivate(u)}
-              className="p-2 rounded-lg text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-150 cursor-pointer"
+              className="p-2 rounded-md text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-150 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}

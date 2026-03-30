@@ -44,9 +44,9 @@ const AuthLayout = () => {
       <div className="hidden lg:flex lg:w-[480px] xl:w-[520px] relative overflow-hidden flex-col justify-between bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 dark:from-emerald-900 dark:via-emerald-950 dark:to-slate-950 p-10 xl:p-12">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-lg bg-white/5 blur-2xl" />
-          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-lg bg-teal-400/10 blur-2xl" />
-          <div className="absolute -bottom-16 left-1/4 w-64 h-64 rounded-lg bg-emerald-300/10 blur-3xl" />
+          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-md bg-white/5 blur-2xl" />
+          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-md bg-teal-400/10 blur-2xl" />
+          <div className="absolute -bottom-16 left-1/4 w-64 h-64 rounded-md bg-emerald-300/10 blur-3xl" />
           {/* Patron de puntos sutil */}
           <div
             className="absolute inset-0 opacity-[0.03]"
@@ -83,7 +83,7 @@ const AuthLayout = () => {
               { icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', label: 'Reportes y estadisticas' },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
+                <div className="w-9 h-9 rounded-md bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
                   <svg className="w-4.5 h-4.5 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                   </svg>
@@ -106,15 +106,15 @@ const AuthLayout = () => {
       <div className="flex-1 flex flex-col min-h-screen lg:min-h-0 bg-slate-50 dark:bg-slate-950 relative">
         {/* Fondo decorativo sutil */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-40 right-0 w-96 h-96 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/20 blur-3xl" />
-          <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-lg bg-teal-50/40 dark:bg-teal-950/10 blur-3xl" />
+          <div className="absolute -top-40 right-0 w-96 h-96 rounded-md bg-emerald-50/60 dark:bg-emerald-950/20 blur-3xl" />
+          <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-md bg-teal-50/40 dark:bg-teal-950/10 blur-3xl" />
         </div>
 
         {/* Theme toggle */}
         <div className="relative z-10 flex justify-end p-4 lg:p-6">
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800/60 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+            className="p-2.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-white dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800/60 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
             aria-label="Cambiar tema"
           >
             {isDark ? <SunIcon /> : <MoonIcon />}

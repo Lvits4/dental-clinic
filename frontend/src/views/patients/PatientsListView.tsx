@@ -98,7 +98,7 @@ const PatientsListView = () => {
             canEditPatient ? (
               <Button
                 type="button"
-                className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap"
+                className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
                 onClick={() => setModal({ mode: 'create' })}
               >
                 <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,7 +115,7 @@ const PatientsListView = () => {
         {isError ? (
           <div
             role="alert"
-            className="flex flex-col items-center justify-center gap-4 rounded-lg border border-red-200 bg-red-50/90 px-6 py-12 text-center dark:border-red-900/50 dark:bg-red-950/30"
+            className="flex flex-col items-center justify-center gap-4 rounded-md border border-red-200 bg-red-50/90 px-6 py-12 text-center dark:border-red-900/50 dark:bg-red-950/30"
           >
             <p className="text-sm text-red-800 dark:text-red-200 max-w-md">{listErrorMessage}</p>
             <Button type="button" onClick={() => refetch()}>

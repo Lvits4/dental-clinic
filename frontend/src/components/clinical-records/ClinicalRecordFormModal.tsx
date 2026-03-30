@@ -46,6 +46,7 @@ const ClinicalRecordFormModal = ({
         title={title}
         size="lg"
         fitContent
+        surfaceRounding="compact"
         panelClassName="min-h-[min(28rem,52dvh)] w-full md:min-h-[min(32rem,50dvh)]"
       >
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 py-8">
@@ -62,6 +63,7 @@ const ClinicalRecordFormModal = ({
       title={title}
       size="lg"
       fitContent
+      surfaceRounding="compact"
       panelClassName="min-h-[min(28rem,52dvh)] w-full md:min-h-[min(32rem,50dvh)]"
     >
       <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden md:min-h-[min(22rem,50dvh)]">

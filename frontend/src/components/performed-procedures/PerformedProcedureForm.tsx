@@ -192,7 +192,7 @@ const PerformedProcedureForm = ({
                       setSelectedItemId('');
                     }
                   }}
-                  className="w-4 h-4 rounded-lg border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700"
+                  className="w-4 h-4 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700"
                 />
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Vincular a un plan de tratamiento

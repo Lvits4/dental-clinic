@@ -73,7 +73,14 @@ const PatientFormModal = ({ mode, patientId, isOpen, onClose }: PatientFormModal
   const title = mode === 'create' ? 'Nuevo paciente' : 'Editar paciente';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title} size="xl" fitContent>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      size="xl"
+      fitContent
+      surfaceRounding="compact"
+    >
       {mode === 'create' ? (
         <CreatePatientModalBody onClose={onClose} />
       ) : patientId ? (

@@ -54,6 +54,7 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
   },
   ref,
 ) {
+  const segR = 'rounded-md';
   const [current, setCurrent] = useState(0);
   const isLast = current === steps.length - 1;
   const isFirst = current === 0;
@@ -149,7 +150,7 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
                 }}
                 disabled={i > current}
                 className={[
-                  'min-h-[3px] min-w-0 flex-1 rounded-lg transition-[height,background-color] duration-300 ease-out',
+                  `min-h-[3px] min-w-0 flex-1 ${segR} transition-[height,background-color] duration-300 ease-out`,
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900',
                   active
                     ? 'h-1 bg-emerald-600 dark:bg-emerald-500'

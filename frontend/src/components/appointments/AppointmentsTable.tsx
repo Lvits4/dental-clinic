@@ -105,7 +105,7 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
           <button
             title="Ver cita"
             onClick={() => setViewTarget(a)}
-            className="p-2 rounded-lg text-sky-500 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-150 cursor-pointer"
+            className="p-2 rounded-md text-sky-500 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-150 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -117,7 +117,7 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
           <button
             title="Editar cita"
             onClick={() => setEditTarget(a)}
-            className="p-2 rounded-lg text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
+            className="p-2 rounded-md text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -176,7 +176,7 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
                   setEditTarget(viewTarget);
                   setViewTarget(null);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -246,7 +246,7 @@ const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
                         )
                       }
                       className={[
-                        'px-3 py-1.5 rounded-lg border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                        'px-3 py-1.5 rounded-md border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
                         STATUS_BUTTON_CLASSES[status],
                       ].join(' ')}
                     >

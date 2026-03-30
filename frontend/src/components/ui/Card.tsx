@@ -13,6 +13,8 @@ export interface CardProps {
   className?: string;
   /** Clases extra en el contenedor del cuerpo (debajo de title/actions) */
   bodyClassName?: string;
+  /** @deprecated Sin efecto: la tarjeta siempre usa `rounded-md`. */
+  rounding?: 'default' | 'compact';
 }
 
 const variantClasses: Record<CardVariant, string> = {
@@ -40,11 +42,14 @@ const Card = ({
   padding = 'md',
   className = '',
   bodyClassName = '',
+  rounding = 'default',
 }: CardProps) => {
+  void rounding;
+  const r = 'rounded-md';
   return (
     <div
       className={[
-        'rounded-lg overflow-visible transition-shadow duration-200',
+        `${r} overflow-visible transition-shadow duration-200`,
         variantClasses[variant],
         className,
       ]

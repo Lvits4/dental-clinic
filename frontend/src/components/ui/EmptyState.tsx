@@ -9,7 +9,7 @@ export interface EmptyStateProps {
 }
 
 const DefaultIcon = () => (
-  <div className="w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+  <div className="w-16 h-16 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
     <svg
       className="w-8 h-8 text-slate-300 dark:text-slate-600"
       fill="none"

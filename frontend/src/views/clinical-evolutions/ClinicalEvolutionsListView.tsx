@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader, Button, Spinner } from '../../components/ui';
+import { PageHeader, Button, Spinner, DatePicker } from '../../components/ui';
 import ClinicalEvolutionCard from '../../components/clinical-evolutions/ClinicalEvolutionCard';
 import { useClinicalEvolutionsList } from '../../querys/clinical-evolutions/queryClinicalEvolutions';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
@@ -9,6 +9,8 @@ import { Pagination } from '../../components/ui';
 const ClinicalEvolutionsListView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const [page, setPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const limit = 10;
 
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId!);
@@ -16,7 +18,17 @@ const ClinicalEvolutionsListView = () => {
     page,
     limit,
     recordId: record?.id,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
   });
+
+  const hasDateFilters = !!(dateFrom || dateTo);
+
+  const resetDateFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
+  };
 
   if (loadingRecord) {
     return (
@@ -51,7 +63,7 @@ const ClinicalEvolutionsListView = () => {
       />
 
       {!record ? (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-8 text-center">
           <p className="text-slate-500 dark:text-slate-400">
             Debe crear el expediente clínico primero.
           </p>
@@ -67,11 +79,58 @@ const ClinicalEvolutionsListView = () => {
           <Spinner />
         </div>
       ) : !data?.data?.length ? (
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-8 text-center">
-          <p className="text-slate-500 dark:text-slate-400">No hay evoluciones registradas.</p>
+        <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-8 text-center space-y-3">
+          <p className="text-slate-500 dark:text-slate-400">
+            {hasDateFilters
+              ? 'No hay evoluciones en el rango de fechas seleccionado.'
+              : 'No hay evoluciones registradas.'}
+          </p>
+          {hasDateFilters && (
+            <button
+              type="button"
+              onClick={resetDateFilters}
+              className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+            >
+              Quitar filtro de fechas
+            </button>
+          )}
         </div>
       ) : (
         <>
+          <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-3 sm:p-4">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 sm:mb-3">Filtrar por fecha</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <DatePicker
+                label="Desde"
+                value={dateFrom}
+                onChange={(e) => {
+                  setDateFrom(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Fecha inicial"
+              />
+              <DatePicker
+                label="Hasta"
+                value={dateTo}
+                onChange={(e) => {
+                  setDateTo(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Fecha final"
+                {...(dateFrom ? { min: dateFrom } : {})}
+              />
+            </div>
+            {hasDateFilters && (
+              <button
+                type="button"
+                onClick={resetDateFilters}
+                className="mt-3 text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
+              >
+                Limpiar fechas
+              </button>
+            )}
+          </div>
+
           {/* Timeline de evoluciones */}
           <div className="relative space-y-4 pl-4 sm:pl-6">
             {/* Línea vertical */}
@@ -80,7 +139,7 @@ const ClinicalEvolutionsListView = () => {
             {data.data.map((evolution) => (
               <div key={evolution.id} className="relative">
                 {/* Punto en la línea */}
-                <div className="absolute -left-3 sm:-left-4 top-5 w-2.5 h-2.5 rounded-lg bg-emerald-500 border-2 border-white dark:border-slate-900" />
+                <div className="absolute -left-3 sm:-left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
                 <ClinicalEvolutionCard evolution={evolution} />
               </div>
             ))}

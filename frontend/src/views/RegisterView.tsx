@@ -92,7 +92,7 @@ const RegisterView = () => {
       </div>
 
       {/* Form card */}
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg shadow-slate-200/60 dark:shadow-none border border-slate-200/70 dark:border-slate-800 p-6 sm:p-7">
+      <div className="bg-white dark:bg-slate-900 rounded-md shadow-lg shadow-slate-200/60 dark:shadow-none border border-slate-200/70 dark:border-slate-800 p-6 sm:p-7">
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             label="Nombre completo"
@@ -164,7 +164,7 @@ const RegisterView = () => {
                 onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
                 autoComplete="new-password"
                 className={[
-                  'w-full rounded-lg border text-sm transition-all duration-200',
+                  'w-full rounded-md border text-sm transition-all duration-200',
                   'bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white',
                   'placeholder-slate-400 dark:placeholder-slate-500',
                   'focus:outline-none focus:ring-2 focus:ring-offset-0',

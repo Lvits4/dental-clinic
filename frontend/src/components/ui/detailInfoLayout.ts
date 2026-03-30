@@ -1,6 +1,6 @@
 /** Clases compartidas para bloques tipo ficha (pestañas Datos, Expediente, Evoluciones). */
 export const DETAIL_INFO_TILE_CLASS =
-  'rounded-lg border border-slate-200/80 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/30 p-4';
+  'rounded-md border border-slate-200/80 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/30 p-4';
 
 export const DETAIL_INFO_SECTION_TITLE_CLASS =
   'text-sm font-semibold text-slate-800 dark:text-white mb-4';

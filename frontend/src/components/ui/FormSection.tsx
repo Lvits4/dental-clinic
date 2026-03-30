@@ -15,10 +15,11 @@ const FormSection = ({
   children,
   className = '',
 }: FormSectionProps) => {
+  const r = 'rounded-md';
   return (
     <fieldset
       className={[
-        'relative rounded-lg border border-slate-100 dark:border-slate-800/60',
+        `relative ${r} border border-slate-100 dark:border-slate-800/60`,
         'bg-slate-50/40 dark:bg-slate-800/20',
         'p-4 sm:p-5',
         className,
@@ -29,7 +30,9 @@ const FormSection = ({
       <legend className="px-2 -ml-1">
         <span className="inline-flex items-center gap-2">
           {icon && (
-            <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+            <span
+              className={`flex items-center justify-center w-6 h-6 ${r} bg-gradient-to-br from-emerald-500 to-teal-500 text-white`}
+            >
               {icon}
             </span>
           )}

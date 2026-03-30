@@ -42,9 +42,9 @@ const BAR_COLORS: Record<string, string> = {
   NO_SHOW: 'bg-slate-400',
 };
 
-/** Mismo radio que enlaces del sidebar (`rounded-lg`) */
+/** Mismo radio que enlaces del sidebar (`rounded-md`) */
 const PANEL =
-  'bg-white dark:bg-slate-900 rounded-lg border border-slate-200/80 dark:border-slate-800 p-4 shadow-sm flex flex-col min-h-0';
+  'bg-white dark:bg-slate-900 rounded-md border border-slate-200/80 dark:border-slate-800 p-4 shadow-sm flex flex-col min-h-0';
 
 const formatDateTime = (dateStr: string): string => {
   return new Date(dateStr).toLocaleDateString('es', {
@@ -203,9 +203,9 @@ const DashboardView = () => {
                       <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 w-[5.5rem] shrink-0 truncate">
                         {STATUS_LABELS[item.status] || item.status}
                       </span>
-                      <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-lg h-2 overflow-hidden min-w-0">
+                      <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-md h-2 overflow-hidden min-w-0">
                         <div
-                          className={`${barColor} h-2 rounded-lg transition-all duration-500 ease-out`}
+                          className={`${barColor} h-2 rounded-md transition-all duration-500 ease-out`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -230,10 +230,10 @@ const DashboardView = () => {
                 {doctorWorkload.data.map((doc) => (
                   <div
                     key={doc.doctorId}
-                    className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50"
+                    className="flex items-center justify-between gap-2 p-2.5 rounded-md bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                         {doc.doctorName?.charAt(0)?.toUpperCase() ?? 'D'}
                       </div>
                       <span className="text-xs font-medium text-slate-800 dark:text-white truncate">
@@ -261,10 +261,10 @@ const DashboardView = () => {
               {recentActivity.data.slice(0, RECENT_ACTIVITY_LIMIT).map((act) => (
                 <div
                   key={act.id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 p-2.5 rounded-md bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50"
                 >
                   <div className="min-w-0 flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-lg shrink-0 ${STATUS_COLORS[act.status] || 'bg-slate-400'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_COLORS[act.status] || 'bg-slate-400'}`} />
                     <span className="text-xs font-medium text-slate-800 dark:text-white truncate">
                       {act.patient}
                     </span>
@@ -276,7 +276,7 @@ const DashboardView = () => {
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 tabular-nums">
                       {formatDateTime(act.dateTime)}
                     </span>
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-200/60 dark:ring-slate-600/40 whitespace-nowrap">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 ring-1 ring-inset ring-slate-200/60 dark:ring-slate-600/40 whitespace-nowrap">
                       {STATUS_LABELS[act.status] || act.status}
                     </span>
                   </div>

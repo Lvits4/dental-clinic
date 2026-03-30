@@ -17,6 +17,7 @@ const PatientFilters = ({ search, onSearchChange, trailingActions }: PatientFilt
           onChange={onSearchChange}
           placeholder="Buscar por nombre..."
           fullWidth
+          rounding="compact"
         />
       </div>
 

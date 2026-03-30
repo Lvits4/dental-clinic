@@ -36,7 +36,7 @@ const Select = ({
   name,
   className = '',
 }: SelectProps) => {
-  const radiusClass = 'rounded-lg';
+  const radiusClass = 'rounded-md';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);

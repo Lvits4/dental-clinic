@@ -41,7 +41,7 @@ const TreatmentPlanDetailView = () => {
         action={config ? <Badge className={config.className}>{config.label}</Badge> : undefined}
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5 space-y-3">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5 space-y-3">
         <dl className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:gap-2">
             <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Paciente</dt>
@@ -79,7 +79,7 @@ const TreatmentPlanDetailView = () => {
                     key={status}
                     onClick={() => statusMutation.mutate(status as TreatmentPlanStatus)}
                     disabled={statusMutation.isPending}
-                    className={`px-3 py-1.5 text-xs rounded-lg border font-medium disabled:opacity-50 transition-colors ${
+                    className={`px-3 py-1.5 text-xs rounded-md border font-medium disabled:opacity-50 transition-colors ${
                       status === TreatmentPlanStatus.CANCELLED
                         ? 'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20'
                         : status === TreatmentPlanStatus.COMPLETED
@@ -97,7 +97,7 @@ const TreatmentPlanDetailView = () => {
       </div>
 
       {/* Items del plan */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
           Procedimientos del Plan
         </h3>

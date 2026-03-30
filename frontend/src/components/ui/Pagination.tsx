@@ -6,6 +6,8 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
   /** Dentro del pie de tabla: sin padding superior extra */
   embedded?: boolean;
+  /** @deprecated Sin efecto: botones siempre `rounded-md`. */
+  compact?: boolean;
 }
 
 const ChevronLeftIcon = () => (
@@ -41,10 +43,12 @@ const Pagination = ({
   limit,
   onPageChange,
   embedded = false,
+  compact = false,
 }: PaginationProps) => {
+  void compact;
   if (total < 1) return null;
 
-  const r = 'rounded-lg';
+  const r = 'rounded-md';
   const from = (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
   /** Siempre mostrar barra (Anterior / páginas / Siguiente); con una sola página los botones quedan deshabilitados */
@@ -112,7 +116,7 @@ const Pagination = ({
                 onClick={() => onPageChange(item)}
                 disabled={safeTotalPages <= 1}
                 className={[
-                  'min-w-[2.25rem] h-9 px-2 text-sm font-medium transition-colors rounded-lg',
+                  `min-w-[2.25rem] h-9 px-2 text-sm font-medium transition-colors ${r}`,
                   'disabled:opacity-50 disabled:cursor-default disabled:hover:text-inherit',
                   page === item
                     ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-slate-100'

@@ -103,7 +103,7 @@ const AppointmentAgendaView = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigateWeek(-1)}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -115,7 +115,7 @@ const AppointmentAgendaView = () => {
           </span>
           <button
             onClick={() => navigateWeek(1)}
-            className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -123,7 +123,7 @@ const AppointmentAgendaView = () => {
           </button>
           <button
             onClick={() => setBaseDate(new Date())}
-            className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="px-3 py-1.5 text-xs rounded-md border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             Hoy
           </button>
@@ -156,14 +156,14 @@ const AppointmentAgendaView = () => {
                 <div key={day}>
                   <h3 className={`text-xs font-semibold mb-1.5 capitalize ${isToday ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                     {formatDateShort(day)}
-                    {isToday && <span className="ml-1.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded-lg">Hoy</span>}
+                    {isToday && <span className="ml-1.5 text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded-md">Hoy</span>}
                   </h3>
                   <div className="space-y-1.5">
                     {dayAppointments.map((a) => (
                       <Link
                         key={a.id}
                         to={`/appointments/${a.id}`}
-                        className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                       >
                         <div>
                           <div className="text-sm font-medium text-slate-900 dark:text-white">
@@ -196,7 +196,7 @@ const AppointmentAgendaView = () => {
               return (
                 <div
                   key={day}
-                  className={`bg-white dark:bg-slate-800 rounded-lg border p-3 min-h-32
+                  className={`bg-white dark:bg-slate-800 rounded-md border p-3 min-h-32
                     ${isToday
                       ? 'border-emerald-400 dark:border-emerald-600'
                       : 'border-slate-200 dark:border-slate-700'}`}
@@ -212,7 +212,7 @@ const AppointmentAgendaView = () => {
                         <Link
                           key={a.id}
                           to={`/appointments/${a.id}`}
-                          className="block p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          className="block p-2 rounded-md bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                         >
                           <div className="text-xs font-medium text-slate-900 dark:text-white">
                             {formatTime(a.dateTime)}

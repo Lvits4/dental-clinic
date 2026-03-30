@@ -32,10 +32,10 @@ export class ClinicalEvolutionsService {
       query.andWhere('evolution.doctorId = :doctorId', { doctorId });
     }
     if (dateFrom) {
-      query.andWhere('evolution.date >= :dateFrom', { dateFrom });
+      query.andWhere('evolution.date >= :dateFromStart', { dateFromStart: `${dateFrom}T00:00:00` });
     }
     if (dateTo) {
-      query.andWhere('evolution.date <= :dateTo', { dateTo });
+      query.andWhere('evolution.date <= :dateToEnd', { dateToEnd: `${dateTo}T23:59:59.999` });
     }
 
     query.orderBy('evolution.date', 'DESC');

@@ -72,7 +72,7 @@ const AppointmentsListView = () => {
       {/* Filtros — colapsables en mobile */}
       <div>
         <button
-          className="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800"
+          className="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800"
           onClick={() => setFiltersOpen((v) => !v)}
         >
           <span className="flex items-center gap-2">
@@ -80,7 +80,7 @@ const AppointmentsListView = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
             </svg>
             Filtros
-            {hasFilters && <span className="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg">activos</span>}
+            {hasFilters && <span className="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md">activos</span>}
           </span>
           <svg
             className={`w-4 h-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`}

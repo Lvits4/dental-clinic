@@ -7,18 +7,18 @@ import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 
 const FormSkeleton = () => (
   <div className="animate-pulse space-y-5">
-    <div className="rounded-lg bg-slate-100 dark:bg-slate-800 h-10 w-48" />
+    <div className="rounded-md bg-slate-100 dark:bg-slate-800 h-10 w-48" />
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {[1, 2].map((i) => (
         <div key={i} className="space-y-2">
-          <div className="h-4 w-24 rounded-lg bg-slate-100 dark:bg-slate-800" />
-          <div className="h-10 rounded-lg bg-slate-100 dark:bg-slate-800" />
+          <div className="h-4 w-24 rounded-md bg-slate-100 dark:bg-slate-800" />
+          <div className="h-10 rounded-md bg-slate-100 dark:bg-slate-800" />
         </div>
       ))}
     </div>
     <div className="h-px bg-slate-100 dark:bg-slate-800" />
     <div className="flex justify-end">
-      <div className="h-10 w-32 rounded-lg bg-slate-100 dark:bg-slate-800" />
+      <div className="h-10 w-32 rounded-md bg-slate-100 dark:bg-slate-800" />
     </div>
   </div>
 );

@@ -79,7 +79,7 @@ const AppointmentDetailView = () => {
         }
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             {formatDateTime(appointment.dateTime)}
@@ -134,7 +134,7 @@ const AppointmentDetailView = () => {
                   key={s.value}
                   onClick={() => statusMutation.mutate(s.value as AppointmentStatus)}
                   disabled={statusMutation.isPending}
-                  className="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600
+                  className="px-3 py-1.5 text-xs rounded-md border border-slate-300 dark:border-slate-600
                     text-slate-700 dark:text-slate-300
                     hover:bg-slate-50 dark:hover:bg-slate-700
                     disabled:opacity-50 transition-colors"

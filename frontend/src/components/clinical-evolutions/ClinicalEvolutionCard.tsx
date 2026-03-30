@@ -39,7 +39,7 @@ const ClinicalEvolutionCard = ({ evolution }: ClinicalEvolutionCardProps) => {
     : '—';
 
   return (
-    <div className="rounded-lg border border-slate-200/80 dark:border-slate-700 bg-slate-50/40 dark:bg-slate-800/20 p-4 space-y-4">
+    <div className="rounded-md border border-slate-200/80 dark:border-slate-700 bg-slate-50/40 dark:bg-slate-800/20 p-4 space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
         <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
           {formatDate(evolution.date)}

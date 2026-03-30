@@ -1,5 +1,12 @@
 import { useState, useCallback, type FormEvent, type ReactNode } from 'react';
-import { TimePicker, Select, Textarea, DatePicker, FormSection, MultiStepForm } from '../ui';
+import {
+  TimePicker,
+  Select,
+  Textarea,
+  DatePicker,
+  FormSection,
+  MultiStepForm,
+} from '../ui';
 import type { Step } from '../ui';
 import type {
   CreateAppointmentDto,

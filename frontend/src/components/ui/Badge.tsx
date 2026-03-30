@@ -94,7 +94,7 @@ const Badge = ({
   return (
     <span
       className={[
-        'inline-flex items-center gap-1.5 rounded-lg font-medium leading-none',
+        'inline-flex items-center gap-1.5 rounded-md font-medium leading-none',
         colors.badge,
         sizeClasses[size],
         className,
@@ -103,7 +103,7 @@ const Badge = ({
         .join(' ')}
     >
       {dot && (
-        <span className={`w-1.5 h-1.5 rounded-lg shrink-0 ${colors.dot}`} />
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colors.dot}`} />
       )}
       {children}
     </span>

@@ -28,6 +28,7 @@ const ClinicalEvolutionFormModal = ({
       title="Nueva evolución clínica"
       size="md"
       containBodyHeight
+      surfaceRounding="compact"
       panelClassName="min-h-[min(28rem,52dvh)] md:min-h-[min(32rem,50dvh)]"
     >
       {loading ? (

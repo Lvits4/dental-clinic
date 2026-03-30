@@ -37,7 +37,7 @@ const TreatmentPlanItems = ({ items }: TreatmentPlanItemsProps) => {
         return (
           <div
             key={item.id}
-            className={`rounded-lg border p-3 transition-colors ${
+            className={`rounded-md border p-3 transition-colors ${
               isCompleted
                 ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/40'
                 : 'bg-slate-50 dark:bg-slate-700/50 border-transparent'

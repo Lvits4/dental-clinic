@@ -18,7 +18,7 @@ const DoctorCreateView = () => {
         ]}
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-5">
+      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5">
         <DoctorForm
           onSubmit={(data) => createMutation.mutate(data)}
           loading={createMutation.isPending}
