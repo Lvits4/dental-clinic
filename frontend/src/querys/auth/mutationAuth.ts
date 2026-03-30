@@ -49,8 +49,18 @@ export const useUpdateAccount = () => {
 
   return useMutation({
     mutationFn: (data: UpdateAccountDto) => authApi.updateAccount(data),
-    onSuccess: (res) => {
-      updateSession(res.user, res.accessToken);
+    onSuccess: async (res) => {
+      if (res.accessToken) {
+        localStorage.setItem('access_token', res.accessToken);
+      }
+      try {
+        const profile = await authApi.getProfile();
+        updateSession(profile, res.accessToken);
+      } catch {
+        if (res.user) {
+          updateSession(res.user, res.accessToken);
+        }
+      }
       queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] });
       toast.success('Cuenta actualizada correctamente');
     },

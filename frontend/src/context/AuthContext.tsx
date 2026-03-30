@@ -34,6 +34,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Cargar perfil del usuario al iniciar si hay token
   useEffect(() => {
+    let cancelled = false;
+
     const loadUser = async () => {
       if (!token) {
         setIsLoading(false);
@@ -42,17 +44,24 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         const userData = await http.get<User>(ENDPOINTS.PROFILE);
+        if (cancelled) return;
         setUser(userData);
       } catch {
+        if (cancelled) return;
         localStorage.removeItem('access_token');
         setToken(null);
         setUser(null);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
-    loadUser();
+    void loadUser();
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   const setSession = useCallback((newToken: string, newUser: User) => {
