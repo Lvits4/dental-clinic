@@ -110,17 +110,6 @@ const IconLogout = () => (
   </svg>
 );
 
-const IconMyAccount = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.75}
-      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-    />
-  </svg>
-);
-
 // ─── Definicion de navegacion ─────────────────────────────────────────────────
 
 interface NavItem {
@@ -332,46 +321,62 @@ const MainLayout = () => {
 
           <NavLink
             to="/account"
-            title={collapsed ? 'Mi cuenta' : undefined}
+            aria-label="Ir a mi cuenta"
+            title={collapsed ? (user?.fullName ?? 'Mi cuenta') : undefined}
             className={({ isActive }) =>
               [
-                'w-full flex items-center rounded-md text-sm font-medium transition-all duration-200 cursor-pointer',
-                collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5',
+                'w-full rounded-md text-sm font-medium transition-all duration-200 cursor-pointer no-underline outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
+                collapsed
+                  ? 'flex justify-center py-2'
+                  : 'flex items-center gap-3 px-3 py-3 border',
                 isActive
-                  ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60',
+                  ? collapsed
+                    ? ''
+                    : 'bg-emerald-50 dark:bg-emerald-900/25 border-emerald-200/70 dark:border-emerald-800/50'
+                  : collapsed
+                    ? ''
+                    : 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800/80',
               ].join(' ')
             }
           >
-            <span className="shrink-0 opacity-90">
-              <IconMyAccount />
-            </span>
-            {!collapsed && <span>Mi cuenta</span>}
+            {({ isActive }) =>
+              collapsed ? (
+                <div
+                  className={`w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm ${
+                    isActive ? 'ring-2 ring-emerald-400/80 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''
+                  }`}
+                >
+                  {userInitial}
+                </div>
+              ) : (
+                <>
+                  <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
+                    {userInitial}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={`text-sm font-semibold truncate tracking-tight ${
+                        isActive
+                          ? 'text-emerald-800 dark:text-emerald-200'
+                          : 'text-slate-800 dark:text-white'
+                      }`}
+                    >
+                      {user?.fullName ?? 'Usuario'}
+                    </p>
+                    <p
+                      className={`text-xs truncate ${
+                        isActive
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      {user?.email}
+                    </p>
+                  </div>
+                </>
+              )
+            }
           </NavLink>
-          {collapsed ? (
-            <div className="flex justify-center py-2">
-              <div
-                className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm"
-                title={user?.fullName ?? 'Usuario'}
-              >
-                {userInitial}
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 px-3 py-3 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
-              <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
-                {userInitial}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-800 dark:text-white truncate tracking-tight">
-                  {user?.fullName ?? 'Usuario'}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Cerrar sesion */}
           <button
@@ -417,31 +422,42 @@ const MainLayout = () => {
                 onClick={() => setUserMenuOpen(false)}
               />
               <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-md shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden">
-                <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
-                  <p className="text-sm font-semibold text-slate-800 dark:text-white truncate">
-                    {user?.fullName ?? 'Usuario'}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                    {user?.email}
-                  </p>
-                </div>
+                <NavLink
+                  to="/account"
+                  onClick={() => setUserMenuOpen(false)}
+                  className={({ isActive }) =>
+                    [
+                      'block px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 transition-colors rounded-t-md',
+                      isActive
+                        ? 'bg-emerald-50 dark:bg-emerald-900/25'
+                        : 'hover:bg-slate-50 dark:hover:bg-slate-800/80',
+                    ].join(' ')
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <p
+                        className={`text-sm font-semibold truncate ${
+                          isActive
+                            ? 'text-emerald-800 dark:text-emerald-200'
+                            : 'text-slate-800 dark:text-white'
+                        }`}
+                      >
+                        {user?.fullName ?? 'Usuario'}
+                      </p>
+                      <p
+                        className={`text-xs truncate mt-0.5 ${
+                          isActive
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-slate-500 dark:text-slate-400'
+                        }`}
+                      >
+                        {user?.email}
+                      </p>
+                    </>
+                  )}
+                </NavLink>
                 <div className="p-1.5">
-                  <NavLink
-                    to="/account"
-                    onClick={() => setUserMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md transition-colors ${
-                        isActive
-                          ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`
-                    }
-                  >
-                    <span className="text-slate-400">
-                      <IconMyAccount />
-                    </span>
-                    <span>Mi cuenta</span>
-                  </NavLink>
                   <button
                     onClick={toggleTheme}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

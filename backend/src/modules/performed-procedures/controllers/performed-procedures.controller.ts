@@ -3,7 +3,11 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
   UseGuards,
   Query,
   ParseUUIDPipe,
@@ -11,6 +15,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PerformedProceduresService } from '../services/performed-procedures.service';
 import { CreatePerformedProcedureDto } from '../dto/create-performed-procedure.dto';
+import { UpdatePerformedProcedureDto } from '../dto/update-performed-procedure.dto';
 import { FilterPerformedProcedureDto } from '../dto/filter-performed-procedure.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
@@ -41,5 +46,23 @@ export class PerformedProceduresController {
   @ApiOperation({ summary: 'Get performed procedure by ID' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.proceduresService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.RECEPTIONIST)
+  @ApiOperation({ summary: 'Update performed procedure' })
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDto: UpdatePerformedProcedureDto,
+  ) {
+    return this.proceduresService.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.RECEPTIONIST)
+  @ApiOperation({ summary: 'Delete performed procedure' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.proceduresService.remove(id);
   }
 }

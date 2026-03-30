@@ -3,6 +3,7 @@ import type { PaginatedResponse } from '../types';
 import type {
   PerformedProcedure,
   CreatePerformedProcedureDto,
+  UpdatePerformedProcedureDto,
   PerformedProcedureFilters,
 } from '../types';
 
@@ -15,6 +16,8 @@ export const performedProceduresApi = {
       doctorId: filters.doctorId,
       dateFrom: filters.dateFrom,
       dateTo: filters.dateTo,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
     } as Record<string, string | number | undefined>);
   },
 
@@ -24,5 +27,13 @@ export const performedProceduresApi = {
 
   create(data: CreatePerformedProcedureDto): Promise<PerformedProcedure> {
     return http.post<PerformedProcedure>('/performed-procedures', data);
+  },
+
+  update(id: string, data: UpdatePerformedProcedureDto): Promise<PerformedProcedure> {
+    return http.patch<PerformedProcedure>(`/performed-procedures/${id}`, data);
+  },
+
+  delete(id: string): Promise<void> {
+    return http.delete<void>(`/performed-procedures/${id}`);
   },
 };

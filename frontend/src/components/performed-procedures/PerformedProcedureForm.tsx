@@ -1,7 +1,7 @@
-import { useState, useCallback, useMemo, type FormEvent } from 'react';
+import { useState, useCallback, useMemo, useEffect, type FormEvent } from 'react';
 import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
-import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment } from '../../types';
+import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment, PerformedProcedure } from '../../types';
 import { useTreatmentPlansByPatient } from '../../querys/treatment-plans/queryTreatmentPlans';
 import { TreatmentPlanStatus } from '../../enums';
 
@@ -16,6 +16,9 @@ interface PerformedProcedureFormProps {
   doctors: Doctor[];
   treatments: Treatment[];
   loading?: boolean;
+  mode?: 'create' | 'edit';
+  /** En modo edición, valores iniciales (id usado para sincronizar estado) */
+  initialProcedure?: PerformedProcedure;
   onSubmit: (data: CreatePerformedProcedureDto) => void;
   onCancel?: () => void;
 }
@@ -36,6 +39,8 @@ const PerformedProcedureForm = ({
   doctors,
   treatments,
   loading = false,
+  mode = 'create',
+  initialProcedure,
   onSubmit,
   onCancel,
 }: PerformedProcedureFormProps) => {
@@ -53,6 +58,21 @@ const PerformedProcedureForm = ({
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [selectedItemId, setSelectedItemId] = useState('');
 
+  useEffect(() => {
+    if (mode !== 'edit' || !initialProcedure) return;
+    setPatientId(initialProcedure.patientId);
+    setDoctorId(initialProcedure.doctorId);
+    setTreatmentId(initialProcedure.treatmentId);
+    setTooth(initialProcedure.tooth ?? '');
+    setDescription(initialProcedure.description ?? '');
+    setNotes(initialProcedure.notes ?? '');
+    setPerformedAt(initialProcedure.performedAt.slice(0, 10));
+    setLinkToPlan(false);
+    setSelectedPlanId('');
+    setSelectedItemId('');
+    setErrors({});
+  }, [mode, initialProcedure?.id]);
+
   const { data: patientPlans = [] } = useTreatmentPlansByPatient(patientId);
 
   const patientOptions = useMemo(() => patients
@@ -61,9 +81,18 @@ const PerformedProcedureForm = ({
   const doctorOptions = useMemo(() => doctors
     .map((d) => ({ value: d.id, label: `Dr. ${d.firstName} ${d.lastName}` })), [doctors]);
 
-  const treatmentOptions = useMemo(() => treatments
-    .filter((t) => t.isActive)
-    .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` })), [treatments]);
+  const treatmentOptions = useMemo(() => {
+    const active = treatments
+      .filter((t) => t.isActive)
+      .map((t) => ({ value: t.id, label: `${t.name} — ${t.category}` }));
+    if (mode === 'edit' && initialProcedure) {
+      const cur = treatments.find((t) => t.id === initialProcedure.treatmentId);
+      if (cur && !cur.isActive && !active.some((o) => o.value === cur.id)) {
+        return [{ value: cur.id, label: `${cur.name} — ${cur.category} (inactivo)` }, ...active];
+      }
+    }
+    return active;
+  }, [treatments, mode, initialProcedure]);
 
   const planOptions = useMemo(() => patientPlans.map((plan) => ({
     value: plan.id,
@@ -115,7 +144,7 @@ const PerformedProcedureForm = ({
   }, [patientId, doctorId, treatmentId]);
 
   const handleSubmit = (_e: FormEvent) => {
-    onSubmit({
+    const payload: CreatePerformedProcedureDto = {
       patientId,
       doctorId,
       treatmentId,
@@ -123,8 +152,11 @@ const PerformedProcedureForm = ({
       description: description.trim() || undefined,
       notes: notes.trim() || undefined,
       performedAt: `${performedAt}T00:00:00.000Z`,
-      treatmentPlanItemId: linkToPlan && selectedItemId ? selectedItemId : undefined,
-    });
+    };
+    if (mode === 'create') {
+      payload.treatmentPlanItemId = linkToPlan && selectedItemId ? selectedItemId : undefined;
+    }
+    onSubmit(payload);
   };
 
   if (loading) {
@@ -179,8 +211,8 @@ const PerformedProcedureForm = ({
             />
           </div>
 
-          {/* Vinculación con plan — solo si el paciente tiene planes activos */}
-          {patientId && patientPlans.length > 0 && (
+          {/* Vinculación con plan — solo al crear */}
+          {mode === 'create' && patientId && patientPlans.length > 0 && (
             <div className="mt-5 pt-5 border-t border-slate-200 dark:border-slate-700">
               <label className="flex items-center gap-3 cursor-pointer select-none">
                 <input
@@ -252,10 +284,11 @@ const PerformedProcedureForm = ({
     <MultiStepForm
       steps={steps}
       onSubmit={handleSubmit}
-      submitLabel="Registrar"
+      submitLabel={mode === 'edit' ? 'Guardar cambios' : 'Registrar'}
       loading={loading}
       onCancel={onCancel}
       onStepChange={() => setErrors({})}
+      fillParent
     />
   );
 };

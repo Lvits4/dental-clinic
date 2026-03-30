@@ -46,7 +46,6 @@ const TreatmentPlanDetailView = React.lazy(() => import('./views/treatment-plans
 
 // ─── Performed Procedures ──────────────────────────────────────────────────────
 const PerformedProceduresListView = React.lazy(() => import('./views/performed-procedures/PerformedProceduresListView'));
-const PerformedProcedureCreateView = React.lazy(() => import('./views/performed-procedures/PerformedProcedureCreateView'));
 
 // ─── Clinical ──────────────────────────────────────────────────────────────────
 const ClinicalRecordView = React.lazy(() => import('./views/clinical-records/ClinicalRecordView'));
@@ -123,7 +122,7 @@ const App = () => {
 
             {/* Procedimientos realizados */}
             <Route path="/performed-procedures" element={<PerformedProceduresListView />} />
-            <Route path="/performed-procedures/new" element={<PerformedProcedureCreateView />} />
+            <Route path="/performed-procedures/new" element={<Navigate to="/performed-procedures" replace />} />
 
             {/* Usuarios (solo admin) */}
             <Route

@@ -28,6 +28,12 @@ export interface CreatePerformedProcedureDto {
   performedAt: string;
 }
 
+export type UpdatePerformedProcedureDto = Partial<CreatePerformedProcedureDto>;
+
+export type PerformedProcedureSortBy = 'performedAt' | 'patient' | 'doctor' | 'treatment' | 'tooth';
+
+export type PerformedProcedureSortOrder = 'asc' | 'desc';
+
 export interface PerformedProcedureFilters {
   page?: number;
   limit?: number;
@@ -35,4 +41,6 @@ export interface PerformedProcedureFilters {
   doctorId?: string;
   dateFrom?: string;
   dateTo?: string;
+  sortBy?: PerformedProcedureSortBy;
+  sortOrder?: PerformedProcedureSortOrder;
 }

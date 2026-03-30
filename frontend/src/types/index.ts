@@ -89,7 +89,10 @@ export { PLAN_STATUS_CONFIG, VALID_PLAN_STATUS_TRANSITIONS } from './treatment-p
 export type {
   PerformedProcedure,
   CreatePerformedProcedureDto,
+  UpdatePerformedProcedureDto,
   PerformedProcedureFilters,
+  PerformedProcedureSortBy,
+  PerformedProcedureSortOrder,
 } from './performed-procedure.types';
 
 export type {
