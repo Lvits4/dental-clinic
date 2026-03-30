@@ -1,0 +1,8 @@
+# Editor y herramientas locales
+.vscode/
+.zencoder/
+.zenflow/
+
+# Documentación y notas locales (no versionar)
+docs/
+CLAUDE.md
