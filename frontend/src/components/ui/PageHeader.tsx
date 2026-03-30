@@ -15,6 +15,8 @@ export interface PageHeaderProps {
   dense?: boolean;
   /** Solo migas de pan; sin bloque de titulo, subtitulo ni accion */
   hideTitle?: boolean;
+  /** Titulo mas discreto (menor tamano y peso) */
+  titleTone?: 'default' | 'subtle';
 }
 
 const ChevronRightIcon = () => (
@@ -30,9 +32,10 @@ const PageHeader = ({
   action,
   dense = false,
   hideTitle = false,
+  titleTone = 'default',
 }: PageHeaderProps) => {
-  const rootMb = hideTitle ? 'mb-0' : dense ? 'mb-2 sm:mb-3' : 'mb-6 sm:mb-8';
-  const navMb = hideTitle ? 'mb-1.5' : 'mb-3';
+  const rootMb = hideTitle ? 'mb-0' : dense ? 'mb-0' : 'mb-6 sm:mb-8';
+  const navMb = hideTitle ? 'mb-1.5' : dense ? 'mb-1' : 'mb-3';
   const showTitleBlock = !hideTitle && (title != null || subtitle || action);
 
   return (
@@ -82,12 +85,22 @@ const PageHeader = ({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               {title != null && title !== '' && (
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight tracking-tight truncate">
+                <h1
+                  className={
+                    titleTone === 'subtle'
+                      ? 'text-lg sm:text-xl font-medium text-slate-600 dark:text-slate-300 leading-snug truncate'
+                      : 'text-xl sm:text-2xl font-semibold text-slate-800 dark:text-white leading-tight tracking-tight truncate'
+                  }
+                >
                   {title}
                 </h1>
               )}
               {subtitle && (
-                <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                <p
+                  className={`text-sm text-slate-500 dark:text-slate-400 ${
+                    dense ? 'mt-1' : 'mt-1.5'
+                  }`}
+                >
                   {subtitle}
                 </p>
               )}

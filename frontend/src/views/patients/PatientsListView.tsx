@@ -73,10 +73,19 @@ const PatientsListView = () => {
   }, [location.state, location.pathname, navigate, canEditPatient]);
 
   return (
-    <div className="flex flex-col gap-4 flex-1 min-h-0">
+    <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
       <div className="shrink-0">
         <PageHeader
           dense
+          titleTone="subtle"
+          title="Pacientes"
+          subtitle={
+            !isLoading && data && !isError
+              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'paciente' : 'pacientes'} en total`
+              : !isError
+                ? 'Directorio de fichas de la clínica'
+                : undefined
+          }
           breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Pacientes' }]}
         />
       </div>
