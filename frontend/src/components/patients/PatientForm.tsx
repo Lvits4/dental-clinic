@@ -187,6 +187,7 @@ const PatientForm = ({
   const steps: Step[] = [
     {
       title: 'Datos Personales',
+      validate: validateStep1,
       content: (
         <FormSection title="Datos Personales" icon={<IconUser />} description="Información básica del paciente">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -225,6 +226,7 @@ const PatientForm = ({
     },
     {
       title: 'Contacto',
+      validate: validateStep2,
       content: (
         <FormSection title="Contacto" icon={<IconPhone />} description="Teléfono, correo y dirección">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

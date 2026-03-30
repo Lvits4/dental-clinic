@@ -119,10 +119,11 @@ const AppointmentForm = ({
     if (!patientId) stepErrors.patientId = 'Debe seleccionar un paciente';
     if (!doctorId) stepErrors.doctorId = 'Debe seleccionar un doctor';
     if (!date) stepErrors.dateTime = 'La fecha es obligatoria';
+    if (!time) stepErrors.dateTime = stepErrors.dateTime ?? 'La hora es obligatoria';
 
     setErrors((prev) => ({ ...prev, ...stepErrors }));
     return Object.keys(stepErrors).length === 0;
-  }, [patientId, doctorId, date]);
+  }, [patientId, doctorId, date, time]);
 
   const handleSubmit = (_e: FormEvent) => {
     const dateTime = date && time ? `${date}T${time}:00` : '';
@@ -148,6 +149,7 @@ const AppointmentForm = ({
   const steps: Step[] = [
     {
       title: 'Datos de la Cita',
+      validate: validateStep1,
       content: (
         <FormSection title="Información de la Cita" icon={<IconCalendar />} description="Paciente, doctor, fecha y duración">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -226,6 +228,7 @@ const AppointmentForm = ({
       beforeButtons={footerContent}
       onCancel={onCancel}
       onStepChange={() => setErrors({})}
+      stepBodyClassName="min-h-[min(22rem,48dvh)]"
     />
   );
 };

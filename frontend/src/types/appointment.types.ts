@@ -40,6 +40,17 @@ export interface RescheduleAppointmentDto {
   durationMinutes?: number;
 }
 
+export type AppointmentSortBy =
+  | 'dateTime'
+  | 'patientName'
+  | 'doctorName'
+  | 'reason'
+  | 'durationMinutes'
+  | 'status'
+  | 'createdAt';
+
+export type AppointmentSortOrder = 'asc' | 'desc';
+
 // Filtros
 export interface AppointmentFilters {
   page?: number;
@@ -49,6 +60,8 @@ export interface AppointmentFilters {
   status?: AppointmentStatus;
   dateFrom?: string;
   dateTo?: string;
+  sortBy?: AppointmentSortBy;
+  sortOrder?: AppointmentSortOrder;
 }
 
 // Errores del formulario
@@ -117,6 +130,12 @@ export const VALID_STATUS_TRANSITIONS: Record<AppointmentStatus, AppointmentStat
   [AppointmentStatus.CANCELLED]: [],
   [AppointmentStatus.NO_SHOW]: [],
 };
+
+/** true si la cita aún admite cambios de estado (p. ej. cancelar desde la lista o detalle). */
+export function appointmentAllowsStatusChange(status: AppointmentStatus): boolean {
+  const next = VALID_STATUS_TRANSITIONS[status] ?? [];
+  return next.length > 0;
+}
 
 // Opciones de duración
 export const DURATION_OPTIONS = [

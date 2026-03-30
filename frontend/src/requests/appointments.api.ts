@@ -19,6 +19,8 @@ export const appointmentsApi = {
       status: filters.status,
       dateFrom: filters.dateFrom,
       dateTo: filters.dateTo,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
     } as Record<string, string | number | undefined>);
   },
 

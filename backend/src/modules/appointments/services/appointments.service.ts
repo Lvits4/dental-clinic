@@ -4,14 +4,50 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Not, LessThan, MoreThan } from 'typeorm';
+import { Repository, Between, Not, LessThan, MoreThan, SelectQueryBuilder } from 'typeorm';
 import { Appointment } from '../entities/appointment.entity';
 import { CreateAppointmentDto } from '../dto/create-appointment.dto';
 import { UpdateAppointmentDto } from '../dto/update-appointment.dto';
-import { FilterAppointmentDto } from '../dto/filter-appointment.dto';
+import {
+  FilterAppointmentDto,
+  AppointmentSortBy,
+  AppointmentSortOrder,
+} from '../dto/filter-appointment.dto';
 import { RescheduleAppointmentDto } from '../dto/reschedule-appointment.dto';
 import { AppointmentStatus } from '../../../common/enums/appointment-status.enum';
 import { PaginatedResponseDto } from '../../../common/dto/paginated-response.dto';
+
+function applyAppointmentSort(
+  query: SelectQueryBuilder<Appointment>,
+  sortBy: AppointmentSortBy,
+  sortOrder: AppointmentSortOrder,
+): void {
+  const dir = sortOrder === AppointmentSortOrder.ASC ? 'ASC' : 'DESC';
+  switch (sortBy) {
+    case AppointmentSortBy.PATIENT_NAME:
+      query.orderBy('patient.lastName', dir).addOrderBy('patient.firstName', dir);
+      break;
+    case AppointmentSortBy.DOCTOR_NAME:
+      query.orderBy('doctor.lastName', dir).addOrderBy('doctor.firstName', dir);
+      break;
+    case AppointmentSortBy.REASON:
+      query.orderBy('appointment.reason', dir);
+      break;
+    case AppointmentSortBy.DURATION_MINUTES:
+      query.orderBy('appointment.durationMinutes', dir);
+      break;
+    case AppointmentSortBy.STATUS:
+      query.orderBy('appointment.status', dir);
+      break;
+    case AppointmentSortBy.CREATED_AT:
+      query.orderBy('appointment.createdAt', dir);
+      break;
+    case AppointmentSortBy.DATE_TIME:
+    default:
+      query.orderBy('appointment.dateTime', dir);
+      break;
+  }
+}
 
 @Injectable()
 export class AppointmentsService {
@@ -32,7 +68,17 @@ export class AppointmentsService {
   }
 
   async findAll(filterDto: FilterAppointmentDto): Promise<PaginatedResponseDto<Appointment>> {
-    const { page = 1, limit = 10, doctorId, patientId, status, dateFrom, dateTo } = filterDto;
+    const {
+      page = 1,
+      limit = 10,
+      doctorId,
+      patientId,
+      status,
+      dateFrom,
+      dateTo,
+      sortBy,
+      sortOrder,
+    } = filterDto;
     const query = this.appointmentRepository
       .createQueryBuilder('appointment')
       .leftJoinAndSelect('appointment.patient', 'patient')
@@ -54,7 +100,13 @@ export class AppointmentsService {
       query.andWhere('appointment.dateTime <= :dateTo', { dateTo });
     }
 
-    query.orderBy('appointment.dateTime', 'ASC');
+    const resolvedBy = sortBy ?? AppointmentSortBy.DATE_TIME;
+    const resolvedOrder =
+      sortOrder ??
+      (resolvedBy === AppointmentSortBy.CREATED_AT
+        ? AppointmentSortOrder.DESC
+        : AppointmentSortOrder.ASC);
+    applyAppointmentSort(query, resolvedBy, resolvedOrder);
     query.skip((page - 1) * limit).take(limit);
 
     const [data, totalItems] = await query.getManyAndCount();

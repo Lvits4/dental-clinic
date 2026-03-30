@@ -110,18 +110,6 @@ const IconLogout = () => (
   </svg>
 );
 
-const IconCollapse = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-  </svg>
-);
-
-const IconExpand = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-  </svg>
-);
-
 // ─── Definicion de navegacion ─────────────────────────────────────────────────
 
 interface NavItem {

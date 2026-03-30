@@ -1,21 +1,31 @@
 import { useState } from 'react';
-import { Table, Modal } from '../ui';
+import { useNavigate } from 'react-router-dom';
+import { Table, ConfirmDialog, Pagination } from '../ui';
 import type { Column } from '../ui';
 import AppointmentStatusBadge from './AppointmentStatusBadge';
-import type { Appointment } from '../../types';
-import { STATUS_CONFIG } from '../../types';
-import { AppointmentStatus } from '../../enums';
-import {
-  useUpdateStatus,
-  useUpdateAppointment,
-} from '../../querys/appointments/mutationAppointments';
-import { usePatientsList } from '../../querys/patients/queryPatients';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
-import AppointmentForm from './AppointmentForm';
+import AppointmentDetailModal from './AppointmentDetailModal';
+import AppointmentFormModal from './AppointmentFormModal';
+import type { Appointment, AppointmentSortBy, AppointmentSortOrder } from '../../types';
+import { appointmentAllowsStatusChange } from '../../types';
+import { useCancelAppointment } from '../../querys/appointments/mutationAppointments';
 
 interface AppointmentsTableProps {
   data: Appointment[];
   loading?: boolean;
+  fillHeight?: boolean;
+  pagination?: {
+    page: number;
+    totalPages: number;
+    total: number;
+    limit: number;
+    onPageChange: (page: number) => void;
+  };
+  /** Si se define, la edición la abre el padre (p. ej. lista con un solo modal) */
+  onEditRequest?: (appointment: Appointment) => void;
+  showEdit?: boolean;
+  sortColumn?: AppointmentSortBy | null;
+  sortDirection?: AppointmentSortOrder;
+  onSort?: (sortKey: string) => void;
 }
 
 function formatDateTime(dateStr: string): string {
@@ -29,245 +39,265 @@ function formatDateTime(dateStr: string): string {
   });
 }
 
-const STATUS_BUTTON_CLASSES: Record<AppointmentStatus, string> = {
-  [AppointmentStatus.SCHEDULED]:   'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
-  [AppointmentStatus.CONFIRMED]:   'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
-  [AppointmentStatus.IN_PROGRESS]: 'border-yellow-300 text-yellow-700 hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-400 dark:hover:bg-yellow-900/20',
-  [AppointmentStatus.ATTENDED]:    'border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700/40',
-  [AppointmentStatus.CANCELLED]:   'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20',
-  [AppointmentStatus.NO_SHOW]:     'border-orange-300 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900/20',
-};
+const TrashIcon = () => (
+  <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+    />
+  </svg>
+);
 
-const AppointmentsTable = ({ data, loading }: AppointmentsTableProps) => {
+const AppointmentsTable = ({
+  data,
+  loading,
+  fillHeight = false,
+  pagination,
+  onEditRequest,
+  showEdit = true,
+  sortColumn,
+  sortDirection = 'asc',
+  onSort,
+}: AppointmentsTableProps) => {
+  const navigate = useNavigate();
+  const cancelAppointment = useCancelAppointment();
   const [viewTarget, setViewTarget] = useState<Appointment | null>(null);
-  const [editTarget, setEditTarget] = useState<Appointment | null>(null);
+  const [internalEdit, setInternalEdit] = useState<Appointment | null>(null);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
 
-  const updateStatus      = useUpdateStatus();
-  const updateAppointment = useUpdateAppointment();
-  const { data: patientsData } = usePatientsList({ limit: 100 });
-  const { data: doctorsData }  = useDoctorsList();
-  const activePatients = (patientsData?.data ?? []).filter((p) => p.isActive);
-  const activeDoctors  = (doctorsData ?? []).filter((d) => d.isActive);
+  const openEdit = (a: Appointment) => {
+    if (onEditRequest) onEditRequest(a);
+    else setInternalEdit(a);
+  };
 
-  const allStatusesExceptCurrent = editTarget
-    ? Object.values(AppointmentStatus).filter((s) => s !== editTarget.status)
-    : [];
+  const editModalOpen = !onEditRequest && !!internalEdit;
+
+  const actionButtons = (a: Appointment) => (
+    <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        title="Ver cita"
+        onClick={() => setViewTarget(a)}
+        className="p-1.5 rounded-md text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 transition-colors"
+      >
+        <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+          />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+      {showEdit && (
+        <button
+          type="button"
+          title="Editar cita"
+          onClick={() => openEdit(a)}
+          className="p-1.5 rounded-md text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:text-amber-300 dark:hover:bg-amber-900/20 transition-colors"
+        >
+          <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+            />
+          </svg>
+        </button>
+      )}
+      {appointmentAllowsStatusChange(a.status) && (
+        <button
+          type="button"
+          title="Cancelar cita"
+          onClick={() => setAppointmentToCancel(a)}
+          className="p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
+        >
+          <TrashIcon />
+        </button>
+      )}
+    </div>
+  );
 
   const columns: Column<Appointment>[] = [
     {
       key: 'dateTime',
       header: 'Fecha / Hora',
+      sortKey: 'dateTime',
       render: (a) => (
-        <span className="font-medium text-slate-900 dark:text-white">
-          {formatDateTime(a.dateTime)}
-        </span>
+        <span className="font-medium text-slate-900 dark:text-white">{formatDateTime(a.dateTime)}</span>
       ),
     },
     {
       key: 'patient',
       header: 'Paciente',
-      render: (a) => a.patient ? `${a.patient.firstName} ${a.patient.lastName}` : '—',
+      sortKey: 'patientName',
+      className: 'max-w-[11rem] min-w-0',
+      render: (a) => {
+        const name = a.patient ? `${a.patient.firstName} ${a.patient.lastName}` : '—';
+        return (
+          <span className="font-medium text-slate-900 dark:text-white block truncate" title={name}>
+            {name}
+          </span>
+        );
+      },
     },
     {
       key: 'doctor',
       header: 'Doctor',
-      render: (a) => a.doctor ? `Dr. ${a.doctor.firstName} ${a.doctor.lastName}` : '—',
+      sortKey: 'doctorName',
+      render: (a) => (a.doctor ? `Dr. ${a.doctor.firstName} ${a.doctor.lastName}` : '—'),
       hideOnMobile: true,
     },
     {
       key: 'reason',
       header: 'Motivo',
-      render: (a) => a.reason || '—',
+      sortKey: 'reason',
+      className: 'max-w-[14rem] min-w-0',
+      render: (a) => (
+        <span className="block truncate" title={a.reason || undefined}>
+          {a.reason || '—'}
+        </span>
+      ),
       hideOnMobile: true,
     },
     {
       key: 'durationMinutes',
       header: 'Duración',
+      sortKey: 'durationMinutes',
       render: (a) => `${a.durationMinutes} min`,
       hideOnMobile: true,
     },
     {
       key: 'status',
       header: 'Estado',
+      sortKey: 'status',
       render: (a) => <AppointmentStatusBadge status={a.status} />,
     },
     {
       key: 'actions',
       header: 'Acciones',
-      className: 'text-right',
+      className: 'text-center w-[9.5rem]',
       hideOnMobile: true,
-      render: (a) => (
-        <div
-          className="flex items-center justify-end gap-1"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Ver */}
-          <button
-            title="Ver cita"
-            onClick={() => setViewTarget(a)}
-            className="p-2 rounded-md text-sky-500 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-150 cursor-pointer"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
-
-          {/* Editar */}
-          <button
-            title="Editar cita"
-            onClick={() => setEditTarget(a)}
-            className="p-2 rounded-md text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-          </button>
-        </div>
-      ),
+      render: (a) => actionButtons(a),
     },
   ];
 
+  const rootClass = fillHeight ? 'flex flex-col flex-1 min-h-0 min-w-0 gap-2' : 'flex flex-col gap-2';
+
+  const paginationProps = pagination
+    ? { embedded: true as const, compact: true as const, ...pagination }
+    : null;
+  const mobileWrap = fillHeight
+    ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-2'
+    : 'md:hidden space-y-2';
+
   return (
-    <>
-      <Table<Appointment>
-        columns={columns}
-        data={data}
-        keyExtractor={(a) => a.id}
-        loading={loading}
-        emptyMessage="No se encontraron citas"
-      />
-
-      {/* Modal ver cita (solo lectura) */}
-      <Modal
-        isOpen={!!viewTarget}
-        onClose={() => setViewTarget(null)}
-        title="Detalle de cita"
-        size="md"
-      >
-        {viewTarget && (
-          <div className="space-y-4 text-sm">
-            <DetailRow label="Fecha / Hora" value={formatDateTime(viewTarget.dateTime)} />
-            <DetailRow
-              label="Paciente"
-              value={viewTarget.patient
-                ? `${viewTarget.patient.firstName} ${viewTarget.patient.lastName}`
-                : '—'}
-            />
-            <DetailRow
-              label="Doctor"
-              value={viewTarget.doctor
-                ? `Dr. ${viewTarget.doctor.firstName} ${viewTarget.doctor.lastName}`
-                : '—'}
-            />
-            <DetailRow label="Duración" value={`${viewTarget.durationMinutes} min`} />
-            <DetailRow label="Motivo"   value={viewTarget.reason || '—'} />
-            <DetailRow label="Notas"    value={viewTarget.notes  || '—'} />
-            <div className="flex items-center gap-2 pt-1">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0">Estado</span>
-              <AppointmentStatusBadge status={viewTarget.status} />
-            </div>
-
-            {/* Acción editar */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+    <div className={rootClass}>
+      <div className={mobileWrap}>
+        {loading ? (
+          <div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">Cargando...</div>
+        ) : data.length === 0 ? (
+          <div className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">No se encontraron citas</div>
+        ) : (
+          data.map((a) => (
+            <div
+              key={a.id}
+              className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+            >
               <button
                 type="button"
-                onClick={() => {
-                  setEditTarget(viewTarget);
-                  setViewTarget(null);
-                }}
-                className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
+                onClick={() => navigate(`/appointments/${a.id}`)}
+                className="w-full text-left mb-3"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                Editar cita
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* Modal editar cita */}
-      <Modal
-        isOpen={!!editTarget}
-        onClose={() => setEditTarget(null)}
-        title="Editar cita"
-        size="lg"
-      >
-        {editTarget && (
-          <AppointmentForm
-            patients={activePatients}
-            doctors={activeDoctors}
-            initialValues={{
-              patientId:       editTarget.patientId,
-              doctorId:        editTarget.doctorId,
-              date:            editTarget.dateTime.slice(0, 10),
-              time:            editTarget.dateTime.slice(11, 16),
-              durationMinutes: editTarget.durationMinutes,
-              reason:          editTarget.reason,
-              notes:           editTarget.notes,
-            }}
-            onSubmit={(data) => {
-              updateAppointment.mutate(
-                { id: editTarget.id, data },
-                { onSettled: () => setEditTarget(null) },
-              );
-            }}
-            loading={updateAppointment.isPending}
-            submitLabel="Guardar cambios"
-            footerContent={
-              <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                    Estado actual
-                  </p>
-                  <AppointmentStatusBadge status={editTarget.status} />
-                </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                  Cambiar a:
+                <span className="font-medium text-slate-900 dark:text-white block">
+                  {formatDateTime(a.dateTime)}
+                </span>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  {a.patient ? `${a.patient.firstName} ${a.patient.lastName}` : '—'}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {allStatusesExceptCurrent.map((status) => (
-                    <button
-                      key={status}
-                      type="button"
-                      disabled={updateStatus.isPending}
-                      onClick={() =>
-                        updateStatus.mutate(
-                          { id: editTarget.id, status },
-                          {
-                            onSuccess: () => {
-                              setEditTarget((prev) => prev ? { ...prev, status } : null);
-                            },
-                          },
-                        )
-                      }
-                      className={[
-                        'px-3 py-1.5 rounded-md border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
-                        STATUS_BUTTON_CLASSES[status],
-                      ].join(' ')}
-                    >
-                      {STATUS_CONFIG[status]?.label ?? status}
-                    </button>
-                  ))}
+                {a.reason && (
+                  <p className="text-sm text-slate-400 dark:text-slate-500 truncate mt-0.5">{a.reason}</p>
+                )}
+                <div className="mt-2">
+                  <AppointmentStatusBadge status={a.status} />
                 </div>
+              </button>
+              <div className="flex justify-center pt-2 border-t border-slate-100 dark:border-slate-700">
+                {actionButtons(a)}
               </div>
-            }
-          />
+            </div>
+          ))
         )}
-      </Modal>
-    </>
+      </div>
+
+      {paginationProps && (
+        <div className="md:hidden shrink-0 rounded-md border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+          <Pagination {...paginationProps} />
+        </div>
+      )}
+
+      <div className={fillHeight ? 'hidden md:flex md:flex-1 md:min-h-0 md:flex-col min-w-0' : 'hidden md:block min-w-0'}>
+        <Table<Appointment>
+          columns={columns}
+          data={data}
+          keyExtractor={(a) => a.id}
+          onRowClick={(a) => navigate(`/appointments/${a.id}`)}
+          loading={loading}
+          emptyMessage="No se encontraron citas"
+          sortColumn={sortColumn ?? undefined}
+          sortDirection={sortDirection}
+          onSort={onSort}
+          fillHeight={fillHeight}
+          headerVariant="sentence"
+          surfaceRounding="compact"
+          footer={paginationProps ? <Pagination {...paginationProps} /> : undefined}
+        />
+      </div>
+
+      <AppointmentDetailModal
+        appointment={viewTarget}
+        isOpen={!!viewTarget}
+        onClose={() => setViewTarget(null)}
+        onRequestEdit={showEdit ? () => viewTarget && openEdit(viewTarget) : undefined}
+        showEditButton={showEdit}
+      />
+
+      {editModalOpen && internalEdit && (
+        <AppointmentFormModal
+          mode="edit"
+          isOpen
+          appointment={internalEdit}
+          onClose={() => setInternalEdit(null)}
+        />
+      )}
+
+      <ConfirmDialog
+        isOpen={!!appointmentToCancel}
+        onClose={() => setAppointmentToCancel(null)}
+        onConfirm={() => {
+          if (appointmentToCancel) {
+            cancelAppointment.mutate(appointmentToCancel.id, {
+              onSettled: () => setAppointmentToCancel(null),
+            });
+          }
+        }}
+        title="Cancelar cita"
+        message={
+          appointmentToCancel
+            ? `¿Cancelar la cita del ${formatDateTime(appointmentToCancel.dateTime)}${
+                appointmentToCancel.patient
+                  ? ` (${appointmentToCancel.patient.firstName} ${appointmentToCancel.patient.lastName})`
+                  : ''
+              }?`
+            : ''
+        }
+        confirmLabel="Cancelar cita"
+        variant="danger"
+        loading={cancelAppointment.isPending}
+      />
+    </div>
   );
 };
-
-const DetailRow = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-start gap-2">
-    <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0 pt-0.5">{label}</span>
-    <span className="text-slate-800 dark:text-slate-200 break-words">{value}</span>
-  </div>
-);
 
 export default AppointmentsTable;

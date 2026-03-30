@@ -11,6 +11,8 @@ export const usePatientsList = (filters: PatientFilters = {}) => {
     queryKey: ['patients', params],
     queryFn: () => patientsApi.getAll(params),
     staleTime: 1000 * 60 * 10, // 10 min — lookup data changes rarely
+    /** Evita skeleton al cambiar orden/página/filtros: se muestran datos previos hasta la respuesta. */
+    placeholderData: (previousData) => previousData,
   });
 };
 

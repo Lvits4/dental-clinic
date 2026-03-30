@@ -84,18 +84,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Focus visible ring (consistent across components) ── */
-
-*:focus-visible {
+/* Excluir botón de ordenar tabla: outline ancho+bajo se percibe como una raya; ese botón lleva su propio estilo. */
+*:focus-visible:not(.table-sort-header-btn) {
   outline: 2px solid #059669;
   outline-offset: 2px;
   border-radius: var(--radius-lg);
 }
 
-/* Botón de ordenación en thead: ocupa todo el ancho del th; el outline global se ve como una raya horizontal */
-.table-sort-header-btn:focus,
-.table-sort-header-btn:focus-visible {
-  outline: none;
-  outline-offset: 0;
+/* Refuerzo: sin sombra ni borde interno Firefox al pulsar */
+button.table-sort-header-btn:focus,
+button.table-sort-header-btn:focus-visible,
+button.table-sort-header-btn:active {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+button.table-sort-header-btn::-moz-focus-inner {
+  border: 0 !important;
 }
 
 /* ── Scrollbar styling ── */

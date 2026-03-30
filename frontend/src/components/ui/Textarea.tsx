@@ -40,7 +40,7 @@ const Textarea = ({
           'text-slate-900 dark:text-white',
           'placeholder-slate-400 dark:placeholder-slate-500',
           'px-3.5 py-2.5',
-          'focus:outline-none focus:ring-2 focus:ring-offset-0',
+          'focus:outline-none focus:ring-1 focus:ring-offset-0',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
           error
             ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'

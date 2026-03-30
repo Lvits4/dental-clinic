@@ -82,6 +82,7 @@ const ClinicalEvolutionForm = ({
   const steps: Step[] = [
     {
       title: 'General',
+      validate: validateStep1,
       content: (
         <FormSection title="Información General" icon={<IconInfo />} description="Doctor y fecha de la evolución">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -103,6 +104,7 @@ const ClinicalEvolutionForm = ({
     },
     {
       title: 'Evaluación',
+      validate: validateStep2,
       content: (
         <FormSection title="Evaluación Clínica" icon={<IconClipboard />} description="Hallazgos, diagnóstico y procedimiento">
           <div className="space-y-4">

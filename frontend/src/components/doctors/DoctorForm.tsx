@@ -94,6 +94,16 @@ const DoctorForm = ({
     return Object.keys(stepErrors).length === 0;
   }, [firstName, lastName, specialty, licenseNumber]);
 
+  const validateStep2 = useCallback(() => {
+    const stepErrors: DoctorFormErrors = {};
+    if (!phone.trim()) stepErrors.phone = 'El teléfono es obligatorio';
+    if (!email.trim()) stepErrors.email = 'El correo es obligatorio';
+    else if (!EMAIL_REGEX.test(email.trim())) stepErrors.email = 'Formato de correo inválido';
+
+    setErrors((prev) => ({ ...prev, ...stepErrors }));
+    return Object.keys(stepErrors).length === 0;
+  }, [phone, email]);
+
   const handleSubmit = (_e: FormEvent) => {
     const data: CreateDoctorDto = {
       firstName: firstName.trim(),
@@ -121,6 +131,7 @@ const DoctorForm = ({
   const steps: Step[] = [
     {
       title: 'Datos Personales',
+      validate: validateStep1,
       content: (
         <FormSection title="Datos Personales" icon={<IconUser />} description="Nombre, especialidad y licencia">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -159,6 +170,7 @@ const DoctorForm = ({
     },
     {
       title: 'Contacto',
+      validate: validateStep2,
       content: (
         <FormSection title="Contacto" icon={<IconPhone />} description="Teléfono y correo electrónico">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -47,7 +47,7 @@ const Input = ({
             'bg-white dark:bg-slate-800/50',
             'text-slate-900 dark:text-white',
             'placeholder-slate-400 dark:placeholder-slate-500',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'focus:outline-none focus:ring-1 focus:ring-offset-0',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
             leftIcon ? 'pl-10' : 'pl-3.5',
             rightIcon ? 'pr-10' : 'pr-3.5',

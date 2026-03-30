@@ -39,6 +39,8 @@ export interface MultiStepFormProps {
    * false: crece con flex-1 en un layout flex normal.
    */
   fillParent?: boolean;
+  /** Clases en el contenedor del paso actual (p. ej. min-height para que no cambie el tamaño al cambiar de paso). */
+  stepBodyClassName?: string;
 }
 
 const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(function MultiStepForm(
@@ -51,6 +53,7 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
     onCancel,
     onStepChange,
     fillParent = false,
+    stepBodyClassName = '',
   },
   ref,
 ) {
@@ -73,6 +76,8 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
   useImperativeHandle(ref, () => ({ goToStep }), [goToStep]);
 
   const goNext = () => {
+    const step = steps[current];
+    if (step.validate && !step.validate()) return;
     const next = Math.min(current + 1, steps.length - 1);
     setCurrent(next);
     onStepChangeRef.current?.(next);
@@ -168,7 +173,7 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-0.5">
         <div
           key={current}
-          className="animate-[fadeSlideIn_0.3s_ease-out] pb-1"
+          className={['animate-[fadeSlideIn_0.3s_ease-out] pb-1', stepBodyClassName].filter(Boolean).join(' ')}
         >
           {steps[current].content}
         </div>

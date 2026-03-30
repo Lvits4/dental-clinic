@@ -49,8 +49,16 @@ export type {
   RescheduleAppointmentDto,
   AppointmentFilters,
   AppointmentFormErrors,
+  AppointmentSortBy,
+  AppointmentSortOrder,
 } from './appointment.types';
-export { STATUS_CONFIG, STATUS_OPTIONS, DURATION_OPTIONS, VALID_STATUS_TRANSITIONS } from './appointment.types';
+export {
+  STATUS_CONFIG,
+  STATUS_OPTIONS,
+  DURATION_OPTIONS,
+  VALID_STATUS_TRANSITIONS,
+  appointmentAllowsStatusChange,
+} from './appointment.types';
 
 export type {
   Treatment,

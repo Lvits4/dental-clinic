@@ -21,7 +21,7 @@ export interface CreateDoctorDto {
 }
 
 // DTO para actualizar doctor
-export type UpdateDoctorDto = Partial<CreateDoctorDto>;
+export type UpdateDoctorDto = Partial<CreateDoctorDto> & { isActive?: boolean };
 
 // Filtros
 export interface DoctorFilters {

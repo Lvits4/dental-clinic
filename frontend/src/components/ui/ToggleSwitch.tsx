@@ -47,7 +47,7 @@ const ToggleSwitch = ({
         onClick={() => !disabled && onChange(!checked)}
         className={[
           s.track,
-          'relative inline-flex items-center rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-emerald-500/30',
+          'relative inline-flex items-center rounded-md transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-offset-0 focus:ring-emerald-500/30',
           checked
             ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
             : 'bg-slate-200 dark:bg-slate-700',

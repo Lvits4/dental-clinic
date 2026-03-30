@@ -7,7 +7,9 @@ import { AppointmentStatus } from '../../enums';
 import { STATUS_CONFIG } from '../../types';
 import { HttpError } from '../../helpers/http';
 
-export function useCreateAppointment() {
+type CreateAppointmentOptions = { skipNavigation?: boolean };
+
+export function useCreateAppointment(options?: CreateAppointmentOptions) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -16,7 +18,9 @@ export function useCreateAppointment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast.success('Cita creada exitosamente');
-      navigate('/appointments');
+      if (!options?.skipNavigation) {
+        navigate('/appointments');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {

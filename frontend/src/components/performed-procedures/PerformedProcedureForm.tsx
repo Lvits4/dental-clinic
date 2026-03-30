@@ -138,6 +138,7 @@ const PerformedProcedureForm = ({
   const steps: Step[] = [
     {
       title: 'Procedimiento',
+      validate: validateStep1,
       content: (
         <FormSection title="Datos del Procedimiento" icon={<IconProcedure />} description="Paciente, doctor, tratamiento y fecha">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

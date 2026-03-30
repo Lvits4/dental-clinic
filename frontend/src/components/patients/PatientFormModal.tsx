@@ -77,8 +77,7 @@ const PatientFormModal = ({ mode, patientId, isOpen, onClose }: PatientFormModal
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      size="xl"
-      fitContent
+      size="md"
       surfaceRounding="compact"
     >
       {mode === 'create' ? (

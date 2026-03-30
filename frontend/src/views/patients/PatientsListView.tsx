@@ -28,7 +28,7 @@ const PatientsListView = () => {
   const navigate = useNavigate();
   const limit = 10;
 
-  const { data, isLoading, isError, error, refetch } = usePatientsList({
+  const { data, isPending, isError, error, refetch } = usePatientsList({
     page,
     limit,
     name: search || undefined,
@@ -80,7 +80,7 @@ const PatientsListView = () => {
           titleTone="subtle"
           title="Pacientes"
           subtitle={
-            !isLoading && data && !isError
+            data && !isError
               ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'paciente' : 'pacientes'} en total`
               : !isError
                 ? 'Directorio de fichas de la clínica'
@@ -125,7 +125,7 @@ const PatientsListView = () => {
         ) : (
           <PatientsTable
             data={data?.data || []}
-            loading={isLoading}
+            loading={isPending && !data}
             onEditPatient={(p) => setModal({ mode: 'edit', id: p.id })}
             showEdit={canEditPatient}
             showDeactivate={canDeactivatePatient}

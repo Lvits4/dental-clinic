@@ -82,7 +82,12 @@ const PageHeader = ({
       {showTitleBlock && (
         <>
           {/* Titulo + accion */}
-          <div className="flex items-start justify-between gap-4">
+          <div
+            className={[
+              'flex justify-between gap-4',
+              dense && action ? 'items-center' : 'items-start',
+            ].join(' ')}
+          >
             <div className="min-w-0">
               {title != null && title !== '' && (
                 <h1

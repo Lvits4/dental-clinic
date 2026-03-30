@@ -44,7 +44,7 @@ const ClinicalRecordFormModal = ({
         isOpen={isOpen}
         onClose={onClose}
         title={title}
-        size="lg"
+        size="md"
         fitContent
         surfaceRounding="compact"
         panelClassName="min-h-[min(28rem,52dvh)] w-full md:min-h-[min(32rem,50dvh)]"
@@ -61,7 +61,7 @@ const ClinicalRecordFormModal = ({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      size="lg"
+      size="md"
       fitContent
       surfaceRounding="compact"
       panelClassName="min-h-[min(28rem,52dvh)] w-full md:min-h-[min(32rem,50dvh)]"

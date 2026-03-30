@@ -5,7 +5,7 @@ import AppointmentStatusBadge from '../../components/appointments/AppointmentSta
 import { useAppointmentDetail } from '../../querys/appointments/queryAppointments';
 import { useUpdateAppointmentStatus, useCancelAppointment } from '../../querys/appointments/mutationAppointments';
 import { AppointmentStatus } from '../../enums';
-import { STATUS_CONFIG, VALID_STATUS_TRANSITIONS } from '../../types';
+import { appointmentAllowsStatusChange, STATUS_CONFIG, VALID_STATUS_TRANSITIONS } from '../../types';
 
 function formatDateTime(dateStr: string): string {
   const date = new Date(dateStr);
@@ -52,9 +52,8 @@ const AppointmentDetailView = () => {
     });
   };
 
-  // Transiciones validas desde el estado actual
   const allowedTransitions = VALID_STATUS_TRANSITIONS[appointment.status as AppointmentStatus] ?? [];
-  const canChangeStatus = allowedTransitions.length > 0;
+  const canChangeStatus = appointmentAllowsStatusChange(appointment.status as AppointmentStatus);
 
   const nextStatuses = allowedTransitions.map((status) => ({
     value: status,
@@ -62,22 +61,33 @@ const AppointmentDetailView = () => {
   }));
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Detalle de Cita"
-        breadcrumb={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Citas', to: '/appointments' },
-          { label: 'Detalle' },
-        ]}
-        action={
-          canChangeStatus ? (
-            <Button variant="danger" onClick={() => setShowCancelDialog(true)}>
-              Cancelar Cita
-            </Button>
-          ) : undefined
-        }
-      />
+    <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
+      <div className="shrink-0">
+        <PageHeader
+          dense
+          titleTone="subtle"
+          title="Detalle de cita"
+          subtitle={formatDateTime(appointment.dateTime)}
+          breadcrumb={[
+            { label: 'Inicio', to: '/' },
+            { label: 'Citas', to: '/appointments' },
+            { label: 'Detalle' },
+          ]}
+          action={
+            canChangeStatus ? (
+              <Button
+                variant="danger"
+                className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+                onClick={() => setShowCancelDialog(true)}
+              >
+                Cancelar cita
+              </Button>
+            ) : undefined
+          }
+        />
+      </div>
+
+      <div className="flex-1 flex flex-col min-h-0 min-w-0 space-y-4">
 
       <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5">
         <div className="flex items-center justify-between mb-4">
@@ -153,9 +163,10 @@ const AppointmentDetailView = () => {
         onConfirm={handleCancel}
         title="Cancelar cita"
         message="¿Estás seguro de cancelar esta cita?"
-        confirmLabel="Cancelar Cita"
+        confirmLabel="Cancelar cita"
         loading={cancelMutation.isPending}
       />
+      </div>
     </div>
   );
 };

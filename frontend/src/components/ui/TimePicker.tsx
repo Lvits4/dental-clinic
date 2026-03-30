@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, type ChangeEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useOverlayAnchor } from './useOverlayAnchor';
 
 export interface TimePickerProps {
   label?: string;
@@ -29,6 +31,8 @@ function generateTimeSlots(): string[] {
 
 const TIME_SLOTS = generateTimeSlots();
 
+const TIME_LIST_EST_HEIGHT_PX = 280;
+
 const TimePicker = ({
   label,
   error,
@@ -43,25 +47,28 @@ const TimePicker = ({
   const r = 'rounded-md';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const portalListRef = useRef<HTMLUListElement>(null);
+  const anchorRect = useOverlayAnchor(buttonRef, open, 6, {
+    estimatedHeightPx: TIME_LIST_EST_HEIGHT_PX,
+  });
   const pickerId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
   const isPlaceholder = !value;
   const displayLabel = value || placeholder;
 
-  // Cerrar al hacer clic fuera
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const t = e.target as Node;
+      if (containerRef.current?.contains(t)) return;
+      if (portalListRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [open]);
 
-  // Cerrar con Escape
   useEffect(() => {
     if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -71,12 +78,11 @@ const TimePicker = ({
     return () => document.removeEventListener('keydown', handleKey);
   }, [open]);
 
-  // Hacer scroll hasta la opción seleccionada cuando se abre
   useEffect(() => {
-    if (!open || !value || !listRef.current) return;
+    if (!open || !value || !portalListRef.current) return;
+    const listEl = portalListRef.current;
     const selectedIndex = TIME_SLOTS.indexOf(value);
     if (selectedIndex === -1) return;
-    const listEl = listRef.current;
     const itemHeight = listEl.scrollHeight / TIME_SLOTS.length;
     listEl.scrollTop = Math.max(0, selectedIndex * itemHeight - itemHeight * 2);
   }, [open, value]);
@@ -104,8 +110,8 @@ const TimePicker = ({
       )}
 
       <div className="relative">
-        {/* Trigger */}
         <button
+          ref={buttonRef}
           type="button"
           id={pickerId}
           disabled={disabled}
@@ -114,7 +120,7 @@ const TimePicker = ({
             `w-full ${r} border text-sm transition-all duration-200 text-left`,
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'focus:outline-none focus:ring-1 focus:ring-offset-0',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
             isPlaceholder
               ? 'text-slate-400 dark:text-slate-500'
@@ -122,7 +128,7 @@ const TimePicker = ({
             error
               ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
               : open
-                ? 'border-emerald-500 ring-2 ring-emerald-500/30'
+                ? 'border-emerald-500 ring-1 ring-emerald-500/30'
                 : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
             className,
           ]
@@ -133,20 +139,31 @@ const TimePicker = ({
         >
           <span className="block truncate">{displayLabel}</span>
 
-          {/* Ícono de reloj */}
           <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </span>
         </button>
+      </div>
 
-        {/* Dropdown panel */}
-        {open && (
+      {open &&
+        anchorRect &&
+        createPortal(
           <ul
-            ref={listRef}
+            ref={portalListRef}
             role="listbox"
-            className={`absolute z-50 mt-1.5 w-full max-h-[280px] overflow-y-auto ${r} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none`}
+            style={{
+              position: 'fixed',
+              top: anchorRect.top,
+              left: anchorRect.left,
+              width: anchorRect.width,
+              maxHeight: anchorRect.maxHeight ?? TIME_LIST_EST_HEIGHT_PX,
+              zIndex: 200,
+            }}
+            className={[
+              `overflow-y-auto ${r} bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none`,
+            ].join(' ')}
           >
             {TIME_SLOTS.map((slot) => {
               const isSelected = slot === value;
@@ -172,9 +189,9 @@ const TimePicker = ({
                 </li>
               );
             })}
-          </ul>
+          </ul>,
+          document.body,
         )}
-      </div>
 
       {error && (
         <p role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">

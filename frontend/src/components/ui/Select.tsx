@@ -41,8 +41,11 @@ const Select = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const portalListRef = useRef<HTMLUListElement>(null);
-  /* Sin voltear: siempre debajo del campo (el calendario sí usa flip en DatePicker). */
-  const anchorRect = useOverlayAnchor(buttonRef, open, 6);
+  /** ~max-h-60 (15rem): si no cabe abajo en el viewport, el hook abre el listado hacia arriba. */
+  const LIST_EST_HEIGHT_PX = 240;
+  const anchorRect = useOverlayAnchor(buttonRef, open, 6, {
+    estimatedHeightPx: LIST_EST_HEIGHT_PX,
+  });
   const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
   // Encontrar la opcion seleccionada
@@ -112,7 +115,7 @@ const Select = ({
             radiusClass,
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'focus:outline-none focus:ring-1 focus:ring-offset-0',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
             isPlaceholder
               ? 'text-slate-400 dark:text-slate-500'
@@ -120,7 +123,7 @@ const Select = ({
             error
               ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
               : open
-                ? 'border-emerald-500 ring-2 ring-emerald-500/30'
+                ? 'border-emerald-500 ring-1 ring-emerald-500/30'
                 : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
             className,
           ]
@@ -157,10 +160,11 @@ const Select = ({
               top: anchorRect.top,
               left: anchorRect.left,
               width: anchorRect.width,
-              zIndex: 100,
+              maxHeight: anchorRect.maxHeight ?? LIST_EST_HEIGHT_PX,
+              zIndex: 200,
             }}
             className={[
-              'max-h-60 overflow-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none',
+              'overflow-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none',
               radiusClass,
             ].join(' ')}
           >

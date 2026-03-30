@@ -69,7 +69,7 @@ const SearchInput = ({
           'border-slate-200 dark:border-slate-700',
           'placeholder-slate-400 dark:placeholder-slate-500',
           'hover:border-slate-300 dark:hover:border-slate-600',
-          'focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500',
+          'focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500',
         ].join(' ')}
       />
 

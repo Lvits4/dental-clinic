@@ -1,11 +1,17 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { PageHeader, Button, Select, DatePicker, Pagination } from '../../components/ui';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Button, PageHeader } from '../../components/ui';
+import { HttpError } from '../../helpers/http';
 import AppointmentsTable from '../../components/appointments/AppointmentsTable';
+import AppointmentFilters from '../../components/appointments/AppointmentFilters';
+import AppointmentFormModal from '../../components/appointments/AppointmentFormModal';
 import { useAppointmentsList } from '../../querys/appointments/queryAppointments';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import { AppointmentStatus } from '../../enums';
-import { STATUS_OPTIONS } from '../../types';
+import type { AppointmentModalLocationState } from './AppointmentRouteRedirects';
+import type { Appointment, AppointmentSortBy, AppointmentSortOrder } from '../../types';
+
+type ListFormModal = null | { mode: 'create' } | { mode: 'edit'; appointment: Appointment };
 
 const AppointmentsListView = () => {
   const [page, setPage] = useState(1);
@@ -14,15 +20,22 @@ const AppointmentsListView = () => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<AppointmentSortBy>('dateTime');
+  const [sortOrder, setSortOrder] = useState<AppointmentSortOrder>('asc');
+  const [formModal, setFormModal] = useState<ListFormModal>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
   const limit = 10;
 
-  const { data, isLoading } = useAppointmentsList({
+  const { data, isPending, isError, error, refetch } = useAppointmentsList({
     page,
     limit,
     status: (status || undefined) as AppointmentStatus | undefined,
     doctorId: doctorId || undefined,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
+    sortBy,
+    sortOrder,
   });
 
   const { data: doctors } = useDoctorsList();
@@ -42,105 +55,155 @@ const AppointmentsListView = () => {
     setPage(1);
   };
 
+  const handleSort = (sortKey: string) => {
+    const k = sortKey as AppointmentSortBy;
+    if (sortBy === k) {
+      setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(k);
+      setSortOrder(k === 'createdAt' ? 'desc' : 'asc');
+    }
+    setPage(1);
+  };
+
+  const listErrorMessage =
+    error instanceof HttpError
+      ? typeof error.details === 'string'
+        ? error.details
+        : Array.isArray(error.details)
+          ? error.details.join(', ')
+          : error.message
+      : error instanceof Error
+        ? error.message
+        : 'No se pudo cargar la lista de citas.';
+
+  useEffect(() => {
+    const st = location.state as AppointmentModalLocationState | null;
+    if (st?.openAppointmentModal !== 'create') return;
+    navigate(location.pathname, { replace: true, state: {} });
+    setFormModal({ mode: 'create' });
+  }, [location.state, location.pathname, navigate]);
+
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Citas"
-        breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Citas' }]}
-        action={
-          <div className="flex items-center gap-2">
-            <Link to="/appointments/agenda">
-              <Button variant="secondary">
-                <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Agenda
-              </Button>
-            </Link>
-            <Link to="/appointments/new">
-              <Button>
-                <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
+      <div className="shrink-0">
+        <PageHeader
+          dense
+          titleTone="subtle"
+          title="Citas"
+          subtitle={
+            data && !isError
+              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'cita' : 'citas'} en total`
+              : !isError
+                ? 'Agenda y seguimiento de citas'
+                : undefined
+          }
+          breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Citas' }]}
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Link to="/appointments/agenda">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+                >
+                  <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Agenda
+                </Button>
+              </Link>
+              <Button
+                type="button"
+                className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+                onClick={() => setFormModal({ mode: 'create' })}
+              >
+                <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Nueva Cita
+                Nueva cita
               </Button>
-            </Link>
-          </div>
-        }
-      />
-
-      {/* Filtros — colapsables en mobile */}
-      <div>
-        <button
-          className="sm:hidden w-full flex items-center justify-between px-4 py-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800"
-          onClick={() => setFiltersOpen((v) => !v)}
-        >
-          <span className="flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
-            </svg>
-            Filtros
-            {hasFilters && <span className="ml-1 px-1.5 py-0.5 text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-md">activos</span>}
-          </span>
-          <svg
-            className={`w-4 h-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        {/* Panel de filtros — siempre visible en sm+, condicional en mobile */}
-        <div className={`${filtersOpen ? 'block' : 'hidden'} sm:block mt-2 sm:mt-0`}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Select
-              options={STATUS_OPTIONS}
-              value={status}
-              onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-              placeholder="Todos los estados"
-            />
-            <Select
-              options={doctorOptions}
-              value={doctorId}
-              onChange={(e) => { setDoctorId(e.target.value); setPage(1); }}
-              placeholder="Todos los doctores"
-            />
-            <DatePicker
-              value={dateFrom}
-              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-              placeholder="Desde"
-            />
-            <DatePicker
-              value={dateTo}
-              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-              placeholder="Hasta"
-            />
-          </div>
-        </div>
+            </div>
+          }
+        />
       </div>
 
-      {hasFilters && (
-        <button
-          onClick={resetFilters}
-          className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
-        >
-          Limpiar filtros
-        </button>
-      )}
-
-      <AppointmentsTable data={data?.data || []} loading={isLoading} />
-
-      {data && (
-        <Pagination
-          page={data.meta.page}
-          totalPages={data.meta.totalPages}
-          total={data.meta.totalItems}
-          limit={data.meta.limit}
-          onPageChange={setPage}
+      <div className="shrink-0">
+        <AppointmentFilters
+          status={status}
+          doctorId={doctorId}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          doctorOptions={doctorOptions}
+          filtersOpen={filtersOpen}
+          onFiltersOpenChange={setFiltersOpen}
+          onStatusChange={(v) => {
+            setStatus(v);
+            setPage(1);
+          }}
+          onDoctorChange={(v) => {
+            setDoctorId(v);
+            setPage(1);
+          }}
+          onDateFromChange={(v) => {
+            setDateFrom(v);
+            setPage(1);
+          }}
+          onDateToChange={(v) => {
+            setDateTo(v);
+            setPage(1);
+          }}
+          hasFilters={hasFilters}
+          onResetFilters={resetFilters}
         />
-      )}
+      </div>
+
+      <div className="flex-1 flex flex-col min-h-0 min-w-0">
+        {isError ? (
+          <div
+            role="alert"
+            className="flex flex-col items-center justify-center gap-4 rounded-md border border-red-200 bg-red-50/90 px-6 py-12 text-center dark:border-red-900/50 dark:bg-red-950/30"
+          >
+            <p className="text-sm text-red-800 dark:text-red-200 max-w-md">{listErrorMessage}</p>
+            <Button type="button" onClick={() => refetch()}>
+              Reintentar
+            </Button>
+          </div>
+        ) : (
+          <AppointmentsTable
+            data={data?.data || []}
+            loading={isPending && !data}
+            fillHeight
+            onEditRequest={(a) => setFormModal({ mode: 'edit', appointment: a })}
+            sortColumn={sortBy}
+            sortDirection={sortOrder}
+            onSort={handleSort}
+            pagination={
+              data && !isError
+                ? {
+                    page: data.meta.page,
+                    totalPages: data.meta.totalPages,
+                    total: data.meta.totalItems,
+                    limit: data.meta.limit,
+                    onPageChange: setPage,
+                  }
+                : undefined
+            }
+          />
+        )}
+      </div>
+
+      <AppointmentFormModal
+        mode={formModal?.mode === 'edit' ? 'edit' : 'create'}
+        isOpen={formModal !== null}
+        onClose={() => setFormModal(null)}
+        appointment={formModal?.mode === 'edit' ? formModal.appointment : undefined}
+      />
     </div>
   );
 };

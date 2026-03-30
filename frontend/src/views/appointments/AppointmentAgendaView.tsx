@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import type { AppointmentModalLocationState } from './AppointmentRouteRedirects';
 import { PageHeader, Button, Select, Spinner } from '../../components/ui';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
 import { useAppointmentsAgenda } from '../../querys/appointments/queryAppointments';
@@ -78,25 +79,35 @@ const AppointmentAgendaView = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Agenda"
-        breadcrumb={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Citas', to: '/appointments' },
-          { label: 'Agenda' },
-        ]}
-        action={
-          <Link to="/appointments/new">
-            <Button>
-              <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nueva Cita
-            </Button>
-          </Link>
-        }
-      />
+    <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
+      <div className="shrink-0">
+        <PageHeader
+          dense
+          titleTone="subtle"
+          title="Agenda"
+          subtitle="Vista semanal de citas"
+          breadcrumb={[
+            { label: 'Inicio', to: '/' },
+            { label: 'Citas', to: '/appointments' },
+            { label: 'Agenda' },
+          ]}
+          action={
+            <Link
+              to="/appointments"
+              state={{ openAppointmentModal: 'create' } satisfies AppointmentModalLocationState}
+            >
+              <Button className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md">
+                <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nueva cita
+              </Button>
+            </Link>
+          }
+        />
+      </div>
+
+      <div className="flex-1 flex flex-col min-h-0 min-w-0 space-y-4">
 
       {/* Controles de navegación */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -233,6 +244,7 @@ const AppointmentAgendaView = () => {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 };

@@ -195,14 +195,14 @@ const Table = <T,>({
               flexJustifyClass(align),
               'appearance-none bg-transparent border-0 shadow-none ring-0 ring-offset-0',
               'outline-none focus:outline-none focus-visible:outline-none',
+              /* Sin ring-inset (en celdas anchas parece una raya horizontal). Fondo suave solo con teclado. */
+              'focus-visible:shadow-none focus-visible:bg-slate-200/55 dark:focus-visible:bg-slate-600/35',
               'active:bg-transparent hover:bg-transparent',
               '[-webkit-tap-highlight-color:transparent]',
             ].join(' ')}
             aria-sort={ariaSort}
-            onMouseDown={(e) => {
-              if (e.button === 0) e.preventDefault();
-            }}
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onSort(col.sortKey!);
             }}

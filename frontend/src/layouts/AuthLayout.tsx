@@ -2,7 +2,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import logoHorizontal from '../assets/logo-horizontal.png';
 import logoIcon from '../assets/logo-icon.png';
-import logoSquare from '../assets/logo-square.png';
 
 const SunIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -23,13 +22,6 @@ const MoonIcon = () => (
       strokeWidth={1.75}
       d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
     />
-  </svg>
-);
-
-/* Icono de muela estilizado */
-const ToothIcon = () => (
-  <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C9.243 2 7 4.243 7 7c0 1.642.8 3.093 2.024 4H7.5C5.015 11 3 13.015 3 15.5c0 2.063 1.398 3.794 3.293 4.333C6.577 20.416 7 21 7.5 21h9c.5 0 .923-.584 1.207-1.167C19.602 19.294 21 17.563 21 15.5c0-2.485-2.015-4.5-4.5-4.5h-1.524C16.2 10.093 17 8.642 17 7c0-2.757-2.243-5-5-5z" />
   </svg>
 );
 
