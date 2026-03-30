@@ -3,7 +3,9 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import ErrorBoundary from '../components/ui/ErrorBoundary';
-import logoIcon from '../assets/logo-icon.png';
+import logoSidebar from '../assets/logo-sidebar.png';
+
+const LOGO_COLAPSADO_URL = `${import.meta.env.BASE_URL}logo-colapsado.png`;
 import { Role } from '../enums';
 
 // ─── Iconos SVG inline ────────────────────────────────────────────────────────
@@ -78,6 +80,13 @@ const IconClose = () => (
   </svg>
 );
 
+/** Doble flecha hacia la derecha: espejo del icono de colapsar (sidebar abierto) */
+const IconChevronsExpand = () => (
+  <svg className="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M6 5l7 7-7 7" />
+  </svg>
+);
+
 const IconSun = () => (
   <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
@@ -120,30 +129,29 @@ interface NavItem {
   roles?: Role[];
 }
 
-const primaryNavItems: NavItem[] = [
+/** Orden por prioridad de gestion: resumen -> agenda -> pacientes -> clinica -> planificacion -> registro -> equipo -> sistema */
+const sidebarNavItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: <IconDashboard />, end: true },
-  { to: '/patients', label: 'Pacientes', icon: <IconPatients /> },
   { to: '/appointments', label: 'Citas', icon: <IconAppointments /> },
+  { to: '/patients', label: 'Pacientes', icon: <IconPatients /> },
   { to: '/treatments', label: 'Tratamientos', icon: <IconTreatments /> },
-];
-
-const secondaryNavItems: NavItem[] = [
-  { to: '/doctors', label: 'Doctores', icon: <IconDoctors />, roles: [Role.ADMIN] },
   { to: '/treatment-plans', label: 'Planes', icon: <IconPlans />, roles: [Role.ADMIN, Role.DOCTOR] },
   { to: '/performed-procedures', label: 'Procedimientos', icon: <IconProcedures />, roles: [Role.ADMIN, Role.DOCTOR] },
+  { to: '/doctors', label: 'Doctores', icon: <IconDoctors />, roles: [Role.ADMIN] },
+  { to: '/users', label: 'Usuarios', icon: <IconUsers />, roles: [Role.ADMIN] },
 ];
 
 const filterByRole = (items: NavItem[], role: string | undefined) =>
   items.filter(item => !item.roles || (role && item.roles.includes(role as Role)));
 
-const adminNavItems: NavItem[] = [
-  { to: '/users', label: 'Usuarios', icon: <IconUsers /> },
-];
+/** Primeros cuatro del orden anterior: barra inferior movil + resto en drawer "Mas" */
+const mobileBottomNavItems = sidebarNavItems.slice(0, 4);
 
 // ─── Sidebar widths ───────────────────────────────────────────────────────────
 
-const SIDEBAR_EXPANDED = 260;
-const SIDEBAR_COLLAPSED = 76;
+const SIDEBAR_EXPANDED = 228;
+/** Ancho colapsado: logo + boton expandir en cabecera */
+const SIDEBAR_COLLAPSED = 80;
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
@@ -162,11 +170,11 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
         'relative flex items-center font-medium transition-all duration-200 group cursor-pointer',
         collapsed
           ? isActive
-            ? 'mx-auto size-10 shrink-0 justify-center rounded-md p-0'
-            : 'justify-center rounded-md px-0 py-2.5'
+            ? 'mx-auto size-10 shrink-0 justify-center rounded-full p-0'
+            : 'justify-center rounded-md px-0 py-1.5'
           : isActive
-            ? 'gap-3 rounded-md px-3 py-2.5'
-            : 'gap-3 rounded-md px-3 py-2.5',
+            ? 'gap-3 rounded-md px-3 py-2'
+            : 'gap-3 rounded-md px-3 py-2',
         isActive
           ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
@@ -177,7 +185,7 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
       <>
         {/* Franja activa solo con sidebar expandido */}
         {isActive && !collapsed && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-md bg-emerald-500 dark:bg-emerald-400" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-md bg-emerald-500 dark:bg-emerald-400" />
         )}
         <span className={`transition-colors duration-200 ${
           isActive
@@ -210,8 +218,10 @@ const MainLayout = () => {
     navigate('/login');
   };
 
-  const isAdmin = user?.role === Role.ADMIN;
-  const visibleSecondaryItems = filterByRole(secondaryNavItems, user?.role);
+  const visibleNavItems = filterByRole(sidebarNavItems, user?.role);
+  const mobileMoreNavItems = visibleNavItems.filter(
+    (item) => !mobileBottomNavItems.some((m) => m.to === item.to),
+  );
   const userInitial = user?.fullName?.charAt(0)?.toUpperCase() ?? 'U';
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
 
@@ -223,32 +233,43 @@ const MainLayout = () => {
         className="hidden md:flex flex-col fixed inset-y-0 left-0 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 z-30 transition-all duration-300"
         style={{ width: sidebarWidth }}
       >
-        {/* Logo + toggle colapsar */}
-        <div className={`flex items-center h-[72px] border-b border-slate-100 dark:border-slate-800/80 shrink-0 ${collapsed ? 'justify-center px-2' : 'justify-between px-5'}`}>
+        {/* Logo + toggle colapsar / expandir */}
+        <div
+          className={`border-b border-slate-100 dark:border-slate-800/80 shrink-0 ${
+            collapsed
+              ? 'flex flex-col items-center justify-center gap-1 px-2 py-2 min-h-[72px]'
+              : 'flex h-[72px] items-center justify-between px-5'
+          }`}
+        >
           {collapsed ? (
-            /* Cuando esta colapsado: icono clickeable para expandir */
-            <button
-              onClick={() => setCollapsed(false)}
-              title="Expandir menu"
-              className="w-10 h-10 rounded-md overflow-hidden shrink-0 cursor-pointer hover:opacity-90 transition-opacity duration-200"
-            >
-              <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setCollapsed(false)}
+                title="Expandir menu"
+                className="size-9 shrink-0 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity duration-200 flex items-center justify-center"
+              >
+                <img src={LOGO_COLAPSADO_URL} alt="SmileCare" className="w-full h-full object-contain" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setCollapsed(false)}
+                aria-label="Expandir menu"
+                title="Expandir menu"
+                className="shrink-0 p-1.5 rounded-md text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-200 cursor-pointer"
+              >
+                <IconChevronsExpand />
+              </button>
+            </>
           ) : (
             /* Cuando esta expandido: logo + boton colapsar */
             <>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md overflow-hidden shrink-0">
-                  <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
-                    SmileCare
-                  </span>
-                  <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-0.5">
-                    Gestion Clinica
-                  </p>
-                </div>
+              <div className="flex items-center min-w-0 flex-1 mr-2">
+                <img
+                  src={logoSidebar}
+                  alt="SmileCare"
+                  className="h-9 w-auto max-w-[200px] object-contain object-left shrink-0"
+                />
               </div>
               <button
                 onClick={() => setCollapsed(true)}
@@ -264,53 +285,20 @@ const MainLayout = () => {
         </div>
 
         {/* Navegacion */}
-        <nav className={`flex-1 overflow-y-auto py-5 space-y-1 ${collapsed ? 'px-2' : 'px-3'}`}>
-          {!collapsed && (
-            <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
-              Menu principal
-            </p>
-          )}
-          {primaryNavItems.map((item) => (
+        <nav className={`flex-1 overflow-y-auto py-4 space-y-0 ${collapsed ? 'px-2' : 'px-3'}`}>
+          {visibleNavItems.map((item) => (
             <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
           ))}
-
-          {visibleSecondaryItems.length > 0 && (
-            <>
-              <div className={`my-4 border-t border-slate-100 dark:border-slate-800/80 ${collapsed ? 'mx-2' : 'mx-3'}`} />
-              {!collapsed && (
-                <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
-                  Administracion
-                </p>
-              )}
-              {visibleSecondaryItems.map((item) => (
-                <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
-              ))}
-            </>
-          )}
-
-          {isAdmin && (
-            <>
-              <div className={`my-4 border-t border-slate-100 dark:border-slate-800/80 ${collapsed ? 'mx-2' : 'mx-3'}`} />
-              {!collapsed && (
-                <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-600 uppercase tracking-[0.08em]">
-                  Sistema
-                </p>
-              )}
-              {adminNavItems.map((item) => (
-                <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
-              ))}
-            </>
-          )}
         </nav>
 
         {/* Footer del sidebar */}
-        <div className={`py-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1 ${collapsed ? 'px-2' : 'px-3'}`}>
+        <div className={`py-2.5 border-t border-slate-100 dark:border-slate-800/80 space-y-0 ${collapsed ? 'px-2' : 'px-3'}`}>
           {/* Toggle tema */}
           <button
             onClick={toggleTheme}
             title={collapsed ? (isDark ? 'Modo claro' : 'Modo oscuro') : undefined}
             className={`w-full flex items-center rounded-md text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200 cursor-pointer ${
-              collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
+              collapsed ? 'justify-center py-2 px-0' : 'gap-3 px-3 py-2'
             }`}
           >
             <span className="text-slate-400 dark:text-slate-500">
@@ -325,10 +313,12 @@ const MainLayout = () => {
             title={collapsed ? (user?.fullName ?? 'Mi cuenta') : undefined}
             className={({ isActive }) =>
               [
-                'w-full rounded-md text-sm font-medium transition-all duration-200 cursor-pointer no-underline outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
+                'text-sm font-medium transition-all duration-200 cursor-pointer no-underline outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
                 collapsed
-                  ? 'flex justify-center py-2'
-                  : 'flex items-center gap-3 px-3 py-3 border',
+                  ? isActive
+                    ? 'flex size-10 shrink-0 justify-center items-center rounded-full bg-emerald-50 dark:bg-emerald-900/25 shadow-sm mx-auto'
+                    : 'flex w-full justify-center py-1.5 rounded-md'
+                  : 'w-full flex items-center gap-2 px-2 py-2 border rounded-md',
                 isActive
                   ? collapsed
                     ? ''
@@ -342,20 +332,20 @@ const MainLayout = () => {
             {({ isActive }) =>
               collapsed ? (
                 <div
-                  className={`w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm ${
-                    isActive ? 'ring-2 ring-emerald-400/80 ring-offset-2 ring-offset-white dark:ring-offset-slate-900' : ''
+                  className={`w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-semibold shrink-0 shadow-sm ${
+                    isActive ? 'ring-2 ring-emerald-400/80 ring-offset-2 ring-offset-emerald-50 dark:ring-offset-emerald-900/25' : ''
                   }`}
                 >
                   {userInitial}
                 </div>
               ) : (
                 <>
-                  <div className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-sm">
+                  <div className="w-8 h-8 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-semibold shrink-0 shadow-sm">
                     {userInitial}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 leading-tight">
                     <p
-                      className={`text-sm font-semibold truncate tracking-tight ${
+                      className={`text-xs font-semibold truncate tracking-tight ${
                         isActive
                           ? 'text-emerald-800 dark:text-emerald-200'
                           : 'text-slate-800 dark:text-white'
@@ -364,7 +354,7 @@ const MainLayout = () => {
                       {user?.fullName ?? 'Usuario'}
                     </p>
                     <p
-                      className={`text-xs truncate ${
+                      className={`text-[11px] truncate mt-0.5 ${
                         isActive
                           ? 'text-emerald-600 dark:text-emerald-400'
                           : 'text-slate-500 dark:text-slate-400'
@@ -383,7 +373,7 @@ const MainLayout = () => {
             onClick={handleLogout}
             title={collapsed ? 'Cerrar sesion' : undefined}
             className={`w-full flex items-center rounded-md text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/15 transition-all duration-200 cursor-pointer ${
-              collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5'
+              collapsed ? 'justify-center py-2 px-0' : 'gap-3 px-3 py-2'
             }`}
           >
             <IconLogout />
@@ -397,8 +387,8 @@ const MainLayout = () => {
       <header className="md:hidden sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-b border-slate-200/60 dark:border-slate-800/60">
         {/* Logo */}
         <NavLink to="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-md overflow-hidden">
-            <img src={logoIcon} alt="SmileCare" className="w-full h-full object-contain" />
+          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-md flex items-center justify-center">
+            <img src={LOGO_COLAPSADO_URL} alt="SmileCare" className="max-h-full max-w-full object-contain" />
           </div>
           <span className="text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
             SmileCare
@@ -497,13 +487,13 @@ const MainLayout = () => {
 
       {/* ── BOTTOM NAV MOBILE (< md) ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200/60 dark:border-slate-800/60 flex items-stretch h-16 safe-area-pb">
-        {primaryNavItems.map((item) => (
+        {mobileBottomNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.end}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-all duration-200 min-h-[44px] ${
+              `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-all duration-200 min-h-[44px] ${
                 isActive
                   ? 'text-emerald-600 dark:text-emerald-400'
                   : 'text-slate-400 dark:text-slate-500'
@@ -528,17 +518,18 @@ const MainLayout = () => {
           </NavLink>
         ))}
 
-        {/* Boton "Mas" */}
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-slate-400 dark:text-slate-500 min-h-[44px]"
-          aria-label="Ver mas"
-        >
-          <span>
-            <IconMore />
-          </span>
-          <span className="leading-none">Mas</span>
-        </button>
+        {mobileMoreNavItems.length > 0 && (
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-slate-400 dark:text-slate-500 min-h-[44px]"
+            aria-label="Ver mas"
+          >
+            <span>
+              <IconMore />
+            </span>
+            <span className="leading-none">Mas</span>
+          </button>
+        )}
       </nav>
 
       {/* ── DRAWER "MAS" MOBILE ── */}
@@ -571,15 +562,15 @@ const MainLayout = () => {
               </button>
             </div>
 
-            {/* Items secundarios */}
-            <nav className="px-3 py-3 space-y-1 pb-8">
-              {[...visibleSecondaryItems, ...(isAdmin ? adminNavItems : [])].map((item) => (
+            {/* Resto de rutas (no estan en la barra inferior) */}
+            <nav className="px-3 py-2 space-y-0 pb-8">
+              {mobileMoreNavItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   onClick={() => setDrawerOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                    `flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'

@@ -1,7 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import logoHorizontal from '../assets/logo-horizontal.png';
-import logoIcon from '../assets/logo-icon.png';
+import logoInicio from '../assets/logo-inicio.png';
 
 const SunIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -51,7 +50,7 @@ const AuthLayout = () => {
 
         {/* Logo y marca */}
         <div className="relative z-10">
-          <img src={logoHorizontal} alt="SmileCare" className="h-14 w-auto object-contain" />
+          <img src={logoInicio} alt="SmileCare" className="h-14 w-auto max-w-full object-contain object-left" />
         </div>
 
         {/* Contenido central */}
@@ -118,10 +117,11 @@ const AuthLayout = () => {
           <div className="w-full max-w-[420px] animate-fade-in-up">
             {/* Logo mobile only */}
             <div className="lg:hidden text-center mb-8">
-              <img src={logoIcon} alt="SmileCare" className="h-20 w-20 mx-auto object-contain mb-4" />
-              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                SmileCare
-              </h1>
+              <img
+                src={logoInicio}
+                alt="SmileCare"
+                className="h-16 sm:h-20 w-auto max-w-[min(100%,280px)] mx-auto object-contain"
+              />
             </div>
 
             <Outlet />
