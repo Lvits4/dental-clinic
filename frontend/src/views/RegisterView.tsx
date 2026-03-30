@@ -167,11 +167,11 @@ const RegisterView = () => {
                   'w-full rounded-md border text-sm transition-all duration-200',
                   'bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white',
                   'placeholder-slate-400 dark:placeholder-slate-500',
-                  'focus:outline-none focus:ring-1 focus:ring-offset-0',
+                  'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-offset-0',
                   'pl-10 pr-11 py-2.5',
                   errors.password
-                    ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
+                    ? 'border-red-300 dark:border-red-500 focus:ring-red-500/18 focus:border-red-500/80'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-600/14 dark:focus:ring-emerald-400/12 focus:border-emerald-600/45 dark:focus:border-emerald-500/40',
                 ].join(' ')}
               />
               <button

@@ -10,7 +10,6 @@ import {
   DETAIL_INFO_TILE_CLASS,
 } from '../../components/ui/detailInfoLayout';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
-import AppointmentDetailModal from '../../components/appointments/AppointmentDetailModal';
 import AppointmentFormModal from '../../components/appointments/AppointmentFormModal';
 import { Role } from '../../enums';
 import ClinicalRecordFormModal from '../../components/clinical-records/ClinicalRecordFormModal';
@@ -436,7 +435,6 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
 
 const AppointmentsTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
-  const [viewTarget, setViewTarget] = useState<Appointment | null>(null);
   const [editTarget, setEditTarget] = useState<Appointment | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -483,7 +481,7 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
             <button
               key={apt.id}
               type="button"
-              onClick={() => setViewTarget(apt)}
+              onClick={() => setEditTarget(apt)}
               className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
             >
               <div className="flex items-center justify-between gap-3">
@@ -518,15 +516,6 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
           />
         )}
       </div>
-
-      <AppointmentDetailModal
-        appointment={viewTarget}
-        isOpen={!!viewTarget}
-        onClose={() => setViewTarget(null)}
-        onRequestEdit={() => {
-          if (viewTarget) setEditTarget(viewTarget);
-        }}
-      />
 
       <AppointmentFormModal
         mode="create"

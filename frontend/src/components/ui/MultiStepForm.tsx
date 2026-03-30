@@ -28,7 +28,7 @@ export interface MultiStepFormProps {
   onSubmit: (e: FormEvent) => void;
   submitLabel?: string;
   loading?: boolean;
-  /** Contenido extra que se renderiza entre el paso actual y los botones de navegación */
+  /** Contenido extra dentro del área con scroll (debajo del paso actual), antes de la barra de acciones fija */
   beforeButtons?: ReactNode;
   /** Callback para cancelar y volver atrás sin importar en qué paso se encuentre */
   onCancel?: () => void;
@@ -169,7 +169,7 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
         </div>
       </div>
 
-      {/* ── Step Content (scroll; botones siempre visibles si el padre limita altura) ── */}
+      {/* ── Step Content + extra (scroll); la barra de acciones queda fija abajo ── */}
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-0.5">
         <div
           key={current}
@@ -177,10 +177,8 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
         >
           {steps[current].content}
         </div>
+        {beforeButtons ? <div className="mt-6 pb-1">{beforeButtons}</div> : null}
       </div>
-
-      {/* ── Contenido extra antes de los botones ── */}
-      {beforeButtons ? <div className="shrink-0">{beforeButtons}</div> : null}
 
       {/* ── Navigation Buttons ── */}
       <div className="mt-4 flex shrink-0 items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">

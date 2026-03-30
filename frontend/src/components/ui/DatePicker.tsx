@@ -113,7 +113,7 @@ const DatePicker = ({
   );
   const calendarTriggerBaseClass = useMemo(
     () =>
-      `flex min-w-0 w-full items-center justify-between gap-1.5 ${r} border text-sm font-medium transition-all duration-200 shadow-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/35 focus:ring-offset-0 focus:border-emerald-500 dark:focus:border-emerald-400`,
+      `flex min-w-0 w-full items-center justify-between gap-1.5 ${r} border text-sm font-medium transition-all duration-200 shadow-sm focus:outline-none focus:ring-1 focus:ring-inset focus:ring-emerald-600/14 dark:focus:ring-emerald-400/12 focus:ring-offset-0 focus:border-emerald-600/45 dark:focus:border-emerald-500/40`,
     [r],
   );
 
@@ -353,16 +353,16 @@ const DatePicker = ({
             `w-full ${r} border text-sm transition-all duration-200 text-left`,
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
-            'focus:outline-none focus:ring-1 focus:ring-offset-0',
+            'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-offset-0',
             'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800',
             isPlaceholder
               ? 'text-slate-400 dark:text-slate-500'
               : 'text-slate-900 dark:text-white',
             error
-              ? 'border-red-300 dark:border-red-500 focus:ring-red-500/30 focus:border-red-500'
+              ? 'border-red-300 dark:border-red-500 focus:ring-red-500/18 focus:border-red-500/80'
               : open
-                ? 'border-emerald-500 ring-1 ring-emerald-500/30'
-                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-500/30 focus:border-emerald-500',
+                ? 'border-emerald-600/55 dark:border-emerald-500/50 ring-1 ring-inset ring-emerald-600/16 dark:ring-emerald-400/14'
+                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-600/14 dark:focus:ring-emerald-400/12 focus:border-emerald-600/45 dark:focus:border-emerald-500/40',
             className,
           ]
             .filter(Boolean)
@@ -435,7 +435,7 @@ const DatePicker = ({
                   'min-w-0 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/90 px-2.5 py-2 text-slate-800 dark:text-slate-100',
                   'hover:border-emerald-300/80 dark:hover:border-emerald-700/60',
                   headerMenu === 'month'
-                    ? 'border-emerald-500 ring-1 ring-emerald-500/30 dark:ring-emerald-400/25'
+                    ? 'border-emerald-600/55 dark:border-emerald-500/50 ring-1 ring-inset ring-emerald-600/16 dark:ring-emerald-400/14'
                     : '',
                 ]
                   .filter(Boolean)
@@ -471,7 +471,7 @@ const DatePicker = ({
                   'w-[4.75rem] min-w-[4.75rem] shrink-0 justify-self-stretch border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/90 px-2 py-2 tabular-nums text-slate-800 dark:text-slate-100',
                   'hover:border-emerald-300/80 dark:hover:border-emerald-700/60',
                   headerMenu === 'year'
-                    ? 'border-emerald-500 ring-1 ring-emerald-500/30 dark:ring-emerald-400/25'
+                    ? 'border-emerald-600/55 dark:border-emerald-500/50 ring-1 ring-inset ring-emerald-600/16 dark:ring-emerald-400/14'
                     : '',
                 ]
                   .filter(Boolean)

@@ -22,6 +22,21 @@ export interface TreatmentFormErrors {
   defaultPrice?: string;
 }
 
+export type TreatmentSortBy = 'name' | 'category' | 'defaultPrice' | 'createdAt';
+
+export type TreatmentSortOrder = 'asc' | 'desc';
+
+export interface TreatmentFilters {
+  page?: number;
+  limit?: number;
+  /** Búsqueda por nombre (coincide con query `name` del backend) */
+  name?: string;
+  category?: string;
+  isActive?: boolean;
+  sortBy?: TreatmentSortBy;
+  sortOrder?: TreatmentSortOrder;
+}
+
 export const TREATMENT_CATEGORIES = [
   { value: 'general', label: 'Odontología General' },
   { value: 'ortodoncia', label: 'Ortodoncia' },

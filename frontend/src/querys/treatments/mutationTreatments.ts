@@ -5,7 +5,9 @@ import { treatmentsApi } from '../../requests/treatments.api';
 import type { CreateTreatmentDto, UpdateTreatmentDto } from '../../types';
 import { HttpError } from '../../helpers/http';
 
-export function useCreateTreatment() {
+type TreatmentMutationNavOptions = { skipNavigation?: boolean };
+
+export function useCreateTreatment(options?: TreatmentMutationNavOptions) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -14,7 +16,9 @@ export function useCreateTreatment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['treatments'] });
       toast.success('Tratamiento creado exitosamente');
-      navigate('/treatments');
+      if (!options?.skipNavigation) {
+        navigate('/treatments');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -27,7 +31,7 @@ export function useCreateTreatment() {
   });
 }
 
-export function useUpdateTreatment(id: string) {
+export function useUpdateTreatment(id: string, options?: TreatmentMutationNavOptions) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -35,8 +39,11 @@ export function useUpdateTreatment(id: string) {
     mutationFn: (data: UpdateTreatmentDto) => treatmentsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['treatments'] });
+      queryClient.invalidateQueries({ queryKey: ['treatments', id] });
       toast.success('Tratamiento actualizado');
-      navigate('/treatments');
+      if (!options?.skipNavigation) {
+        navigate('/treatments');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -53,7 +60,7 @@ export function useToggleTreatment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => treatmentsApi.toggle(id),
+    mutationFn: (tid: string) => treatmentsApi.toggle(tid),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['treatments'] });
       toast.success(data.isActive ? 'Tratamiento activado' : 'Tratamiento desactivado');

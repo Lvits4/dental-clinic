@@ -54,21 +54,22 @@ export function useUpdateAppointmentStatus(id: string) {
   });
 }
 
-export function useCancelAppointment() {
+export function useDeleteAppointment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => appointmentsApi.cancel(id),
-    onSuccess: () => {
+    mutationFn: (id: string) => appointmentsApi.remove(id),
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
-      toast.success('Cita cancelada');
+      queryClient.removeQueries({ queryKey: ['appointments', id] });
+      toast.success('Cita eliminada');
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
         const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
         toast.error(msg);
       } else {
-        toast.error('Error al cancelar la cita');
+        toast.error('Error al eliminar la cita');
       }
     },
   });

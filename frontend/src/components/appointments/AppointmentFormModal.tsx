@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Modal, Spinner } from '../ui';
 import AppointmentForm from './AppointmentForm';
@@ -14,6 +14,11 @@ import { useAppointmentDetail } from '../../querys/appointments/queryAppointment
 import { AppointmentStatus } from '../../enums';
 import { STATUS_CONFIG } from '../../types';
 import type { Appointment } from '../../types';
+
+/** Rellena el cuerpo del modal (flex) para que MultiStepForm pueda fijar el pie y hacer scroll solo en el paso. */
+const FormScrollShell = ({ children }: { children: ReactNode }) => (
+  <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
+);
 
 const STATUS_BUTTON_CLASSES: Record<AppointmentStatus, string> = {
   [AppointmentStatus.SCHEDULED]:   'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
@@ -86,7 +91,11 @@ function CreateAppointmentModalBody({
   const activeDoctors = (doctors || []).filter((d) => d.isActive);
 
   if (loading) {
-    return <FormSkeleton />;
+    return (
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <FormSkeleton />
+      </div>
+    );
   }
 
   if (activePatients.length === 0) {
@@ -101,19 +110,22 @@ function CreateAppointmentModalBody({
   }
 
   return (
-    <AppointmentForm
-      patients={activePatients}
-      doctors={activeDoctors}
-      defaultPatientId={defaultPatientId}
-      onSubmit={(data) =>
-        createMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      loading={createMutation.isPending}
-      submitLabel="Crear cita"
-      onCancel={onClose}
-    />
+    <FormScrollShell>
+      <AppointmentForm
+        fillParent
+        patients={activePatients}
+        doctors={activeDoctors}
+        defaultPatientId={defaultPatientId}
+        onSubmit={(data) =>
+          createMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        loading={createMutation.isPending}
+        submitLabel="Crear cita"
+        onCancel={onClose}
+      />
+    </FormScrollShell>
   );
 }
 
@@ -139,10 +151,12 @@ function EditAppointmentModalBody({
   const allStatusesExceptCurrent = Object.values(AppointmentStatus).filter((s) => s !== localAppt.status);
 
   return (
-    <AppointmentForm
-      key={localAppt.id}
-      patients={activePatients}
-      doctors={activeDoctors}
+    <FormScrollShell>
+      <AppointmentForm
+        fillParent
+        key={localAppt.id}
+        patients={activePatients}
+        doctors={activeDoctors}
       initialValues={{
         patientId: localAppt.patientId,
         doctorId: localAppt.doctorId,
@@ -199,7 +213,8 @@ function EditAppointmentModalBody({
           </div>
         </div>
       }
-    />
+      />
+    </FormScrollShell>
   );
 }
 
@@ -208,7 +223,7 @@ function EditAppointmentByIdBody({ appointmentId, onClose }: { appointmentId: st
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-16">
+      <div className="flex min-h-[14rem] flex-1 items-center justify-center">
         <Spinner />
       </div>
     );
@@ -216,7 +231,7 @@ function EditAppointmentByIdBody({ appointmentId, onClose }: { appointmentId: st
 
   if (!appointment) {
     return (
-      <p className="text-center text-sm text-slate-500 dark:text-slate-400 py-8">Cita no encontrada</p>
+      <p className="flex-1 py-8 text-center text-sm text-slate-500 dark:text-slate-400">Cita no encontrada</p>
     );
   }
 
@@ -261,8 +276,10 @@ const AppointmentFormModal = ({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      size="md"
+      size="lg"
+      containBodyHeight
       surfaceRounding="compact"
+      panelClassName="min-h-[min(26rem,90dvh)]"
     >
       {mode === 'create' ? (
         <CreateAppointmentModalBody onClose={onClose} defaultPatientId={defaultPatientId} />

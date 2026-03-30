@@ -16,6 +16,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   setSession: (token: string, user: User) => void;
+  /** Tras PATCH perfil: actualiza usuario y opcionalmente el token si el backend lo devuelve */
+  updateSession: (user: User, accessToken?: string) => void;
   logout: () => void;
 }
 
@@ -59,6 +61,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(newUser);
   }, []);
 
+  const updateSession = useCallback((newUser: User, accessToken?: string) => {
+    setUser(newUser);
+    if (accessToken) {
+      localStorage.setItem('access_token', accessToken);
+      setToken(accessToken);
+    }
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem('access_token');
     setToken(null);
@@ -68,7 +78,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated, isLoading, setSession, logout }}
+      value={{ user, token, isAuthenticated, isLoading, setSession, updateSession, logout }}
     >
       {children}
     </AuthContext.Provider>

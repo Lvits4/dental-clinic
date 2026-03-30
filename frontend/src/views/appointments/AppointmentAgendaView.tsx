@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { AppointmentModalLocationState } from './AppointmentRouteRedirects';
 import { PageHeader, Button, Select, Spinner } from '../../components/ui';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
+import AppointmentFormModal from '../../components/appointments/AppointmentFormModal';
 import { useAppointmentsAgenda } from '../../querys/appointments/queryAppointments';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import type { Appointment } from '../../types';
@@ -31,6 +32,7 @@ function formatDateShort(dateStr: string): string {
 const AppointmentAgendaView = () => {
   const [baseDate, setBaseDate] = useState(new Date());
   const [doctorId, setDoctorId] = useState('');
+  const [editAppointment, setEditAppointment] = useState<Appointment | null>(null);
 
   const { from, to } = useMemo(() => getWeekRange(baseDate), [baseDate]);
 
@@ -171,10 +173,11 @@ const AppointmentAgendaView = () => {
                   </h3>
                   <div className="space-y-1.5">
                     {dayAppointments.map((a) => (
-                      <Link
+                      <button
                         key={a.id}
-                        to={`/appointments/${a.id}`}
-                        className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        type="button"
+                        onClick={() => setEditAppointment(a)}
+                        className="w-full flex items-center justify-between p-3 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left"
                       >
                         <div>
                           <div className="text-sm font-medium text-slate-900 dark:text-white">
@@ -187,7 +190,7 @@ const AppointmentAgendaView = () => {
                           )}
                         </div>
                         <AppointmentStatusBadge status={a.status} />
-                      </Link>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -220,10 +223,11 @@ const AppointmentAgendaView = () => {
                   ) : (
                     <div className="space-y-1.5">
                       {dayAppointments.map((a) => (
-                        <Link
+                        <button
                           key={a.id}
-                          to={`/appointments/${a.id}`}
-                          className="block p-2 rounded-md bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                          type="button"
+                          onClick={() => setEditAppointment(a)}
+                          className="w-full block p-2 rounded-md bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-left"
                         >
                           <div className="text-xs font-medium text-slate-900 dark:text-white">
                             {formatTime(a.dateTime)}
@@ -234,7 +238,7 @@ const AppointmentAgendaView = () => {
                           <div className="mt-1">
                             <AppointmentStatusBadge status={a.status} />
                           </div>
-                        </Link>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -245,6 +249,13 @@ const AppointmentAgendaView = () => {
         </>
       )}
       </div>
+
+      <AppointmentFormModal
+        mode="edit"
+        isOpen={!!editAppointment}
+        appointment={editAppointment ?? undefined}
+        onClose={() => setEditAppointment(null)}
+      />
     </div>
   );
 };

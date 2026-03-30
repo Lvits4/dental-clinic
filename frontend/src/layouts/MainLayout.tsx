@@ -110,6 +110,17 @@ const IconLogout = () => (
   </svg>
 );
 
+const IconMyAccount = () => (
+  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.75}
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+    />
+  </svg>
+);
+
 // ─── Definicion de navegacion ─────────────────────────────────────────────────
 
 interface NavItem {
@@ -319,7 +330,24 @@ const MainLayout = () => {
             {!collapsed && <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>}
           </button>
 
-          {/* Info usuario */}
+          <NavLink
+            to="/account"
+            title={collapsed ? 'Mi cuenta' : undefined}
+            className={({ isActive }) =>
+              [
+                'w-full flex items-center rounded-md text-sm font-medium transition-all duration-200 cursor-pointer',
+                collapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3 py-2.5',
+                isActive
+                  ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60',
+              ].join(' ')
+            }
+          >
+            <span className="shrink-0 opacity-90">
+              <IconMyAccount />
+            </span>
+            {!collapsed && <span>Mi cuenta</span>}
+          </NavLink>
           {collapsed ? (
             <div className="flex justify-center py-2">
               <div
@@ -398,6 +426,22 @@ const MainLayout = () => {
                   </p>
                 </div>
                 <div className="p-1.5">
+                  <NavLink
+                    to="/account"
+                    onClick={() => setUserMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`
+                    }
+                  >
+                    <span className="text-slate-400">
+                      <IconMyAccount />
+                    </span>
+                    <span>Mi cuenta</span>
+                  </NavLink>
                   <button
                     onClick={toggleTheme}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

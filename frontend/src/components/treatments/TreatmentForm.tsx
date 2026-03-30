@@ -26,6 +26,7 @@ interface TreatmentFormProps {
   onSubmit: (data: CreateTreatmentDto) => void;
   loading?: boolean;
   submitLabel?: string;
+  onCancel?: () => void;
 }
 
 /* ── Icono de sección ── */
@@ -40,6 +41,7 @@ const TreatmentForm = ({
   onSubmit,
   loading = false,
   submitLabel = 'Guardar',
+  onCancel,
 }: TreatmentFormProps) => {
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -111,7 +113,12 @@ const TreatmentForm = ({
         </div>
       </FormSection>
 
-      <div className="flex justify-end gap-3 pt-2">
+      <div className="flex flex-wrap justify-end gap-3 pt-2">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
+            Cancelar
+          </Button>
+        )}
         <Button type="submit" loading={loading}>{submitLabel}</Button>
       </div>
     </form>

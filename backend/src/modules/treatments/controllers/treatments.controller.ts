@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TreatmentsService } from '../services/treatments.service';
 import { CreateTreatmentDto } from '../dto/create-treatment.dto';
 import { UpdateTreatmentDto } from '../dto/update-treatment.dto';
+import { FilterTreatmentDto } from '../dto/filter-treatment.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
@@ -32,9 +34,9 @@ export class TreatmentsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all treatments' })
-  findAll() {
-    return this.treatmentsService.findAll();
+  @ApiOperation({ summary: 'List treatments with filters and pagination' })
+  findAll(@Query() filterDto: FilterTreatmentDto) {
+    return this.treatmentsService.findAll(filterDto);
   }
 
   @Get(':id')

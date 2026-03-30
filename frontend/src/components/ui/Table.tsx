@@ -164,8 +164,8 @@ const Table = <T,>({
   const thBase = (col: Column<T>) =>
     [
       sentenceHeaders
-        ? 'px-5 py-4 min-h-[48px] text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-tight align-middle'
-        : 'px-5 py-3.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider align-middle',
+        ? 'px-5 py-3 min-h-[42px] text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-tight align-middle'
+        : 'px-5 py-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider align-middle',
       'sticky top-0 z-[1] bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90',
       textAlignClass(cellAlign(col)),
       col.className ?? '',
@@ -191,7 +191,7 @@ const Table = <T,>({
             type="button"
             className={[
               `table-sort-header-btn flex w-full items-center ${r} -mx-1 px-1.5`,
-              sentenceHeaders ? 'gap-2 py-1' : 'gap-2 py-1.5',
+              sentenceHeaders ? 'gap-2 py-0.5' : 'gap-2 py-1',
               flexJustifyClass(align),
               'appearance-none bg-transparent border-0 shadow-none ring-0 ring-offset-0',
               'outline-none focus:outline-none focus-visible:outline-none',
@@ -235,7 +235,7 @@ const Table = <T,>({
     return (
       <th key={col.key} className={thBase(col)}>
         <div
-          className={`flex w-full items-center min-h-[2.25rem] ${flexJustifyClass(align)} ${sentenceHeaders ? 'px-0.5' : ''}`}
+          className={`flex w-full items-center min-h-[2rem] ${flexJustifyClass(align)} ${sentenceHeaders ? 'px-0.5' : ''}`}
         >
           <span className={sentenceHeaders ? 'text-slate-700 dark:text-slate-200' : ''}>{col.header}</span>
         </div>
@@ -248,8 +248,8 @@ const Table = <T,>({
       key={col.key}
       className={
         sentenceHeaders
-          ? `px-5 py-4 min-h-[48px] text-sm font-semibold text-slate-600 dark:text-slate-300 ${textAlignClass(cellAlign(col))} sticky top-0 z-[1] bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90 ${col.className ?? ''}`
-          : `px-5 py-3.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${textAlignClass(cellAlign(col))} ${col.className ?? ''}`
+          ? `px-5 py-3 min-h-[42px] text-sm font-semibold text-slate-600 dark:text-slate-300 ${textAlignClass(cellAlign(col))} sticky top-0 z-[1] bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90 ${col.className ?? ''}`
+          : `px-5 py-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${textAlignClass(cellAlign(col))} ${col.className ?? ''}`
       }
     >
       {col.header}

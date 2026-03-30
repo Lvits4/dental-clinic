@@ -19,6 +19,10 @@ export const treatmentPlansApi = {
     return http.patch<TreatmentPlan>(`/treatment-plans/${id}`, data);
   },
 
+  delete(id: string): Promise<void> {
+    return http.delete<void>(`/treatment-plans/${id}`);
+  },
+
   addItem(planId: string, item: { treatmentId: string; tooth?: string; notes?: string; order?: number }): Promise<TreatmentPlan> {
     return http.post<TreatmentPlan>(`/treatment-plans/${planId}/items`, item);
   },

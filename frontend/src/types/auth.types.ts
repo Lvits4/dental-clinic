@@ -33,3 +33,17 @@ export interface RegisterFormErrors {
   email?: string;
   password?: string;
 }
+
+/** Cuerpo PATCH /auth/profile (todos opcionales; currentPassword obligatorio si hay newPassword) */
+export interface UpdateAccountDto {
+  username?: string;
+  email?: string;
+  fullName?: string;
+  newPassword?: string;
+  currentPassword?: string;
+}
+
+export interface UpdateAccountResponse {
+  user: User;
+  accessToken?: string;
+}

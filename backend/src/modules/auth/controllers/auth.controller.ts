@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { UpdateAccountDto } from '../../users/dto/update-account.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -33,5 +34,16 @@ export class AuthController {
   @ApiOperation({ summary: 'Get current user profile' })
   getProfile(@CurrentUser('sub') userId: string) {
     return this.authService.getProfile(userId);
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update current user account (profile + optional password)' })
+  @ApiResponse({ status: 200, description: 'Profile updated; accessToken only if username changed' })
+  @ApiResponse({ status: 400, description: 'Invalid payload or wrong current password' })
+  @ApiResponse({ status: 409, description: 'Username or email already in use' })
+  updateProfile(@CurrentUser('sub') userId: string, @Body() dto: UpdateAccountDto) {
+    return this.authService.updateProfile(userId, dto);
   }
 }

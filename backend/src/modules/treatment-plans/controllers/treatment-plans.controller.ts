@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -54,6 +56,14 @@ export class TreatmentPlansController {
     @Body() updateDto: UpdateTreatmentPlanDto,
   ) {
     return this.plansService.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Delete treatment plan' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.plansService.remove(id);
   }
 
   @Post(':id/items')

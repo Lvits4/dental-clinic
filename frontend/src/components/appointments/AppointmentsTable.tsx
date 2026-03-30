@@ -1,13 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Table, ConfirmDialog, Pagination } from '../ui';
 import type { Column } from '../ui';
 import AppointmentStatusBadge from './AppointmentStatusBadge';
-import AppointmentDetailModal from './AppointmentDetailModal';
 import AppointmentFormModal from './AppointmentFormModal';
 import type { Appointment, AppointmentSortBy, AppointmentSortOrder } from '../../types';
-import { appointmentAllowsStatusChange } from '../../types';
-import { useCancelAppointment } from '../../querys/appointments/mutationAppointments';
+import { useDeleteAppointment } from '../../querys/appointments/mutationAppointments';
 
 interface AppointmentsTableProps {
   data: Appointment[];
@@ -60,11 +57,9 @@ const AppointmentsTable = ({
   sortDirection = 'asc',
   onSort,
 }: AppointmentsTableProps) => {
-  const navigate = useNavigate();
-  const cancelAppointment = useCancelAppointment();
-  const [viewTarget, setViewTarget] = useState<Appointment | null>(null);
+  const deleteAppointment = useDeleteAppointment();
   const [internalEdit, setInternalEdit] = useState<Appointment | null>(null);
-  const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<Appointment | null>(null);
 
   const openEdit = (a: Appointment) => {
     if (onEditRequest) onEditRequest(a);
@@ -75,21 +70,6 @@ const AppointmentsTable = ({
 
   const actionButtons = (a: Appointment) => (
     <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-      <button
-        type="button"
-        title="Ver cita"
-        onClick={() => setViewTarget(a)}
-        className="p-1.5 rounded-md text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 transition-colors"
-      >
-        <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-          />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
       {showEdit && (
         <button
           type="button"
@@ -106,16 +86,14 @@ const AppointmentsTable = ({
           </svg>
         </button>
       )}
-      {appointmentAllowsStatusChange(a.status) && (
-        <button
-          type="button"
-          title="Cancelar cita"
-          onClick={() => setAppointmentToCancel(a)}
-          className="p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
-        >
-          <TrashIcon />
-        </button>
-      )}
+      <button
+        type="button"
+        title="Eliminar cita"
+        onClick={() => setAppointmentToDelete(a)}
+        className="p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 transition-colors"
+      >
+        <TrashIcon />
+      </button>
     </div>
   );
 
@@ -207,7 +185,7 @@ const AppointmentsTable = ({
             >
               <button
                 type="button"
-                onClick={() => navigate(`/appointments/${a.id}`)}
+                onClick={() => onEditRequest?.(a)}
                 className="w-full text-left mb-3"
               >
                 <span className="font-medium text-slate-900 dark:text-white block">
@@ -242,7 +220,7 @@ const AppointmentsTable = ({
           columns={columns}
           data={data}
           keyExtractor={(a) => a.id}
-          onRowClick={(a) => navigate(`/appointments/${a.id}`)}
+          onRowClick={onEditRequest ? (a) => onEditRequest(a) : undefined}
           loading={loading}
           emptyMessage="No se encontraron citas"
           sortColumn={sortColumn ?? undefined}
@@ -255,14 +233,6 @@ const AppointmentsTable = ({
         />
       </div>
 
-      <AppointmentDetailModal
-        appointment={viewTarget}
-        isOpen={!!viewTarget}
-        onClose={() => setViewTarget(null)}
-        onRequestEdit={showEdit ? () => viewTarget && openEdit(viewTarget) : undefined}
-        showEditButton={showEdit}
-      />
-
       {editModalOpen && internalEdit && (
         <AppointmentFormModal
           mode="edit"
@@ -273,28 +243,28 @@ const AppointmentsTable = ({
       )}
 
       <ConfirmDialog
-        isOpen={!!appointmentToCancel}
-        onClose={() => setAppointmentToCancel(null)}
+        isOpen={!!appointmentToDelete}
+        onClose={() => setAppointmentToDelete(null)}
         onConfirm={() => {
-          if (appointmentToCancel) {
-            cancelAppointment.mutate(appointmentToCancel.id, {
-              onSettled: () => setAppointmentToCancel(null),
+          if (appointmentToDelete) {
+            deleteAppointment.mutate(appointmentToDelete.id, {
+              onSettled: () => setAppointmentToDelete(null),
             });
           }
         }}
-        title="Cancelar cita"
+        title="Eliminar cita"
         message={
-          appointmentToCancel
-            ? `¿Cancelar la cita del ${formatDateTime(appointmentToCancel.dateTime)}${
-                appointmentToCancel.patient
-                  ? ` (${appointmentToCancel.patient.firstName} ${appointmentToCancel.patient.lastName})`
+          appointmentToDelete
+            ? `¿Eliminar definitivamente la cita del ${formatDateTime(appointmentToDelete.dateTime)}${
+                appointmentToDelete.patient
+                  ? ` (${appointmentToDelete.patient.firstName} ${appointmentToDelete.patient.lastName})`
                   : ''
-              }?`
+              }? Esta acción no se puede deshacer.`
             : ''
         }
-        confirmLabel="Cancelar cita"
+        confirmLabel="Eliminar"
         variant="danger"
-        loading={cancelAppointment.isPending}
+        loading={deleteAppointment.isPending}
       />
     </div>
   );

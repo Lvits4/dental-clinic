@@ -7,6 +7,8 @@ export interface SearchInputProps {
   debounceMs?: number;
   fullWidth?: boolean;
   className?: string;
+  /** Para asociar un `<label htmlFor={id}>`. */
+  id?: string;
   /** @deprecated Sin efecto: siempre `rounded-md`. */
   rounding?: 'default' | 'compact';
 }
@@ -18,6 +20,7 @@ const SearchInput = ({
   debounceMs = 400,
   fullWidth = false,
   className = '',
+  id,
   rounding = 'default',
 }: SearchInputProps) => {
   void rounding;
@@ -57,6 +60,7 @@ const SearchInput = ({
       </span>
 
       <input
+        id={id}
         type="search"
         value={localValue}
         onChange={(e) => handleChange(e.target.value)}
@@ -69,7 +73,7 @@ const SearchInput = ({
           'border-slate-200 dark:border-slate-700',
           'placeholder-slate-400 dark:placeholder-slate-500',
           'hover:border-slate-300 dark:hover:border-slate-600',
-          'focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500',
+          'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-emerald-600/14 dark:focus:ring-emerald-400/12 focus:border-emerald-600/45 dark:focus:border-emerald-500/40',
         ].join(' ')}
       />
 

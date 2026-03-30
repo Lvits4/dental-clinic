@@ -48,7 +48,7 @@ export const appointmentsApi = {
     return http.patch<Appointment>(`/appointments/${id}/reschedule`, data);
   },
 
-  cancel(id: string): Promise<void> {
+  remove(id: string): Promise<void> {
     return http.delete<void>(`/appointments/${id}`);
   },
 };

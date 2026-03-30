@@ -5,6 +5,7 @@ import { UsersService } from '../../users/services/users.service';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { Role } from '../../../common/enums/role.enum';
+import { UpdateAccountDto } from '../../users/dto/update-account.dto';
 
 @Injectable()
 export class AuthService {
@@ -66,5 +67,24 @@ export class AuthService {
 
   async getProfile(userId: string) {
     return this.usersService.findOne(userId);
+  }
+
+  async updateProfile(userId: string, dto: UpdateAccountDto) {
+    const { user, usernameChanged } = await this.usersService.updateAccount(userId, dto);
+
+    const payload = { sub: user.id, username: user.username, role: user.role };
+    const accessToken = usernameChanged ? this.jwtService.sign(payload) : undefined;
+
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        isActive: user.isActive,
+      },
+      ...(accessToken ? { accessToken } : {}),
+    };
   }
 }

@@ -5,6 +5,7 @@ export const ENDPOINTS = {
   // Auth
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
+  /** GET perfil | PATCH actualizar cuenta propia */
   PROFILE: '/auth/profile',
 
   // Patients

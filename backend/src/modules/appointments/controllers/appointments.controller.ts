@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
   UseGuards,
   Query,
   ParseUUIDPipe,
@@ -88,9 +90,10 @@ export class AppointmentsController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(Role.ADMIN, Role.RECEPTIONIST)
-  @ApiOperation({ summary: 'Cancel appointment' })
-  cancel(@Param('id', ParseUUIDPipe) id: string) {
-    return this.appointmentsService.cancel(id);
+  @ApiOperation({ summary: 'Delete appointment permanently' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.appointmentsService.remove(id);
   }
 }

@@ -35,7 +35,10 @@ export class UsersController {
 
   @Get()
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'List all users' })
+  @ApiOperation({
+    summary: 'List active users',
+    description: 'Devuelve únicamente usuarios con cuenta activa (isActive: true).',
+  })
   findAll() {
     return this.usersService.findAll();
   }

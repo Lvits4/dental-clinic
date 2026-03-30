@@ -41,6 +41,10 @@ export interface CreateTreatmentPlanDto {
   items?: { treatmentId: string; tooth?: string; notes?: string; order?: number }[];
 }
 
+export type TreatmentPlanSortBy = 'patient' | 'doctor' | 'status' | 'items' | 'createdAt';
+
+export type TreatmentPlanSortOrder = 'asc' | 'desc';
+
 export const PLAN_STATUS_CONFIG: Record<TreatmentPlanStatus, { label: string; className: string }> = {
   [TreatmentPlanStatus.PENDING]: {
     label: 'Pendiente',

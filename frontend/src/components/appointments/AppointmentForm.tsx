@@ -63,6 +63,8 @@ interface AppointmentFormProps {
   /** Contenido extra que aparece antes del botón Guardar/Siguiente (e.g. sección de estado) */
   footerContent?: ReactNode;
   onCancel?: () => void;
+  /** true en modal con altura acotada: el scroll queda solo en el bloque del paso; botones fijos abajo */
+  fillParent?: boolean;
 }
 
 /* ── Iconos de sección ── */
@@ -88,6 +90,7 @@ const AppointmentForm = ({
   initialValues = {},
   footerContent,
   onCancel,
+  fillParent = false,
 }: AppointmentFormProps) => {
   const [patientId, setPatientId] = useState(initialValues.patientId ?? defaultPatientId);
   const [doctorId, setDoctorId] = useState(initialValues.doctorId ?? defaultDoctorId);
@@ -228,7 +231,8 @@ const AppointmentForm = ({
       beforeButtons={footerContent}
       onCancel={onCancel}
       onStepChange={() => setErrors({})}
-      stepBodyClassName="min-h-[min(22rem,48dvh)]"
+      fillParent={fillParent}
+      stepBodyClassName={fillParent ? '' : 'min-h-[min(22rem,48dvh)]'}
     />
   );
 };

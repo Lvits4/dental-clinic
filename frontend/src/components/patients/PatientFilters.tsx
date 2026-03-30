@@ -10,9 +10,16 @@ interface PatientFiltersProps {
 
 const PatientFilters = ({ search, onSearchChange, trailingActions }: PatientFiltersProps) => {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="w-full max-w-72 md:max-w-80 min-w-0 shrink-0">
+    <div className="flex flex-wrap items-end gap-2">
+      <div className="flex w-full max-w-72 md:max-w-80 min-w-0 shrink-0 flex-col">
+        <label
+          htmlFor="patient-filter-search"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
+          Buscar
+        </label>
         <SearchInput
+          id="patient-filter-search"
           value={search}
           onChange={onSearchChange}
           placeholder="Buscar por nombre..."
@@ -21,9 +28,17 @@ const PatientFilters = ({ search, onSearchChange, trailingActions }: PatientFilt
         />
       </div>
 
-      {trailingActions && (
-        <div className="flex shrink-0 items-center">{trailingActions}</div>
-      )}
+      {trailingActions ? (
+        <div className="flex shrink-0 flex-col">
+          <span
+            className="mb-1.5 block select-none text-sm font-medium invisible"
+            aria-hidden="true"
+          >
+            Buscar
+          </span>
+          <div className="flex h-10 min-h-10 items-center">{trailingActions}</div>
+        </div>
+      ) : null}
     </div>
   );
 };

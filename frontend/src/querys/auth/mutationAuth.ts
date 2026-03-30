@@ -1,9 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authApi } from '../../requests/auth.api';
 import { useAuth } from '../../context/AuthContext';
-import type { LoginDto, RegisterDto } from '../../types';
+import { HttpError } from '../../helpers/http';
+import type { LoginDto, RegisterDto, UpdateAccountDto } from '../../types';
 
 export const useLogin = () => {
   const { setSession } = useAuth();
@@ -40,4 +41,26 @@ export const useRegister = () => {
 export const useLogout = () => {
   const { logout } = useAuth();
   return logout;
+};
+
+export const useUpdateAccount = () => {
+  const queryClient = useQueryClient();
+  const { updateSession } = useAuth();
+
+  return useMutation({
+    mutationFn: (data: UpdateAccountDto) => authApi.updateAccount(data),
+    onSuccess: (res) => {
+      updateSession(res.user, res.accessToken);
+      queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] });
+      toast.success('Cuenta actualizada correctamente');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(String(msg));
+      } else {
+        toast.error('No se pudo actualizar la cuenta');
+      }
+    },
+  });
 };

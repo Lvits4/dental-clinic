@@ -61,6 +61,8 @@ interface UserFormCreateProps {
   mode: 'create';
   onSubmit: (data: CreateUserDto) => void;
   loading?: boolean;
+  onCancel?: () => void;
+  submitLabel?: string;
 }
 
 interface UserFormEditProps {
@@ -68,6 +70,8 @@ interface UserFormEditProps {
   initialData: User;
   onSubmit: (data: UpdateUserDto) => void;
   loading?: boolean;
+  onCancel?: () => void;
+  submitLabel?: string;
 }
 
 type UserFormProps = UserFormCreateProps | UserFormEditProps;
@@ -197,9 +201,14 @@ const UserForm = (props: UserFormProps) => {
         </div>
       </FormSection>
 
-      <div className="flex justify-end gap-3 pt-2">
+      <div className={`flex gap-3 pt-2 ${props.onCancel ? 'justify-end flex-wrap' : 'justify-end'}`}>
+        {props.onCancel ? (
+          <Button type="button" variant="secondary" onClick={props.onCancel} disabled={props.loading}>
+            Cancelar
+          </Button>
+        ) : null}
         <Button type="submit" loading={props.loading}>
-          {isEdit ? 'Guardar cambios' : 'Crear usuario'}
+          {props.submitLabel ?? (isEdit ? 'Guardar cambios' : 'Crear usuario')}
         </Button>
       </div>
     </form>

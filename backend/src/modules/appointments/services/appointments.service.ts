@@ -163,8 +163,9 @@ export class AppointmentsService {
     return this.appointmentRepository.save(appointment);
   }
 
-  async cancel(id: string): Promise<Appointment> {
-    return this.updateStatus(id, AppointmentStatus.CANCELLED);
+  async remove(id: string): Promise<void> {
+    const appointment = await this.findOne(id);
+    await this.appointmentRepository.remove(appointment);
   }
 
   async getAgenda(doctorId?: string, dateFrom?: string, dateTo?: string): Promise<Appointment[]> {

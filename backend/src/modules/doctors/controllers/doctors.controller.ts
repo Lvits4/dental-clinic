@@ -34,8 +34,16 @@ export class DoctorsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List doctors (all by default, filter by isActive)' })
-  @ApiQuery({ name: 'isActive', required: false, type: Boolean, description: 'Filter by active status' })
+  @ApiOperation({
+    summary: 'List doctors',
+    description: 'Por defecto solo activos. Use isActive=false para listar inactivos.',
+  })
+  @ApiQuery({
+    name: 'isActive',
+    required: false,
+    type: Boolean,
+    description: 'false = solo inactivos; omitido o true = solo activos',
+  })
   findAll(@Query('isActive') isActive?: boolean) {
     return this.doctorsService.findAll(isActive);
   }

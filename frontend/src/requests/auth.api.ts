@@ -1,6 +1,13 @@
 import { http } from '../helpers/http';
 import { ENDPOINTS } from '../config/api';
-import type { User, LoginDto, LoginResponse, RegisterDto } from '../types';
+import type {
+  User,
+  LoginDto,
+  LoginResponse,
+  RegisterDto,
+  UpdateAccountDto,
+  UpdateAccountResponse,
+} from '../types';
 
 export const authApi = {
   login(credentials: LoginDto): Promise<LoginResponse> {
@@ -13,5 +20,9 @@ export const authApi = {
 
   getProfile(): Promise<User> {
     return http.get<User>(ENDPOINTS.PROFILE);
+  },
+
+  updateAccount(data: UpdateAccountDto): Promise<UpdateAccountResponse> {
+    return http.patch<UpdateAccountResponse>(ENDPOINTS.PROFILE, data);
   },
 };

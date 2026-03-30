@@ -6,6 +6,9 @@ import ProtectedRoute from './components/ui/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import { Role } from './enums';
 import { RedirectPatientEditToDetail, RedirectPatientNewToList } from './views/patients/PatientRouteRedirects';
+import { RedirectTreatmentEditToList, RedirectTreatmentNewToList } from './views/treatments/TreatmentRouteRedirects';
+import { RedirectDoctorEditToList, RedirectDoctorNewToList } from './views/doctors/DoctorRouteRedirects';
+import { RedirectUserEditToList, RedirectUserNewToList } from './views/users/UserRouteRedirects';
 
 // ─── Spinner de carga ──────────────────────────────────────────────────────────
 const PageLoader = () => (
@@ -27,23 +30,18 @@ const PatientDetailView = React.lazy(() => import('./views/patients/PatientDetai
 
 // ─── Doctors ───────────────────────────────────────────────────────────────────
 const DoctorsListView = React.lazy(() => import('./views/doctors/DoctorsListView'));
-const DoctorCreateView = React.lazy(() => import('./views/doctors/DoctorCreateView'));
-const DoctorEditView = React.lazy(() => import('./views/doctors/DoctorEditView'));
+const DoctorDetailView = React.lazy(() => import('./views/doctors/DoctorDetailView'));
 
 // ─── Appointments ──────────────────────────────────────────────────────────────
 const AppointmentsListView = React.lazy(() => import('./views/appointments/AppointmentsListView'));
 const AppointmentCreateView = React.lazy(() => import('./views/appointments/AppointmentCreateView'));
-const AppointmentDetailView = React.lazy(() => import('./views/appointments/AppointmentDetailView'));
 const AppointmentAgendaView = React.lazy(() => import('./views/appointments/AppointmentAgendaView'));
 
 // ─── Treatments ────────────────────────────────────────────────────────────────
 const TreatmentsListView = React.lazy(() => import('./views/treatments/TreatmentsListView'));
-const TreatmentCreateView = React.lazy(() => import('./views/treatments/TreatmentCreateView'));
-const TreatmentEditView = React.lazy(() => import('./views/treatments/TreatmentEditView'));
 
 // ─── Treatment Plans ───────────────────────────────────────────────────────────
 const TreatmentPlansListView = React.lazy(() => import('./views/treatment-plans/TreatmentPlansListView'));
-const TreatmentPlanCreateView = React.lazy(() => import('./views/treatment-plans/TreatmentPlanCreateView'));
 const TreatmentPlanDetailView = React.lazy(() => import('./views/treatment-plans/TreatmentPlanDetailView'));
 
 // ─── Performed Procedures ──────────────────────────────────────────────────────
@@ -58,8 +56,7 @@ const ClinicalFilesListView = React.lazy(() => import('./views/clinical-files/Cl
 
 // ─── Users (Admin only) ────────────────────────────────────────────────────────
 const UsersListView = React.lazy(() => import('./views/users/UsersListView'));
-const UserCreateView = React.lazy(() => import('./views/users/UserCreateView'));
-const UserEditView = React.lazy(() => import('./views/users/UserEditView'));
+const AccountView = React.lazy(() => import('./views/account/AccountView'));
 
 // ─── Ruta admin-only ───────────────────────────────────────────────────────────
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -87,6 +84,9 @@ const App = () => {
             {/* Dashboard */}
             <Route path="/" element={<DashboardView />} />
 
+            {/* Cuenta del usuario autenticado */}
+            <Route path="/account" element={<AccountView />} />
+
             {/* Pacientes */}
             <Route path="/patients" element={<PatientsListView />} />
             <Route path="/patients/new" element={<RedirectPatientNewToList />} />
@@ -101,23 +101,24 @@ const App = () => {
 
             {/* Doctores */}
             <Route path="/doctors" element={<DoctorsListView />} />
-            <Route path="/doctors/new" element={<DoctorCreateView />} />
-            <Route path="/doctors/:id/edit" element={<DoctorEditView />} />
+            <Route path="/doctors/new" element={<RedirectDoctorNewToList />} />
+            <Route path="/doctors/:id/edit" element={<RedirectDoctorEditToList />} />
+            <Route path="/doctors/:id" element={<DoctorDetailView />} />
 
             {/* Citas */}
             <Route path="/appointments" element={<AppointmentsListView />} />
             <Route path="/appointments/new" element={<AppointmentCreateView />} />
             <Route path="/appointments/agenda" element={<AppointmentAgendaView />} />
-            <Route path="/appointments/:id" element={<AppointmentDetailView />} />
+            <Route path="/appointments/:id" element={<Navigate to="/appointments" replace />} />
 
             {/* Tratamientos (catalogo) */}
             <Route path="/treatments" element={<TreatmentsListView />} />
-            <Route path="/treatments/new" element={<TreatmentCreateView />} />
-            <Route path="/treatments/:id/edit" element={<TreatmentEditView />} />
+            <Route path="/treatments/new" element={<RedirectTreatmentNewToList />} />
+            <Route path="/treatments/:id/edit" element={<RedirectTreatmentEditToList />} />
 
             {/* Planes de tratamiento */}
             <Route path="/treatment-plans" element={<TreatmentPlansListView />} />
-            <Route path="/treatment-plans/new" element={<TreatmentPlanCreateView />} />
+            <Route path="/treatment-plans/new" element={<Navigate to="/treatment-plans" replace />} />
             <Route path="/treatment-plans/:id" element={<TreatmentPlanDetailView />} />
 
             {/* Procedimientos realizados */}
@@ -137,7 +138,7 @@ const App = () => {
               path="/users/new"
               element={
                 <AdminRoute>
-                  <UserCreateView />
+                  <RedirectUserNewToList />
                 </AdminRoute>
               }
             />
@@ -145,7 +146,7 @@ const App = () => {
               path="/users/:id/edit"
               element={
                 <AdminRoute>
-                  <UserEditView />
+                  <RedirectUserEditToList />
                 </AdminRoute>
               }
             />

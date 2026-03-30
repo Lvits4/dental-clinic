@@ -4,7 +4,7 @@ import PerformedProcedureForm from '../../components/performed-procedures/Perfor
 import { useCreatePerformedProcedure } from '../../querys/performed-procedures/mutationPerformedProcedures';
 import { usePatientsList } from '../../querys/patients/queryPatients';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
-import { useTreatmentsList } from '../../querys/treatments/queryTreatments';
+import { useTreatmentsForSelect } from '../../querys/treatments/queryTreatments';
 
 const FormSkeleton = () => (
   <div className="animate-pulse space-y-5">
@@ -49,7 +49,7 @@ const PerformedProcedureCreateView = () => {
   const createMutation = useCreatePerformedProcedure();
   const { data: patientsData, isLoading: lp } = usePatientsList({ limit: 100 });
   const { data: doctors, isLoading: ld } = useDoctorsList();
-  const { data: treatments, isLoading: lt } = useTreatmentsList();
+  const { data: treatmentsPage, isLoading: lt } = useTreatmentsForSelect();
 
   const loading = lp || ld || lt;
 
@@ -58,12 +58,15 @@ const PerformedProcedureCreateView = () => {
   const activeDoctors = (doctors || []).filter((d) => d.isActive);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3 flex-1 min-h-0 sm:gap-4">
       <PageHeader
-        title="Nuevo Procedimiento"
+        dense
+        titleTone="subtle"
+        title="Nuevo procedimiento"
+        subtitle="Registro en el historial clínico"
         breadcrumb={[
           { label: 'Inicio', to: '/' },
-          { label: 'Procedimientos Realizados', to: '/performed-procedures' },
+          { label: 'Procedimientos realizados', to: '/performed-procedures' },
           { label: 'Nuevo' },
         ]}
       />
@@ -86,7 +89,7 @@ const PerformedProcedureCreateView = () => {
           <PerformedProcedureForm
             patients={activePatients}
             doctors={activeDoctors}
-            treatments={treatments || []}
+            treatments={treatmentsPage?.data ?? []}
             loading={createMutation.isPending}
             onSubmit={(data) => createMutation.mutate(data)}
             onCancel={() => navigate(-1)}

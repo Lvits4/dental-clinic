@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { treatmentPlansApi } from '../../requests/treatment-plans.api';
 import type { CreateTreatmentPlanDto } from '../../types';
@@ -8,14 +7,12 @@ import { HttpError } from '../../helpers/http';
 
 export const useCreateTreatmentPlan = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (data: CreateTreatmentPlanDto) => treatmentPlansApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['treatment-plans'] });
       toast.success('Plan de tratamiento creado');
-      navigate('/treatment-plans');
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -66,6 +63,27 @@ export const useUpdateTreatmentPlan = () => {
         toast.error(msg);
       } else {
         toast.error('Error al actualizar el plan');
+      }
+    },
+  });
+};
+
+export const useDeleteTreatmentPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => treatmentPlansApi.delete(id),
+    onSuccess: (_void, id) => {
+      queryClient.invalidateQueries({ queryKey: ['treatment-plans'] });
+      queryClient.removeQueries({ queryKey: ['treatment-plans', id] });
+      toast.success('Plan eliminado');
+    },
+    onError: (error: Error) => {
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al eliminar el plan');
       }
     },
   });

@@ -11,6 +11,8 @@ export type {
 // Entidades de dominio
 export type {
   User,
+  UserSortBy,
+  UserSortOrder,
 } from './user.types';
 
 export type {
@@ -19,6 +21,8 @@ export type {
   RegisterDto,
   LoginFormErrors,
   RegisterFormErrors,
+  UpdateAccountDto,
+  UpdateAccountResponse,
 } from './auth.types';
 
 export type {
@@ -39,6 +43,8 @@ export type {
   UpdateDoctorDto,
   DoctorFilters,
   DoctorFormErrors,
+  DoctorSortBy,
+  DoctorSortOrder,
 } from './doctor.types';
 
 export type {
@@ -65,6 +71,9 @@ export type {
   CreateTreatmentDto,
   UpdateTreatmentDto,
   TreatmentFormErrors,
+  TreatmentFilters,
+  TreatmentSortBy,
+  TreatmentSortOrder,
 } from './treatment.types';
 export { TREATMENT_CATEGORIES } from './treatment.types';
 
@@ -72,6 +81,8 @@ export type {
   TreatmentPlanItem,
   TreatmentPlan,
   CreateTreatmentPlanDto,
+  TreatmentPlanSortBy,
+  TreatmentPlanSortOrder,
 } from './treatment-plan.types';
 export { PLAN_STATUS_CONFIG, VALID_PLAN_STATUS_TRANSITIONS } from './treatment-plan.types';
 

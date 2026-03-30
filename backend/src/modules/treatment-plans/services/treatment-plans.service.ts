@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { TreatmentPlan } from '../entities/treatment-plan.entity';
 import { TreatmentPlanItem } from '../entities/treatment-plan-item.entity';
+import { PerformedProcedure } from '../../performed-procedures/entities/performed-procedure.entity';
 import { CreateTreatmentPlanDto } from '../dto/create-treatment-plan.dto';
 import { UpdateTreatmentPlanDto } from '../dto/update-treatment-plan.dto';
 import { CreatePlanItemDto } from '../dto/create-plan-item.dto';
@@ -15,6 +16,8 @@ export class TreatmentPlansService {
     private readonly planRepository: Repository<TreatmentPlan>,
     @InjectRepository(TreatmentPlanItem)
     private readonly itemRepository: Repository<TreatmentPlanItem>,
+    @InjectRepository(PerformedProcedure)
+    private readonly performedProcedureRepository: Repository<PerformedProcedure>,
   ) {}
 
   async create(createDto: CreateTreatmentPlanDto): Promise<TreatmentPlan> {
@@ -87,5 +90,20 @@ export class TreatmentPlansService {
       throw new NotFoundException(`Item ${itemId} not found in plan ${planId}`);
     }
     await this.itemRepository.remove(item);
+  }
+
+  async remove(id: string): Promise<void> {
+    const plan = await this.planRepository.findOne({
+      where: { id },
+      relations: ['items'],
+    });
+    if (!plan) {
+      throw new NotFoundException(`Treatment plan with ID ${id} not found`);
+    }
+    const itemIds = plan.items?.map((i) => i.id) ?? [];
+    if (itemIds.length > 0) {
+      await this.performedProcedureRepository.update({ treatmentPlanItemId: In(itemIds) }, { treatmentPlanItemId: null });
+    }
+    await this.planRepository.remove(plan);
   }
 }

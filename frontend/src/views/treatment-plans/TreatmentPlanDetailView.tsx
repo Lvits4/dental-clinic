@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader, Badge, Spinner } from '../../components/ui';
+import { PageHeader, Badge, Card, Spinner } from '../../components/ui';
 import TreatmentPlanItems from '../../components/treatment-plans/TreatmentPlanItems';
 import { useTreatmentPlanDetail } from '../../querys/treatment-plans/queryTreatmentPlans';
 import { useUpdateTreatmentPlanStatus } from '../../querys/treatment-plans/mutationTreatmentPlans';
@@ -8,10 +8,10 @@ import { TreatmentPlanStatus } from '../../enums';
 
 const TreatmentPlanDetailView = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: plan, isLoading } = useTreatmentPlanDetail(id!);
+  const { data: plan, isPending: planLoading } = useTreatmentPlanDetail(id!);
   const statusMutation = useUpdateTreatmentPlanStatus(id!);
 
-  if (isLoading) {
+  if (planLoading) {
     return (
       <div className="flex justify-center py-12">
         <Spinner />
@@ -30,18 +30,21 @@ const TreatmentPlanDetailView = () => {
   const config = PLAN_STATUS_CONFIG[plan.status as TreatmentPlanStatus] ?? { label: plan.status, className: 'bg-slate-100 text-slate-600' };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3 flex-1 min-h-0 sm:gap-4">
       <PageHeader
-        title="Plan de Tratamiento"
+        dense
+        titleTone="subtle"
+        title="Plan de tratamiento"
+        subtitle="Detalle y procedimientos"
         breadcrumb={[
           { label: 'Inicio', to: '/' },
-          { label: 'Planes de Tratamiento', to: '/treatment-plans' },
+          { label: 'Planes de tratamiento', to: '/treatment-plans' },
           { label: 'Detalle' },
         ]}
         action={config ? <Badge className={config.className}>{config.label}</Badge> : undefined}
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5 space-y-3">
+      <Card bodyClassName="space-y-3">
         <dl className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:gap-2">
             <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Paciente</dt>
@@ -94,15 +97,14 @@ const TreatmentPlanDetailView = () => {
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
-      {/* Items del plan */}
-      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5">
+      <Card>
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
-          Procedimientos del Plan
+          Procedimientos del plan
         </h3>
         <TreatmentPlanItems items={plan.items || []} />
-      </div>
+      </Card>
     </div>
   );
 };

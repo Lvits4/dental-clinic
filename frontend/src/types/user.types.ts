@@ -9,3 +9,7 @@ export interface User {
   isActive: boolean;
   createdAt?: string;
 }
+
+export type UserSortBy = 'fullName' | 'username' | 'email' | 'role';
+
+export type UserSortOrder = 'asc' | 'desc';

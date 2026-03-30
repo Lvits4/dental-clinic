@@ -28,11 +28,9 @@ export class DoctorsService {
   }
 
   async findAll(isActive?: boolean): Promise<Doctor[]> {
-    const where: any = {};
-    if (isActive !== undefined) {
-      where.isActive = isActive;
-    }
-    return this.doctorRepository.find({ where });
+    /** Sin `isActive` en query: solo activos. `isActive=false` devuelve solo inactivos (p. ej. recuperación). */
+    const onlyActive = isActive !== false;
+    return this.doctorRepository.find({ where: { isActive: onlyActive } });
   }
 
   async findOne(id: string): Promise<Doctor> {

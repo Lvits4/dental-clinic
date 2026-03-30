@@ -28,6 +28,16 @@ export interface DoctorFilters {
   isActive?: boolean;
 }
 
+export type DoctorSortBy =
+  | 'name'
+  | 'specialty'
+  | 'phone'
+  | 'email'
+  | 'licenseNumber'
+  | 'isActive';
+
+export type DoctorSortOrder = 'asc' | 'desc';
+
 // Errores del formulario
 export interface DoctorFormErrors {
   firstName?: string;

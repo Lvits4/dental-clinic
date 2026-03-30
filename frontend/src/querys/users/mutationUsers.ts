@@ -5,7 +5,9 @@ import { usersApi } from '../../requests/users.api';
 import type { CreateUserDto, UpdateUserDto } from '../../requests/users.api';
 import { HttpError } from '../../helpers/http';
 
-export const useCreateUser = () => {
+type UserMutationNavOptions = { skipNavigation?: boolean };
+
+export const useCreateUser = (options?: UserMutationNavOptions) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -14,7 +16,9 @@ export const useCreateUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Usuario creado exitosamente');
-      navigate('/users');
+      if (!options?.skipNavigation) {
+        navigate('/users');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -27,7 +31,7 @@ export const useCreateUser = () => {
   });
 };
 
-export const useUpdateUser = (id: string) => {
+export const useUpdateUser = (id: string, options?: UserMutationNavOptions) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -37,7 +41,9 @@ export const useUpdateUser = (id: string) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['users', id] });
       toast.success('Usuario actualizado exitosamente');
-      navigate('/users');
+      if (!options?.skipNavigation) {
+        navigate('/users');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -57,34 +63,14 @@ export const useDeactivateUser = () => {
     mutationFn: (id: string) => usersApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Usuario desactivado');
+      toast.success('Usuario eliminado de la lista');
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
         const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
         toast.error(msg);
       } else {
-        toast.error('Error al desactivar usuario');
-      }
-    },
-  });
-};
-
-export const useActivateUser = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => usersApi.update(id, { isActive: true }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Usuario activado');
-    },
-    onError: (error: Error) => {
-      if (error instanceof HttpError) {
-        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
-        toast.error(msg);
-      } else {
-        toast.error('Error al activar usuario');
+        toast.error('Error al eliminar usuario');
       }
     },
   });

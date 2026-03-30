@@ -1,161 +1,338 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PageHeader, Button, Table, Badge, Modal } from '../../components/ui';
-import type { Column } from '../../components/ui';
+import { PageHeader, Button, Badge, Modal, ConfirmDialog } from '../../components/ui';
+import { HttpError } from '../../helpers/http';
 import { useTreatmentPlansList } from '../../querys/treatment-plans/queryTreatmentPlans';
-import { useUpdateTreatmentPlanStatus, useUpdateTreatmentPlan } from '../../querys/treatment-plans/mutationTreatmentPlans';
+import {
+  useUpdateTreatmentPlanStatus,
+  useUpdateTreatmentPlan,
+  useCreateTreatmentPlan,
+  useDeleteTreatmentPlan,
+} from '../../querys/treatment-plans/mutationTreatmentPlans';
 import { usePatientsList } from '../../querys/patients/queryPatients';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import TreatmentPlanForm from '../../components/treatment-plans/TreatmentPlanForm';
-import type { TreatmentPlan } from '../../types';
+import TreatmentPlanFilters, { type PlanStatusFilter } from '../../components/treatment-plans/TreatmentPlanFilters';
+import TreatmentPlansTable from '../../components/treatment-plans/TreatmentPlansTable';
+import type { TreatmentPlan, TreatmentPlanSortBy, TreatmentPlanSortOrder } from '../../types';
 import { PLAN_STATUS_CONFIG } from '../../types';
 import { TreatmentPlanStatus } from '../../enums';
 
-// Colores semánticos por estado de plan
 const PLAN_STATUS_BUTTON_CLASSES: Record<string, string> = {
-  [TreatmentPlanStatus.PENDING]:     'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
+  [TreatmentPlanStatus.PENDING]: 'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
   [TreatmentPlanStatus.IN_PROGRESS]: 'border-yellow-300 text-yellow-700 hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-400 dark:hover:bg-yellow-900/20',
-  [TreatmentPlanStatus.COMPLETED]:   'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
-  [TreatmentPlanStatus.CANCELLED]:   'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20',
+  [TreatmentPlanStatus.COMPLETED]: 'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
+  [TreatmentPlanStatus.CANCELLED]: 'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20',
 };
 
-const TreatmentPlansListView = () => {
-  const { data, isLoading } = useTreatmentPlansList();
+function matchesSearch(p: TreatmentPlan, q: string): boolean {
+  if (!q.trim()) return true;
+  const s = q.trim().toLowerCase();
+  const hay = [
+    p.patient?.firstName,
+    p.patient?.lastName,
+    p.doctor?.firstName,
+    p.doctor?.lastName,
+    p.observations,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return hay.includes(s);
+}
 
+function patientSortKey(p: TreatmentPlan): string {
+  if (!p.patient) return '';
+  return `${p.patient.firstName} ${p.patient.lastName}`.toLowerCase();
+}
+
+function doctorSortKey(p: TreatmentPlan): string {
+  if (!p.doctor) return '';
+  return `${p.doctor.firstName} ${p.doctor.lastName}`.toLowerCase();
+}
+
+const FormSkeleton = () => (
+  <div className="animate-pulse space-y-5">
+    <div className="rounded-md bg-slate-100 dark:bg-slate-800 h-10 w-48" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {[1, 2].map((i) => (
+        <div key={i} className="space-y-2">
+          <div className="h-4 w-24 rounded-md bg-slate-100 dark:bg-slate-800" />
+          <div className="h-10 rounded-md bg-slate-100 dark:bg-slate-800" />
+        </div>
+      ))}
+    </div>
+    <div className="space-y-2">
+      <div className="h-4 w-24 rounded-md bg-slate-100 dark:bg-slate-800" />
+      <div className="h-20 rounded-md bg-slate-100 dark:bg-slate-800" />
+    </div>
+    <div className="flex justify-end">
+      <div className="h-10 w-32 rounded-md bg-slate-100 dark:bg-slate-800" />
+    </div>
+  </div>
+);
+
+const CreatePlanEmptyState = ({
+  title,
+  message,
+  linkTo,
+  linkLabel,
+}: {
+  title: string;
+  message: string;
+  linkTo: string;
+  linkLabel: string;
+}) => (
+  <div className="text-center py-10">
+    <div className="w-12 h-12 rounded-md bg-amber-50 dark:bg-amber-900/20 mx-auto mb-3 flex items-center justify-center">
+      <svg className="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+        />
+      </svg>
+    </div>
+    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{title}</p>
+    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">{message}</p>
+    <Link
+      to={linkTo}
+      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+    >
+      {linkLabel}
+    </Link>
+  </div>
+);
+
+const TreatmentPlansListView = () => {
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<PlanStatusFilter>('all');
+  const [sortBy, setSortBy] = useState<TreatmentPlanSortBy>('createdAt');
+  const [sortOrder, setSortOrder] = useState<TreatmentPlanSortOrder>('desc');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [viewTarget, setViewTarget] = useState<TreatmentPlan | null>(null);
   const [editTarget, setEditTarget] = useState<TreatmentPlan | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<TreatmentPlan | null>(null);
+  const limit = 10;
+
+  const { data: rawList, isPending, isError, error, refetch } = useTreatmentPlansList();
+
+  const createMutation = useCreateTreatmentPlan();
+  const deletePlan = useDeleteTreatmentPlan();
 
   const updateStatus = useUpdateTreatmentPlanStatus(editTarget?.id ?? '');
-  const updatePlan   = useUpdateTreatmentPlan();
+  const updatePlan = useUpdateTreatmentPlan();
 
-  const { data: patientsData } = usePatientsList({ limit: 100 });
-  const { data: doctorsData }  = useDoctorsList();
-  const activePatients = (patientsData?.data ?? []).filter((p) => p.isActive);
-  const activeDoctors  = (doctorsData ?? []).filter((d) => d.isActive);
+  const { data: patientsData, isLoading: patientsLoading } = usePatientsList({ limit: 100 });
+  const { data: doctorsData, isLoading: doctorsLoading } = useDoctorsList();
+  const allPatients = patientsData?.data ?? [];
+  const activePatients = allPatients.filter((p) => p.isActive);
+  const activeDoctors = (doctorsData ?? []).filter((d) => d.isActive);
+  const createModalLoading = patientsLoading || doctorsLoading;
 
   const allStatusesExceptCurrent = editTarget
     ? Object.values(TreatmentPlanStatus).filter((s) => s !== editTarget.status)
     : [];
 
-  const columns: Column<TreatmentPlan>[] = [
-    {
-      key: 'patient',
-      header: 'Paciente',
-      render: (p) => p.patient
-        ? <span className="font-medium text-slate-900 dark:text-white">{p.patient.firstName} {p.patient.lastName}</span>
-        : '—',
-    },
-    {
-      key: 'doctor',
-      header: 'Doctor',
-      render: (p) => p.doctor ? `Dr. ${p.doctor.firstName} ${p.doctor.lastName}` : '—',
-      hideOnMobile: true,
-    },
-    {
-      key: 'status',
-      header: 'Estado',
-      render: (p) => {
-        const config = PLAN_STATUS_CONFIG[p.status as TreatmentPlanStatus];
-        return config ? <Badge className={config.className}>{config.label}</Badge> : null;
-      },
-    },
-    {
-      key: 'items',
-      header: 'Procedimientos',
-      render: (p) => `${p.items?.length || 0}`,
-      hideOnMobile: true,
-    },
-    {
-      key: 'actions',
-      header: 'Acciones',
-      className: 'text-right',
-      hideOnMobile: true,
-      render: (p) => (
-        <div
-          className="flex items-center justify-end gap-1"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Ver */}
-          <button
-            title="Ver plan"
-            onClick={() => setViewTarget(p)}
-            className="p-2 rounded-md text-sky-500 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-150 cursor-pointer"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
+  const filtered = useMemo(() => {
+    const list = rawList ?? [];
+    return list.filter((p) => {
+      if (!matchesSearch(p, search)) return false;
+      if (statusFilter !== 'all' && p.status !== statusFilter) return false;
+      return true;
+    });
+  }, [rawList, search, statusFilter]);
 
-          {/* Editar */}
-          <button
-            title="Editar plan"
-            onClick={() => setEditTarget(p)}
-            className="p-2 rounded-md text-amber-500 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-150 cursor-pointer"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const sortedFiltered = useMemo(() => {
+    const arr = [...filtered];
+    const dir = sortOrder === 'asc' ? 1 : -1;
+    arr.sort((a, b) => {
+      let cmp = 0;
+      switch (sortBy) {
+        case 'patient':
+          cmp = patientSortKey(a).localeCompare(patientSortKey(b), 'es');
+          break;
+        case 'doctor':
+          cmp = doctorSortKey(a).localeCompare(doctorSortKey(b), 'es');
+          break;
+        case 'status':
+          cmp = a.status.localeCompare(b.status);
+          break;
+        case 'items':
+          cmp = (a.items?.length ?? 0) - (b.items?.length ?? 0);
+          break;
+        case 'createdAt': {
+          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          cmp = ta - tb;
+          break;
+        }
+        default:
+          cmp = 0;
+      }
+      return cmp * dir;
+    });
+    return arr;
+  }, [filtered, sortBy, sortOrder]);
+
+  const totalItems = sortedFiltered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+
+  useEffect(() => {
+    setPage((pg) => Math.min(pg, totalPages));
+  }, [totalPages]);
+
+  const safePage = Math.min(page, totalPages);
+  const pageData = useMemo(() => {
+    const start = (safePage - 1) * limit;
+    return sortedFiltered.slice(start, start + limit);
+  }, [sortedFiltered, safePage, limit]);
+
+  const listErrorMessage =
+    error instanceof HttpError
+      ? typeof error.details === 'string'
+        ? error.details
+        : Array.isArray(error.details)
+          ? error.details.join(', ')
+          : error.message
+      : error instanceof Error
+        ? error.message
+        : 'No se pudo cargar la lista de planes de tratamiento.';
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleStatusFilterChange = (value: PlanStatusFilter) => {
+    setStatusFilter(value);
+    setPage(1);
+  };
+
+  const handleSort = (sortKey: string) => {
+    const k = sortKey as TreatmentPlanSortBy;
+    if (sortBy === k) {
+      setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(k);
+      setSortOrder(k === 'createdAt' ? 'desc' : 'asc');
+    }
+    setPage(1);
+  };
+
+  const hasFilters = !!(search.trim() || statusFilter !== 'all');
+
+  const resetFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setPage(1);
+  };
+
+  const deleteTargetLabel = planToDelete?.patient
+    ? `${planToDelete.patient.firstName} ${planToDelete.patient.lastName}`
+    : 'este plan';
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Planes de Tratamiento"
-        breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Planes de Tratamiento' }]}
-        action={
-          <Link to="/treatment-plans/new">
-            <Button>
-              <svg className="w-5 h-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
+      <div className="shrink-0">
+        <PageHeader
+          dense
+          titleTone="subtle"
+          title="Planes de tratamiento"
+          subtitle={
+            rawList && !isError
+              ? `${totalItems} ${totalItems === 1 ? 'plan' : 'planes'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
+              : !isError
+                ? 'Planes clínicos por paciente'
+                : undefined
+          }
+          breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Planes de tratamiento' }]}
+        />
+      </div>
+
+      <div className="shrink-0">
+        <TreatmentPlanFilters
+          search={search}
+          onSearchChange={handleSearchChange}
+          statusFilter={statusFilter}
+          onStatusFilterChange={handleStatusFilterChange}
+          hasFilters={hasFilters}
+          onResetFilters={resetFilters}
+          trailingActions={
+            <Button
+              type="button"
+              className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+              onClick={() => setCreateModalOpen(true)}
+            >
+              <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Nuevo Plan
+              Nuevo plan
             </Button>
-          </Link>
-        }
-      />
+          }
+        />
+      </div>
 
-      <Table<TreatmentPlan>
-        columns={columns}
-        data={data || []}
-        keyExtractor={(p) => p.id}
-        loading={isLoading}
-        emptyMessage="No hay planes de tratamiento"
-      />
+      <div className="flex-1 flex flex-col min-h-0 min-w-0">
+        {isError ? (
+          <div
+            role="alert"
+            className="flex flex-col items-center justify-center gap-4 rounded-md border border-red-200 bg-red-50/90 px-6 py-12 text-center dark:border-red-900/50 dark:bg-red-950/30"
+          >
+            <p className="text-sm text-red-800 dark:text-red-200 max-w-md">{listErrorMessage}</p>
+            <Button type="button" onClick={() => refetch()}>
+              Reintentar
+            </Button>
+          </div>
+        ) : (
+          <TreatmentPlansTable
+            data={pageData}
+            loading={isPending && !rawList}
+            fillHeight
+            onViewPlan={setViewTarget}
+            onEditPlan={setEditTarget}
+            onDeletePlan={setPlanToDelete}
+            sortColumn={sortBy}
+            sortDirection={sortOrder}
+            onSort={handleSort}
+            pagination={
+              !isError && totalItems > 0
+                ? {
+                    page: safePage,
+                    totalPages,
+                    total: totalItems,
+                    limit,
+                    onPageChange: setPage,
+                  }
+                : undefined
+            }
+          />
+        )}
+      </div>
 
-      {/* Modal ver plan (solo lectura) */}
-      <Modal
-        isOpen={!!viewTarget}
-        onClose={() => setViewTarget(null)}
-        title="Detalle del plan"
-        size="md"
-      >
+      <Modal isOpen={!!viewTarget} onClose={() => setViewTarget(null)} title="Detalle del plan" size="md">
         {viewTarget && (
           <div className="space-y-4 text-sm">
             <PlanDetailRow
               label="Paciente"
-              value={viewTarget.patient
-                ? `${viewTarget.patient.firstName} ${viewTarget.patient.lastName}`
-                : '—'}
+              value={
+                viewTarget.patient
+                  ? `${viewTarget.patient.firstName} ${viewTarget.patient.lastName}`
+                  : '—'
+              }
             />
             <PlanDetailRow
               label="Doctor"
-              value={viewTarget.doctor
-                ? `Dr. ${viewTarget.doctor.firstName} ${viewTarget.doctor.lastName}`
-                : '—'}
+              value={
+                viewTarget.doctor
+                  ? `Dr. ${viewTarget.doctor.firstName} ${viewTarget.doctor.lastName}`
+                  : '—'
+              }
             />
-            <PlanDetailRow
-              label="Observaciones"
-              value={viewTarget.observations || '—'}
-            />
-            <PlanDetailRow
-              label="Procedimientos"
-              value={`${viewTarget.items?.length || 0}`}
-            />
+            <PlanDetailRow label="Observaciones" value={viewTarget.observations || '—'} />
+            <PlanDetailRow label="Procedimientos" value={`${viewTarget.items?.length || 0}`} />
             <div className="flex items-center gap-2 pt-1">
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0">Estado</span>
               {(() => {
@@ -164,7 +341,6 @@ const TreatmentPlansListView = () => {
               })()}
             </div>
 
-            {/* Acción editar */}
             <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
               <button
                 type="button"
@@ -175,7 +351,10 @@ const TreatmentPlansListView = () => {
                 className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white transition-all duration-150 cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.75}
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
                 </svg>
@@ -186,15 +365,41 @@ const TreatmentPlansListView = () => {
         )}
       </Modal>
 
-      {/* Modal editar plan */}
-      <Modal
-        isOpen={!!editTarget}
-        onClose={() => setEditTarget(null)}
-        title="Editar plan de tratamiento"
-        size="md"
-      >
+      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Nuevo plan de tratamiento" size="md">
+        {createModalLoading ? (
+          <FormSkeleton />
+        ) : activePatients.length === 0 ? (
+          <CreatePlanEmptyState
+            title="No hay pacientes activos"
+            message={
+              allPatients.length > 0
+                ? 'Todos los pacientes están desactivados. Active al menos uno para crear un plan.'
+                : 'Debe crear al menos un paciente antes de crear un plan de tratamiento.'
+            }
+            linkTo="/patients"
+            linkLabel={allPatients.length > 0 ? 'Ir a Pacientes' : 'Crear Paciente'}
+          />
+        ) : (
+          <TreatmentPlanForm
+            key="treatment-plan-create"
+            patients={activePatients}
+            doctors={activeDoctors}
+            onSubmit={(data) => {
+              createMutation.mutate(data, {
+                onSettled: () => setCreateModalOpen(false),
+              });
+            }}
+            loading={createMutation.isPending}
+            submitLabel="Crear plan"
+            onCancel={() => setCreateModalOpen(false)}
+          />
+        )}
+      </Modal>
+
+      <Modal isOpen={!!editTarget} onClose={() => setEditTarget(null)} title="Editar plan de tratamiento" size="md">
         {editTarget && (
           <TreatmentPlanForm
+            key={editTarget.id}
             patients={activePatients}
             doctors={activeDoctors}
             initialPatientId={editTarget.patientId}
@@ -208,6 +413,7 @@ const TreatmentPlansListView = () => {
             }}
             loading={updatePlan.isPending}
             submitLabel="Guardar cambios"
+            onCancel={() => setEditTarget(null)}
             footerContent={
               <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-1">
                 <div className="flex items-center gap-2 mb-3">
@@ -219,9 +425,7 @@ const TreatmentPlansListView = () => {
                     return cfg ? <Badge className={cfg.className}>{cfg.label}</Badge> : null;
                   })()}
                 </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                  Cambiar a:
-                </p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Cambiar a:</p>
                 <div className="flex flex-wrap gap-2">
                   {allStatusesExceptCurrent.map((status) => (
                     <button
@@ -231,7 +435,7 @@ const TreatmentPlansListView = () => {
                       onClick={() =>
                         updateStatus.mutate(status, {
                           onSuccess: () => {
-                            setEditTarget((prev) => prev ? { ...prev, status } : null);
+                            setEditTarget((prev) => (prev ? { ...prev, status } : null));
                           },
                         })
                       }
@@ -249,6 +453,23 @@ const TreatmentPlansListView = () => {
           />
         )}
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!planToDelete}
+        onClose={() => setPlanToDelete(null)}
+        onConfirm={() => {
+          if (planToDelete) {
+            deletePlan.mutate(planToDelete.id, {
+              onSettled: () => setPlanToDelete(null),
+            });
+          }
+        }}
+        title="Eliminar plan"
+        message={`¿Eliminar el plan de ${deleteTargetLabel}? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        loading={deletePlan.isPending}
+      />
     </div>
   );
 };

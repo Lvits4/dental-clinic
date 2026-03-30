@@ -2,10 +2,21 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { doctorsApi } from '../../requests/doctors.api';
-import type { CreateDoctorDto, UpdateDoctorDto } from '../../types';
+import type { CreateDoctorDto, Doctor, UpdateDoctorDto } from '../../types';
 import { HttpError } from '../../helpers/http';
 
-export const useCreateDoctor = () => {
+type DoctorMutationNavOptions = { skipNavigation?: boolean };
+
+function isDoctorsListQueryKey(key: readonly unknown[]): boolean {
+  return key[0] === 'doctors' && key.length === 2 && typeof key[1] === 'object' && key[1] !== null;
+}
+
+function stripDoctorFromList(old: unknown, id: string): unknown {
+  if (!Array.isArray(old)) return old;
+  return old.filter((d) => (d as Doctor).id !== id);
+}
+
+export const useCreateDoctor = (options?: DoctorMutationNavOptions) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -14,7 +25,9 @@ export const useCreateDoctor = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
       toast.success('Doctor creado exitosamente');
-      navigate('/doctors');
+      if (!options?.skipNavigation) {
+        navigate('/doctors');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -27,7 +40,7 @@ export const useCreateDoctor = () => {
   });
 };
 
-export const useUpdateDoctor = (id: string) => {
+export const useUpdateDoctor = (id: string, options?: DoctorMutationNavOptions) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -37,7 +50,9 @@ export const useUpdateDoctor = (id: string) => {
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
       queryClient.invalidateQueries({ queryKey: ['doctors', id] });
       toast.success('Doctor actualizado exitosamente');
-      navigate('/doctors');
+      if (!options?.skipNavigation) {
+        navigate('/doctors');
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {
@@ -94,13 +109,28 @@ export const useToggleDoctorStatus = (id: string) => {
 export const useDeleteDoctor = () => {
   const queryClient = useQueryClient();
 
+  const listPredicate = (q: { queryKey: readonly unknown[] }) => isDoctorsListQueryKey(q.queryKey);
+
   return useMutation({
     mutationFn: (id: string) => doctorsApi.deactivate(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['doctors'] });
-      toast.success('Doctor desactivado exitosamente');
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['doctors'] });
+      const previousEntries = queryClient.getQueriesData({ predicate: listPredicate });
+      queryClient.setQueriesData({ predicate: listPredicate }, (old) => stripDoctorFromList(old, id));
+      return { previousEntries };
     },
-    onError: (error: Error) => {
+    onSuccess: (_data, id) => {
+      queryClient.removeQueries({ queryKey: ['doctors', id] });
+      queryClient.invalidateQueries({ queryKey: ['doctors'] });
+      toast.success('Doctor desactivado');
+    },
+    onError: (error: Error, _id, context) => {
+      const prev = context?.previousEntries;
+      if (prev) {
+        prev.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
       if (error instanceof HttpError) {
         const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
         toast.error(msg);

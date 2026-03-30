@@ -1,17 +1,13 @@
-import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { PageHeader, Badge, Button, ConfirmDialog, Spinner } from '../../components/ui';
+import { Link, useParams } from 'react-router-dom';
+import { PageHeader, Badge, Button, Card, Spinner } from '../../components/ui';
 import { useDoctorDetail } from '../../querys/doctors/queryDoctors';
-import { useDeleteDoctor } from '../../querys/doctors/mutationDoctors';
+import type { DoctorModalLocationState } from './DoctorRouteRedirects';
 
 const DoctorDetailView = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { data: doctor, isLoading } = useDoctorDetail(id!);
-  const deleteMutation = useDeleteDoctor();
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { data: doctor, isPending: doctorLoading } = useDoctorDetail(id!);
 
-  if (isLoading) {
+  if (doctorLoading) {
     return (
       <div className="flex justify-center py-12">
         <Spinner />
@@ -27,15 +23,6 @@ const DoctorDetailView = () => {
     );
   }
 
-  const handleDelete = () => {
-    deleteMutation.mutate(id!, {
-      onSuccess: () => {
-        setShowDeleteDialog(false);
-        navigate('/doctors');
-      },
-    });
-  };
-
   const rows = [
     { label: 'Especialidad', value: doctor.specialty },
     { label: 'Teléfono', value: doctor.phone },
@@ -44,31 +31,37 @@ const DoctorDetailView = () => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3 flex-1 min-h-0 sm:gap-4">
       <PageHeader
-        title="Detalle de Doctor"
+        dense
+        titleTone="subtle"
+        title="Ficha del doctor"
+        subtitle={`Dr. ${doctor.firstName} ${doctor.lastName}`}
         breadcrumb={[
           { label: 'Inicio', to: '/' },
           { label: 'Doctores', to: '/doctors' },
           { label: `Dr. ${doctor.firstName} ${doctor.lastName}` },
         ]}
         action={
-          <div className="flex items-center gap-2">
-            <Link to={`/doctors/${id}/edit`}>
-              <Button variant="secondary">Editar</Button>
-            </Link>
-            {doctor.isActive && (
-              <Button variant="danger" onClick={() => setShowDeleteDialog(true)}>
-                Desactivar
-              </Button>
-            )}
-          </div>
+          <Link
+            to="/doctors"
+            state={
+              {
+                openDoctorModal: 'edit',
+                doctorId: id!,
+              } satisfies DoctorModalLocationState
+            }
+          >
+            <Button variant="secondary" className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md">
+              Editar
+            </Button>
+          </Link>
         }
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-5">
+      <Card>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white">
             Dr. {doctor.firstName} {doctor.lastName}
           </h2>
           <Badge
@@ -92,17 +85,7 @@ const DoctorDetailView = () => {
             </div>
           ))}
         </dl>
-      </div>
-
-      <ConfirmDialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleDelete}
-        title="Desactivar doctor"
-        message={`¿Estás seguro de desactivar al Dr. ${doctor.firstName} ${doctor.lastName}?`}
-        confirmLabel="Desactivar"
-        loading={deleteMutation.isPending}
-      />
+      </Card>
     </div>
   );
 };

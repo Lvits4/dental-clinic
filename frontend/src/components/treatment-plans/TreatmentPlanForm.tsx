@@ -25,6 +25,7 @@ interface TreatmentPlanFormProps {
   initialObservations?: string;
   /** Contenido extra que aparece entre el formulario y el botón de guardar (e.g. sección de estado) */
   footerContent?: ReactNode;
+  onCancel?: () => void;
 }
 
 /* ── Icono de sección ── */
@@ -44,6 +45,7 @@ const TreatmentPlanForm = ({
   initialDoctorId,
   initialObservations,
   footerContent,
+  onCancel,
 }: TreatmentPlanFormProps) => {
   const [patientId, setPatientId] = useState(initialPatientId ?? '');
   const [doctorId, setDoctorId] = useState(initialDoctorId ?? '');
@@ -102,7 +104,12 @@ const TreatmentPlanForm = ({
 
       {footerContent}
 
-      <div className="flex justify-end">
+      <div className={`flex justify-end ${onCancel ? 'gap-2' : ''}`}>
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
+            Cancelar
+          </Button>
+        )}
         <Button type="submit" loading={loading}>{submitLabel}</Button>
       </div>
     </form>
