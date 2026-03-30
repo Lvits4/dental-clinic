@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, type ChangeEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useOverlayAnchor } from './useOverlayAnchor';
 
 export interface SelectOption {
   value: string;
@@ -37,6 +39,10 @@ const Select = ({
   const radiusClass = 'rounded-lg';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const portalListRef = useRef<HTMLUListElement>(null);
+  /* Sin voltear: siempre debajo del campo (el calendario sí usa flip en DatePicker). */
+  const anchorRect = useOverlayAnchor(buttonRef, open, 6);
   const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
   // Encontrar la opcion seleccionada
@@ -48,9 +54,10 @@ const Select = ({
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const t = e.target as Node;
+      if (containerRef.current?.contains(t)) return;
+      if (portalListRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -95,6 +102,7 @@ const Select = ({
       <div className="relative">
         {/* Trigger */}
         <button
+          ref={buttonRef}
           type="button"
           id={selectId}
           disabled={disabled}
@@ -136,12 +144,23 @@ const Select = ({
           </span>
         </button>
 
-        {/* Dropdown panel */}
-        {open && (
+      </div>
+
+      {open &&
+        anchorRect &&
+        createPortal(
           <ul
+            ref={portalListRef}
             role="listbox"
+            style={{
+              position: 'fixed',
+              top: anchorRect.top,
+              left: anchorRect.left,
+              width: anchorRect.width,
+              zIndex: 100,
+            }}
             className={[
-              'absolute z-50 mt-1.5 w-full max-h-60 overflow-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none',
+              'max-h-60 overflow-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none',
               radiusClass,
             ].join(' ')}
           >
@@ -184,9 +203,9 @@ const Select = ({
                 </li>
               );
             })}
-          </ul>
+          </ul>,
+          document.body,
         )}
-      </div>
 
       {error && (
         <p role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">

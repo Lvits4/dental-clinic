@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, type ChangeEvent } from 'react';
+import { useState, useRef, useEffect, useMemo, type ChangeEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useOverlayAnchor } from './useOverlayAnchor';
 
 export interface DatePickerProps {
   label?: string;
@@ -67,7 +69,17 @@ const DatePicker = ({
 }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const portalPanelRef = useRef<HTMLDivElement>(null);
+  const anchorRect = useOverlayAnchor(buttonRef, open, 6, { estimatedHeightPx: 380 });
   const pickerId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+
+  const panelWidthPx = 288; // w-72
+  const calendarLeft = useMemo(() => {
+    if (!anchorRect) return 0;
+    const vw = typeof globalThis !== 'undefined' ? globalThis.innerWidth : 1024;
+    return Math.max(8, Math.min(anchorRect.left, vw - panelWidthPx - 8));
+  }, [anchorRect]);
 
   // Calendar navigation state
   const parsed = parseDate(value);
@@ -88,9 +100,10 @@ const DatePicker = ({
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const t = e.target as Node;
+      if (containerRef.current?.contains(t)) return;
+      if (portalPanelRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -195,6 +208,7 @@ const DatePicker = ({
       <div className="relative">
         {/* Trigger */}
         <button
+          ref={buttonRef}
           type="button"
           id={pickerId}
           disabled={disabled}
@@ -239,10 +253,23 @@ const DatePicker = ({
             </span>
           </span>
         </button>
+      </div>
 
-        {/* Calendar Panel */}
-        {open && (
-          <div className="absolute z-50 mt-1.5 w-72 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none p-3">
+      {open &&
+        anchorRect &&
+        createPortal(
+          <div
+            ref={portalPanelRef}
+            style={{
+              position: 'fixed',
+              top: anchorRect.top,
+              left: calendarLeft,
+              zIndex: 100,
+              maxHeight: anchorRect.maxHeight,
+              overflowY: anchorRect.maxHeight != null ? 'auto' : undefined,
+            }}
+            className="w-72 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none p-3"
+          >
             {/* Header — Month/Year Navigation */}
             <div className="flex items-center justify-between mb-3">
               <button
@@ -349,7 +376,6 @@ const DatePicker = ({
               <button
                 type="button"
                 onClick={() => {
-                  const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
                   setViewYear(today.getFullYear());
                   setViewMonth(today.getMonth());
                   handleSelect(today.getDate());
@@ -368,9 +394,9 @@ const DatePicker = ({
                 </button>
               )}
             </div>
-          </div>
+          </div>,
+          document.body,
         )}
-      </div>
 
       {error && (
         <p role="alert" className="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
