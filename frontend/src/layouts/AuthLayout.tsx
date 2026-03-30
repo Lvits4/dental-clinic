@@ -32,7 +32,7 @@ const AuthLayout = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* ── Panel izquierdo: Branding ── */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[520px] relative overflow-hidden flex-col justify-between bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 dark:from-emerald-900 dark:via-emerald-950 dark:to-slate-950 p-10 xl:p-12">
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[520px] relative overflow-hidden flex-col justify-between bg-linear-to-br from-emerald-600 via-emerald-700 to-teal-800 dark:from-emerald-900 dark:via-emerald-950 dark:to-slate-950 p-10 xl:p-12">
         {/* Elementos decorativos */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="absolute -top-20 -left-20 w-72 h-72 rounded-md bg-white/5 blur-2xl" />

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, type FormEvent } from 'react';
+import { useState, useCallback, useRef, type FormEventHandler } from 'react';
 import {
   Input,
   Select,
@@ -155,7 +155,7 @@ const PatientForm = ({
     return Object.keys(stepErrors).length === 0;
   }, [phone, email]);
 
-  const handleSubmit = (_e: FormEvent) => {
+  const handleSubmit: FormEventHandler = () => {
     const data: CreatePatientDto = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),

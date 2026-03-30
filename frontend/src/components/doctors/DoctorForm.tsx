@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, type FormEventHandler } from 'react';
 import { Input, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreateDoctorDto, Doctor, DoctorFormErrors } from '../../types';
@@ -106,7 +106,7 @@ const DoctorForm = ({
     return Object.keys(stepErrors).length === 0;
   }, [phone, email]);
 
-  const handleSubmit = (_e: FormEvent) => {
+  const handleSubmit: FormEventHandler = () => {
     const data: CreateDoctorDto = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),

@@ -170,7 +170,7 @@ const UsersListView = () => {
           trailingActions={
             <Button
               type="button"
-              className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+              className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
               onClick={() => setModal({ mode: 'create' })}
             >
               <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

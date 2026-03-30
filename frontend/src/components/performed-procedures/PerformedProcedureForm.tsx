@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, type FormEvent } from 'react';
+import { useState, useCallback, useMemo, useEffect, type FormEventHandler } from 'react';
 import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment, PerformedProcedure } from '../../types';
@@ -157,7 +157,7 @@ const PerformedProcedureForm = ({
     return Object.keys(stepErrors).length === 0;
   }, [patientId, doctorId, treatmentId]);
 
-  const handleSubmit = (_e: FormEvent) => {
+  const handleSubmit: FormEventHandler = () => {
     const payload: CreatePerformedProcedureDto = {
       patientId,
       doctorId,

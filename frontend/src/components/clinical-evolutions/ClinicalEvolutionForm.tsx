@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, type FormEventHandler } from 'react';
 import {
   Select,
   Textarea,
@@ -65,7 +65,7 @@ const ClinicalEvolutionForm = ({
     return !!consultationReason.trim() && !!findings.trim() && !!diagnosis.trim() && !!procedurePerformed.trim();
   }, [consultationReason, findings, diagnosis, procedurePerformed]);
 
-  const handleSubmit = (_e: FormEvent) => {
+  const handleSubmit: FormEventHandler = () => {
     onSubmit({
       clinicalRecordId,
       doctorId,

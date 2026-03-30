@@ -265,7 +265,7 @@ const TreatmentPlansListView = () => {
           trailingActions={
             <Button
               type="button"
-              className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+              className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
               onClick={() => setCreateModalOpen(true)}
             >
               <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -504,7 +504,7 @@ const TreatmentPlansListView = () => {
 const PlanDetailRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex items-start gap-2">
     <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0 pt-0.5">{label}</span>
-    <span className="text-slate-800 dark:text-slate-200 break-words">{value}</span>
+    <span className="text-slate-800 dark:text-slate-200 wrap-break-word">{value}</span>
   </div>
 );
 

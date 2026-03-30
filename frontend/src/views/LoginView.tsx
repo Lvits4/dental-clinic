@@ -128,7 +128,7 @@ const LoginView = () => {
           <Button
             type="submit"
             loading={loginMutation.isPending}
-            className="w-full !py-2.5 !text-sm !font-semibold"
+            className="w-full py-2.5! text-sm! font-semibold!"
           >
             Iniciar sesion
           </Button>

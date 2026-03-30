@@ -116,7 +116,7 @@ const Pagination = ({
                 onClick={() => onPageChange(item)}
                 disabled={safeTotalPages <= 1}
                 className={[
-                  `min-w-[2.25rem] h-9 px-2 text-sm font-medium transition-colors ${r}`,
+                  `min-w-9 h-9 px-2 text-sm font-medium transition-colors ${r}`,
                   'disabled:opacity-50 disabled:cursor-default disabled:hover:text-inherit',
                   page === item
                     ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-slate-100'

@@ -52,7 +52,7 @@ const DoctorDetailView = () => {
               } satisfies DoctorModalLocationState
             }
           >
-            <Button variant="secondary" className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md">
+            <Button variant="secondary" className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md">
               Editar
             </Button>
           </Link>

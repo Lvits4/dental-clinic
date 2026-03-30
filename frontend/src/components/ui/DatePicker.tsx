@@ -469,7 +469,7 @@ const DatePicker = ({
                 }}
                 className={[
                   calendarTriggerBaseClass,
-                  'w-[4.75rem] min-w-[4.75rem] shrink-0 justify-self-stretch border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/90 px-2 py-2 tabular-nums text-slate-800 dark:text-slate-100',
+                  'w-19 min-w-19 shrink-0 justify-self-stretch border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/90 px-2 py-2 tabular-nums text-slate-800 dark:text-slate-100',
                   'hover:border-emerald-300/80 dark:hover:border-emerald-700/60',
                   headerMenu === 'year'
                     ? 'border-emerald-600/55 dark:border-emerald-500/50 ring-1 ring-inset ring-emerald-600/16 dark:ring-emerald-400/14'
@@ -544,7 +544,7 @@ const DatePicker = ({
                       disabledDay
                         ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
                         : selected
-                          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-sm shadow-emerald-500/30'
+                          ? 'bg-linear-to-r from-emerald-500 to-teal-500 text-white font-semibold shadow-sm shadow-emerald-500/30'
                           : todayMark
                             ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold ring-1 ring-emerald-200 dark:ring-emerald-800'
                             : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700',

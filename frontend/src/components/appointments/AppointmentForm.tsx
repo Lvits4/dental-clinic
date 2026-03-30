@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEvent, type ReactNode } from 'react';
+import { useState, useCallback, type FormEventHandler, type ReactNode } from 'react';
 import {
   TimePicker,
   Select,
@@ -135,7 +135,7 @@ const AppointmentForm = ({
     return Object.keys(stepErrors).length === 0;
   }, [patientId, doctorId, date, time]);
 
-  const handleSubmit = (_e: FormEvent) => {
+  const handleSubmit: FormEventHandler = () => {
     const dateTime = date && time ? `${date}T${time}:00` : '';
 
     const data: CreateAppointmentDto = {

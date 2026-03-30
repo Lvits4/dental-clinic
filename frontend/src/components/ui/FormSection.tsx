@@ -44,7 +44,7 @@ const FormSection = ({
         <span className={`inline-flex items-center ${legendGap}`}>
           {icon && (
             <span
-              className={`flex items-center justify-center ${iconBox} ${r} bg-gradient-to-br from-emerald-500 to-teal-500 text-white shrink-0`}
+              className={`flex items-center justify-center ${iconBox} ${r} bg-linear-to-br from-emerald-500 to-teal-500 text-white shrink-0`}
             >
               {icon}
             </span>

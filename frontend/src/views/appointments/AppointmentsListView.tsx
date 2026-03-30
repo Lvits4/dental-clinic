@@ -111,7 +111,7 @@ const AppointmentsListView = () => {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+                  className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
                 >
                   <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -126,7 +126,7 @@ const AppointmentsListView = () => {
               </Link>
               <Button
                 type="button"
-                className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+                className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
                 onClick={() => setFormModal({ mode: 'create' })}
               >
                 <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

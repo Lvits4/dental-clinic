@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEventHandler } from 'react';
 import { Textarea, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { ClinicalRecord, UpdateClinicalRecordDto } from '../../types';
@@ -41,7 +41,7 @@ const ClinicalRecordForm = ({
   const [diagnosis, setDiagnosis] = useState(initialData?.diagnosis || '');
   const [observations, setObservations] = useState(initialData?.observations || '');
 
-  const handleSubmit = (_e: FormEvent) => {
+  const handleSubmit: FormEventHandler = () => {
     const payload: UpdateClinicalRecordDto = {
       medicalBackground: medicalBackground.trim() || undefined,
       dentalBackground: dentalBackground.trim() || undefined,

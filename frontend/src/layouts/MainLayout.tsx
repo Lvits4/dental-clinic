@@ -332,7 +332,7 @@ const MainLayout = () => {
             {({ isActive }) =>
               collapsed ? (
                 <div
-                  className={`w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-semibold shrink-0 shadow-sm ${
+                  className={`w-8 h-8 rounded-full bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-semibold shrink-0 shadow-sm ${
                     isActive ? 'ring-2 ring-emerald-400/80 ring-offset-2 ring-offset-emerald-50 dark:ring-offset-emerald-900/25' : ''
                   }`}
                 >
@@ -340,7 +340,7 @@ const MainLayout = () => {
                 </div>
               ) : (
                 <>
-                  <div className="w-8 h-8 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-semibold shrink-0 shadow-sm">
+                  <div className="w-8 h-8 rounded-md bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-semibold shrink-0 shadow-sm">
                     {userInitial}
                   </div>
                   <div className="flex-1 min-w-0 leading-tight">
@@ -390,7 +390,7 @@ const MainLayout = () => {
           <div className="h-8 w-8 shrink-0 overflow-hidden rounded-md flex items-center justify-center">
             <img src={LOGO_COLAPSADO_URL} alt="SmileCare" className="max-h-full max-w-full object-contain" />
           </div>
-          <span className="text-base font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+          <span className="text-base font-bold bg-linear-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
             SmileCare
           </span>
         </NavLink>
@@ -399,7 +399,7 @@ const MainLayout = () => {
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
-            className="w-9 h-9 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
+            className="w-9 h-9 rounded-md bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
             aria-label="Menu de usuario"
           >
             {userInitial}

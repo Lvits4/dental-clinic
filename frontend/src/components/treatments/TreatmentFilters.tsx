@@ -49,7 +49,7 @@ const TreatmentFilters = ({
             rounding="compact"
           />
         </div>
-        <div className="shrink-0 sm:min-w-[12rem]">
+        <div className="shrink-0 sm:min-w-48">
           <Select
             label="Categoría"
             className={FILTER_SELECT_TRIGGER_CLASS}

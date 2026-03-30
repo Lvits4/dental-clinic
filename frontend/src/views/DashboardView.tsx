@@ -200,7 +200,7 @@ const DashboardView = () => {
                   const barColor = BAR_COLORS[item.status] || 'bg-slate-400';
                   return (
                     <div key={item.status} className="flex items-center gap-2">
-                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 w-[5.5rem] shrink-0 truncate">
+                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 w-22 shrink-0 truncate">
                         {STATUS_LABELS[item.status] || item.status}
                       </span>
                       <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-md h-2 overflow-hidden min-w-0">
@@ -233,7 +233,7 @@ const DashboardView = () => {
                     className="flex items-center justify-between gap-2 p-2.5 rounded-md bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                      <div className="w-7 h-7 rounded-md bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                         {doc.doctorName?.charAt(0)?.toUpperCase() ?? 'D'}
                       </div>
                       <span className="text-xs font-medium text-slate-800 dark:text-white truncate">

@@ -27,7 +27,7 @@ const FieldTile = ({ label, value, fullWidth }: FieldTileProps) => (
     className={[DETAIL_INFO_TILE_CLASS, fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
   >
     <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{label}</p>
-    <p className="text-sm font-medium text-slate-900 dark:text-white whitespace-pre-line break-words">
+    <p className="text-sm font-medium text-slate-900 dark:text-white whitespace-pre-line wrap-break-word">
       {value || '—'}
     </p>
   </div>

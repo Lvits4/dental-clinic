@@ -224,7 +224,7 @@ function EditAppointmentByIdBody({ appointmentId, onClose }: { appointmentId: st
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[14rem] flex-1 items-center justify-center">
+      <div className="flex min-h-56 flex-1 items-center justify-center">
         <Spinner />
       </div>
     );
