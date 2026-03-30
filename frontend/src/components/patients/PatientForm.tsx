@@ -1,6 +1,6 @@
-import { useState, useCallback, type FormEvent } from 'react';
+import { useState, useCallback, useRef, type FormEvent } from 'react';
 import { Input, Select, Textarea, DatePicker, FormSection, MultiStepForm } from '../ui';
-import type { Step } from '../ui';
+import type { MultiStepFormHandle, Step } from '../ui';
 import type { CreatePatientDto, PatientFormErrors, Patient } from '../../types';
 import { SEX_OPTIONS } from '../../types';
 
@@ -50,6 +50,22 @@ function validatePatient(data: CreatePatientDto): PatientFormErrors {
   return errors;
 }
 
+/** Orden para decidir qué error mostrar primero y en qué paso está. */
+const PATIENT_FIELD_ORDER: (keyof PatientFormErrors)[] = [
+  'firstName',
+  'lastName',
+  'sex',
+  'dateOfBirth',
+  'phone',
+  'email',
+];
+
+function stepIndexForPatientErrorKey(key: keyof PatientFormErrors): number {
+  if (['firstName', 'lastName', 'sex', 'dateOfBirth'].includes(key)) return 0;
+  if (['phone', 'email'].includes(key)) return 1;
+  return 2;
+}
+
 interface PatientFormProps {
   initialData?: Patient;
   onSubmit: (data: CreatePatientDto) => void;
@@ -94,6 +110,9 @@ const PatientForm = ({
   const [medications, setMedications] = useState(initialData?.medications || '');
   const [observations, setObservations] = useState(initialData?.observations || '');
   const [errors, setErrors] = useState<PatientFormErrors>({});
+  const multiStepRef = useRef<MultiStepFormHandle>(null);
+  /** Evita que onStepChange borre errores justo después de saltar al paso con fallo de validación. */
+  const skipClearErrorsOnNextStepChange = useRef(false);
 
   const clearError = (field: keyof PatientFormErrors) => {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -138,8 +157,11 @@ const PatientForm = ({
     };
 
     const validationErrors = validatePatient(data);
-    if (Object.keys(validationErrors).length > 0) {
+    const firstErrorKey = PATIENT_FIELD_ORDER.find((k) => validationErrors[k]);
+    if (firstErrorKey) {
       setErrors(validationErrors);
+      skipClearErrorsOnNextStepChange.current = true;
+      multiStepRef.current?.goToStep(stepIndexForPatientErrorKey(firstErrorKey));
       return;
     }
 
@@ -260,12 +282,19 @@ const PatientForm = ({
 
   return (
     <MultiStepForm
+      ref={multiStepRef}
       steps={steps}
       onSubmit={handleSubmit}
       submitLabel={submitLabel}
       loading={loading}
       onCancel={onCancel}
-      onStepChange={() => setErrors({})}
+      onStepChange={() => {
+        if (skipClearErrorsOnNextStepChange.current) {
+          skipClearErrorsOnNextStepChange.current = false;
+          return;
+        }
+        setErrors({});
+      }}
     />
   );
 };

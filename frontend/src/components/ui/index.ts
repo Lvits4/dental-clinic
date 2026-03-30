@@ -19,7 +19,7 @@ export { default as FormSection } from './FormSection';
 export type { FormSectionProps } from './FormSection';
 
 export { default as MultiStepForm } from './MultiStepForm';
-export type { MultiStepFormProps, Step } from './MultiStepForm';
+export type { MultiStepFormHandle, MultiStepFormProps, Step } from './MultiStepForm';
 
 export { default as Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';

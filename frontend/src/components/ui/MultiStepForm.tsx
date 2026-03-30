@@ -1,5 +1,19 @@
-import { useState, type ReactNode, type FormEvent } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type ReactNode,
+  type FormEvent,
+  type MouseEvent,
+} from 'react';
 import Button from './Button';
+
+export type MultiStepFormHandle = {
+  /** Lleva al paso indicado (útil tras validación fallida en otro paso). */
+  goToStep: (index: number) => void;
+};
 
 export interface Step {
   title: string;
@@ -27,44 +41,58 @@ export interface MultiStepFormProps {
   fillParent?: boolean;
 }
 
-const MultiStepForm = ({
-  steps,
-  onSubmit,
-  submitLabel = 'Guardar',
-  loading = false,
-  beforeButtons,
-  onCancel,
-  onStepChange,
-  fillParent = false,
-}: MultiStepFormProps) => {
+const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(function MultiStepForm(
+  {
+    steps,
+    onSubmit,
+    submitLabel = 'Guardar',
+    loading = false,
+    beforeButtons,
+    onCancel,
+    onStepChange,
+    fillParent = false,
+  },
+  ref,
+) {
   const [current, setCurrent] = useState(0);
   const isLast = current === steps.length - 1;
   const isFirst = current === 0;
+  const onStepChangeRef = useRef(onStepChange);
+  onStepChangeRef.current = onStepChange;
+
+  const goToStep = useCallback(
+    (index: number) => {
+      const clamped = Math.max(0, Math.min(index, Math.max(0, steps.length - 1)));
+      setCurrent(clamped);
+      onStepChangeRef.current?.(clamped);
+    },
+    [steps.length],
+  );
+
+  useImperativeHandle(ref, () => ({ goToStep }), [goToStep]);
 
   const goNext = () => {
     const next = Math.min(current + 1, steps.length - 1);
     setCurrent(next);
-    onStepChange?.(next);
+    onStepChangeRef.current?.(next);
   };
 
   const goBack = () => {
     const prev = Math.max(current - 1, 0);
     setCurrent(prev);
-    onStepChange?.(prev);
+    onStepChangeRef.current?.(prev);
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    // Ignorar si ya hay una petición en curso (evita doble-submit)
+  /** Envío real solo desde el botón del último paso (type=button), nunca desde submit nativo del form: evita cierres obsoletos que enviaban en el paso 2. */
+  const finishLastStep = (e: MouseEvent<HTMLButtonElement>) => {
     if (loading) return;
-    // Si NO estamos en el último paso, avanzar en lugar de enviar
-    if (!isLast) {
-      goNext();
-      return;
-    }
     const step = steps[current];
     if (step.validate && !step.validate()) return;
-    onSubmit(e);
+    onSubmit(e as unknown as FormEvent<HTMLFormElement>);
+  };
+
+  const blockNativeSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
   };
 
   // Prevenir que Enter envíe el formulario en TODOS los pasos.
@@ -88,7 +116,7 @@ const MultiStepForm = ({
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={blockNativeSubmit}
       onKeyDown={handleKeyDown}
       className={formLayoutClass}
     >
@@ -116,7 +144,7 @@ const MultiStepForm = ({
                 onClick={() => {
                   if (i < current) {
                     setCurrent(i);
-                    onStepChange?.(i);
+                    onStepChangeRef.current?.(i);
                   }
                 }}
                 disabled={i > current}
@@ -190,11 +218,12 @@ const MultiStepForm = ({
         <div className="ml-auto">
           {isLast ? (
             <Button
-              type="submit"
+              type="button"
               variant="primary"
               size="md"
               loading={loading}
               disabled={loading}
+              onClick={finishLastStep}
             >
               {submitLabel}
             </Button>
@@ -217,6 +246,8 @@ const MultiStepForm = ({
       </div>
     </form>
   );
-};
+});
+
+MultiStepForm.displayName = 'MultiStepForm';
 
 export default MultiStepForm;
