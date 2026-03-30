@@ -26,9 +26,9 @@ const ClinicalEvolutionFormModal = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Nueva evolución clínica"
-      size="lg"
-      fitContent
-      panelClassName="min-h-[min(28rem,52dvh)] w-full md:min-h-[min(32rem,50dvh)]"
+      size="md"
+      containBodyHeight
+      panelClassName="min-h-[min(28rem,52dvh)] md:min-h-[min(32rem,50dvh)]"
     >
       {loading ? (
         <div className="flex justify-center py-16">

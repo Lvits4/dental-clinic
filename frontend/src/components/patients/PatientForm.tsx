@@ -3,6 +3,7 @@ import { Input, Select, Textarea, DatePicker, FormSection, MultiStepForm } from 
 import type { MultiStepFormHandle, Step } from '../ui';
 import type { CreatePatientDto, PatientFormErrors, Patient } from '../../types';
 import { SEX_OPTIONS } from '../../types';
+import { patientEditUnchanged } from '../../utils/editUnchangedCompare';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[+\d\s()-]{7,20}$/;
@@ -69,6 +70,8 @@ function stepIndexForPatientErrorKey(key: keyof PatientFormErrors): number {
 interface PatientFormProps {
   initialData?: Patient;
   onSubmit: (data: CreatePatientDto) => void;
+  /** Edición: si no hubo cambios, no se llama a onSubmit; se ejecuta esto (p. ej. cerrar modal + aviso). */
+  onUnchanged?: () => void;
   loading?: boolean;
   submitLabel?: string;
   onCancel?: () => void;
@@ -94,6 +97,7 @@ const IconMedical = () => (
 const PatientForm = ({
   initialData,
   onSubmit,
+  onUnchanged,
   loading = false,
   submitLabel = 'Guardar',
   onCancel,
@@ -162,6 +166,11 @@ const PatientForm = ({
       setErrors(validationErrors);
       skipClearErrorsOnNextStepChange.current = true;
       multiStepRef.current?.goToStep(stepIndexForPatientErrorKey(firstErrorKey));
+      return;
+    }
+
+    if (initialData && patientEditUnchanged(initialData, data)) {
+      onUnchanged?.();
       return;
     }
 

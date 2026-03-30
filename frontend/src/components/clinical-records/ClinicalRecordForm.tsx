@@ -2,12 +2,14 @@ import { useState, type FormEvent } from 'react';
 import { Textarea, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { ClinicalRecord, UpdateClinicalRecordDto } from '../../types';
+import { clinicalRecordEditUnchanged } from '../../utils/editUnchangedCompare';
 
 interface ClinicalRecordFormProps {
   initialData?: ClinicalRecord;
   loading?: boolean;
   submitLabel?: string;
   onSubmit: (data: UpdateClinicalRecordDto) => void;
+  onUnchanged?: () => void;
   onCancel?: () => void;
   fillParent?: boolean;
 }
@@ -29,6 +31,7 @@ const ClinicalRecordForm = ({
   loading = false,
   submitLabel = 'Guardar',
   onSubmit,
+  onUnchanged,
   onCancel,
   fillParent = false,
 }: ClinicalRecordFormProps) => {
@@ -39,13 +42,18 @@ const ClinicalRecordForm = ({
   const [observations, setObservations] = useState(initialData?.observations || '');
 
   const handleSubmit = (_e: FormEvent) => {
-    onSubmit({
+    const payload: UpdateClinicalRecordDto = {
       medicalBackground: medicalBackground.trim() || undefined,
       dentalBackground: dentalBackground.trim() || undefined,
       consultationReason: consultationReason.trim() || undefined,
       diagnosis: diagnosis.trim() || undefined,
       observations: observations.trim() || undefined,
-    });
+    };
+    if (initialData && clinicalRecordEditUnchanged(initialData, payload)) {
+      onUnchanged?.();
+      return;
+    }
+    onSubmit(payload);
   };
 
   const steps: Step[] = [

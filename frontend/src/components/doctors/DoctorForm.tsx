@@ -2,6 +2,7 @@ import { useState, useCallback, type FormEvent } from 'react';
 import { Input, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreateDoctorDto, Doctor, DoctorFormErrors } from '../../types';
+import { doctorEditUnchanged } from '../../utils/editUnchangedCompare';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -44,6 +45,7 @@ function validateDoctor(data: CreateDoctorDto): DoctorFormErrors {
 interface DoctorFormProps {
   initialData?: Doctor;
   onSubmit: (data: CreateDoctorDto) => void;
+  onUnchanged?: () => void;
   loading?: boolean;
   submitLabel?: string;
   onCancel?: () => void;
@@ -64,6 +66,7 @@ const IconPhone = () => (
 const DoctorForm = ({
   initialData,
   onSubmit,
+  onUnchanged,
   loading = false,
   submitLabel = 'Guardar',
   onCancel,
@@ -104,6 +107,11 @@ const DoctorForm = ({
     const validationErrors = validateDoctor(data);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      return;
+    }
+
+    if (initialData && doctorEditUnchanged(initialData, data)) {
+      onUnchanged?.();
       return;
     }
 

@@ -111,7 +111,7 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
   };
 
   const formLayoutClass = fillParent
-    ? 'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden'
+    ? 'flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden'
     : 'flex min-h-0 w-full flex-1 flex-col';
 
   return (

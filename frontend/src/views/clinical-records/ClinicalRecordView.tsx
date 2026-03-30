@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader, Button, Spinner } from '../../components/ui';
 import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
@@ -81,6 +82,14 @@ const ClinicalRecordView = () => {
             loading={createMutation.isPending || updateMutation.isPending}
             submitLabel={record ? 'Guardar' : 'Crear Expediente'}
             onSubmit={record ? handleUpdate : handleCreate}
+            onUnchanged={
+              record
+                ? () => {
+                    toast('No hay cambios que guardar', { duration: 2800 });
+                    setEditing(false);
+                  }
+                : undefined
+            }
             onCancel={() => setEditing(false)}
           />
         </div>

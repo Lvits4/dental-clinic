@@ -11,6 +11,11 @@ export interface ModalProps {
   footer?: ReactNode;
   /** Panel que encaja al contenido (sin min-height forzada; ancho hasta max del size). */
   fitContent?: boolean;
+  /**
+   * true: el cuerpo no hace scroll; el hijo debe usar flex-1/min-h-0 y scroll interno
+   * (p. ej. formulario multistep con pie de acciones siempre visible).
+   */
+  containBodyHeight?: boolean;
   /** Clases extra en el panel (p. ej. tope de ancho). */
   panelClassName?: string;
 }
@@ -31,6 +36,7 @@ const Modal = ({
   children,
   footer,
   fitContent = false,
+  containBodyHeight = false,
   panelClassName = '',
 }: ModalProps) => {
   useEffect(() => {
@@ -122,11 +128,13 @@ const Modal = ({
           </div>
         )}
 
-        {/* Body: flex-1 para que el panel respete max-h y el contenido pueda usar h-full o hacer scroll */}
+        {/* Body: flex-1 para que el panel respete max-h; scroll en el body o delegado al hijo */}
         <div
           className={[
-            'min-h-0 flex-1 overflow-y-auto px-6 py-5',
-            fitContent ? 'flex flex-col' : '',
+            'min-h-0 flex-1 px-6 py-5',
+            containBodyHeight
+              ? 'flex flex-col overflow-hidden'
+              : ['overflow-y-auto', fitContent ? 'flex flex-col' : ''].filter(Boolean).join(' '),
           ]
             .filter(Boolean)
             .join(' ')}

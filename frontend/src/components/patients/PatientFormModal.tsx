@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { Modal, Spinner } from '../ui';
 import PatientForm from './PatientForm';
 import { usePatientDetail } from '../../querys/patients/queryPatients';
@@ -57,6 +58,10 @@ function EditPatientModalBody({ patientId, onClose }: { patientId: string; onClo
           onSuccess: () => onClose(),
         })
       }
+      onUnchanged={() => {
+        toast('No hay cambios que guardar', { duration: 2800 });
+        onClose();
+      }}
       loading={updateMutation.isPending}
       submitLabel="Guardar cambios"
       onCancel={onClose}

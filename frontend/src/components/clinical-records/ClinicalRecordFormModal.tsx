@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { Modal } from '../ui';
 import ClinicalRecordForm from './ClinicalRecordForm';
 import { useCreateClinicalRecord, useUpdateClinicalRecord } from '../../querys/clinical-records/mutationClinicalRecords';
@@ -70,6 +71,14 @@ const ClinicalRecordFormModal = ({
           loading={loading}
           submitLabel={mode === 'create' ? 'Crear expediente' : 'Guardar'}
           onSubmit={handleSubmit}
+          onUnchanged={
+            mode === 'edit'
+              ? () => {
+                  toast('No hay cambios que guardar', { duration: 2800 });
+                  onClose();
+                }
+              : undefined
+          }
           onCancel={onClose}
         />
       </div>

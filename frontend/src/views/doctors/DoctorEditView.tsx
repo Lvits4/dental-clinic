@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, PageHeader, Spinner, ConfirmDialog, ToggleSwitch } from '../../components/ui';
 import DoctorForm from '../../components/doctors/DoctorForm';
@@ -88,6 +89,7 @@ const DoctorEditView = () => {
         <DoctorForm
           initialData={doctor}
           onSubmit={(data) => updateMutation.mutate(data)}
+          onUnchanged={() => toast('No hay cambios que guardar', { duration: 2800 })}
           loading={updateMutation.isPending}
           submitLabel="Guardar Cambios"
           onCancel={() => navigate(-1)}
