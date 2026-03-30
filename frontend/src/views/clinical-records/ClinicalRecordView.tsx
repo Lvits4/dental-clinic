@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader, Button, Spinner } from '../../components/ui';
 import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
@@ -85,7 +86,7 @@ const ClinicalRecordView = () => {
             onUnchanged={
               record
                 ? () => {
-                    toast('No hay cambios que guardar', { duration: 2800 });
+                    toast(TOAST_NO_UPDATES, { duration: 2800 });
                     setEditing(false);
                   }
                 : undefined

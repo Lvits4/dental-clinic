@@ -121,18 +121,15 @@ const DatePicker = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const portalPanelRef = useRef<HTMLDivElement>(null);
-  const anchorRect = useOverlayAnchor(buttonRef, open, 6, { estimatedHeightPx: 400 });
+  /** w-80 (20rem): debe coincidir con el ancho del panel para el posicionamiento horizontal en viewport. */
+  const CALENDAR_PANEL_WIDTH_PX = 320;
+  const anchorRect = useOverlayAnchor(buttonRef, open, 6, {
+    estimatedHeightPx: 400,
+    overlayWidthPx: CALENDAR_PANEL_WIDTH_PX,
+  });
   const pickerId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
-  const panelWidthPx = 320; // w-80
-
   const { minY, maxY } = useMemo(() => getYearRange(min, max), [min, max]);
-
-  const calendarLeft = useMemo(() => {
-    if (!anchorRect) return 0;
-    const vw = typeof globalThis !== 'undefined' ? globalThis.innerWidth : 1024;
-    return Math.max(8, Math.min(anchorRect.left, vw - panelWidthPx - 8));
-  }, [anchorRect, panelWidthPx]);
 
   // Calendar navigation state
   const parsed = parseDate(value);
@@ -181,9 +178,13 @@ const DatePicker = ({
       if (top + listMax > globalThis.window.innerHeight - 10) {
         top = Math.max(10, rect.top - listMax - 6);
       }
+      const vw = document.documentElement.clientWidth;
+      const edge = 10;
       let left = rect.left;
-      left = Math.min(left, globalThis.window.innerWidth - width - 10);
-      left = Math.max(10, left);
+      if (left + width > vw - edge) {
+        left = rect.right - width;
+      }
+      left = Math.max(edge, Math.min(left, vw - width - edge));
       setMenuRect({ top, left, width });
       return;
     }
@@ -399,7 +400,7 @@ const DatePicker = ({
             style={{
               position: 'fixed',
               top: anchorRect.top,
-              left: calendarLeft,
+              left: anchorRect.left,
               zIndex: 200,
               maxHeight: anchorRect.maxHeight,
               overflowY: anchorRect.maxHeight != null ? 'auto' : undefined,

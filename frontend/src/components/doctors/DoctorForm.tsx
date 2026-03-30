@@ -49,6 +49,7 @@ interface DoctorFormProps {
   loading?: boolean;
   submitLabel?: string;
   onCancel?: () => void;
+  fillParent?: boolean;
 }
 
 /* ── Iconos de sección ── */
@@ -70,6 +71,7 @@ const DoctorForm = ({
   loading = false,
   submitLabel = 'Guardar',
   onCancel,
+  fillParent = false,
 }: DoctorFormProps) => {
   const [firstName, setFirstName] = useState(initialData?.firstName || '');
   const [lastName, setLastName] = useState(initialData?.lastName || '');
@@ -203,6 +205,8 @@ const DoctorForm = ({
       loading={loading}
       onCancel={onCancel}
       onStepChange={() => setErrors({})}
+      fillParent={fillParent}
+      stepBodyClassName={fillParent ? '' : 'min-h-[min(22rem,48dvh)]'}
     />
   );
 };

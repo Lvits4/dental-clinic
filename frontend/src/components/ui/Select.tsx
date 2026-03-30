@@ -1,6 +1,18 @@
-import { useState, useRef, useEffect, type ChangeEvent } from 'react';
+import { useState, useRef, useEffect, useMemo, type ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { useOverlayAnchor } from './useOverlayAnchor';
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  size,
+} from '@floating-ui/react-dom';
+
+/** Por encima del modal (z-50) y del calendario del DatePicker; capa global en body. */
+const SELECT_LIST_Z = 1100;
+/** ~max-h-60 (15rem). */
+const LIST_MAX_H_PX = 240;
 
 export interface SelectOption {
   value: string;
@@ -39,21 +51,40 @@ const Select = ({
   const radiusClass = 'rounded-md';
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const portalListRef = useRef<HTMLUListElement>(null);
-  /** ~max-h-60 (15rem): si no cabe abajo en el viewport, el hook abre el listado hacia arriba. */
-  const LIST_EST_HEIGHT_PX = 240;
-  const anchorRect = useOverlayAnchor(buttonRef, open, 6, {
-    estimatedHeightPx: LIST_EST_HEIGHT_PX,
+  const portalListRef = useRef<HTMLUListElement | null>(null);
+
+  const middleware = useMemo(
+    () => [
+      offset(6),
+      flip({ fallbackPlacements: ['bottom-start'] }),
+      shift({ padding: 8 }),
+      size({
+        apply({ availableHeight, rects, elements }) {
+          Object.assign(elements.floating.style, {
+            width: `${rects.reference.width}px`,
+            maxHeight: `${Math.min(LIST_MAX_H_PX, Math.max(0, availableHeight))}px`,
+          });
+        },
+      }),
+    ],
+    [],
+  );
+
+  const { refs, floatingStyles, isPositioned } = useFloating({
+    open,
+    placement: 'top-start',
+    strategy: 'fixed',
+    middleware,
+    whileElementsMounted: autoUpdate,
+    transform: false,
   });
+
   const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
-  // Encontrar la opcion seleccionada
   const selectedOption = options.find((o) => o.value === value);
   const displayLabel = selectedOption?.label ?? placeholder ?? 'Seleccionar...';
   const isPlaceholder = !selectedOption;
 
-  // Cerrar al hacer clic fuera
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
@@ -66,7 +97,6 @@ const Select = ({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [open]);
 
-  // Cerrar con Escape
   useEffect(() => {
     if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -79,13 +109,17 @@ const Select = ({
   const handleSelect = (optionValue: string) => {
     setOpen(false);
     if (onChange) {
-      // Simular un ChangeEvent<HTMLSelectElement> para mantener compatibilidad
       const syntheticEvent = {
         target: { value: optionValue, name: name ?? '' },
         currentTarget: { value: optionValue, name: name ?? '' },
       } as ChangeEvent<HTMLSelectElement>;
       onChange(syntheticEvent);
     }
+  };
+
+  const setListRef = (node: HTMLUListElement | null) => {
+    portalListRef.current = node;
+    refs.setFloating(node);
   };
 
   return (
@@ -103,15 +137,14 @@ const Select = ({
       )}
 
       <div className="relative">
-        {/* Trigger */}
         <button
-          ref={buttonRef}
+          ref={refs.setReference}
           type="button"
           id={selectId}
           disabled={disabled}
           onClick={() => !disabled && setOpen((v) => !v)}
           className={[
-            'w-full border text-sm transition-all duration-200 text-left',
+            'relative w-full border text-sm transition-all duration-200 text-left',
             radiusClass,
             'bg-white dark:bg-slate-800/50',
             'px-3.5 py-2.5 pr-10',
@@ -134,7 +167,6 @@ const Select = ({
         >
           <span className="block truncate">{displayLabel}</span>
 
-          {/* Chevron */}
           <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
             <svg
               className={`w-4 h-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
@@ -146,22 +178,17 @@ const Select = ({
             </svg>
           </span>
         </button>
-
       </div>
 
       {open &&
-        anchorRect &&
         createPortal(
           <ul
-            ref={portalListRef}
+            ref={setListRef}
             role="listbox"
             style={{
-              position: 'fixed',
-              top: anchorRect.top,
-              left: anchorRect.left,
-              width: anchorRect.width,
-              maxHeight: anchorRect.maxHeight ?? LIST_EST_HEIGHT_PX,
-              zIndex: 200,
+              ...floatingStyles,
+              zIndex: SELECT_LIST_Z,
+              visibility: isPositioned ? 'visible' : 'hidden',
             }}
             className={[
               'overflow-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg shadow-slate-200/50 dark:shadow-none py-1 focus:outline-none',

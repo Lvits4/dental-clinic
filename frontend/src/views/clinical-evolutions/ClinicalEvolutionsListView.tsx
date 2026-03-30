@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader, Button, Spinner, DatePicker } from '../../components/ui';
 import ClinicalEvolutionCard from '../../components/clinical-evolutions/ClinicalEvolutionCard';
@@ -29,6 +29,12 @@ const ClinicalEvolutionsListView = () => {
     setDateTo('');
     setPage(1);
   };
+
+  useEffect(() => {
+    if (!data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages]);
 
   if (loadingRecord) {
     return (
@@ -146,8 +152,8 @@ const ClinicalEvolutionsListView = () => {
           </div>
 
           <Pagination
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
+            page={page}
+            totalPages={Math.max(1, data.meta.totalPages)}
             total={data.meta.totalItems}
             limit={data.meta.limit}
             onPageChange={setPage}

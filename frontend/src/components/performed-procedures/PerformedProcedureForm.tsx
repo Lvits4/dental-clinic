@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect, type FormEvent } from 'react
 import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment, PerformedProcedure } from '../../types';
+import { performedProcedureEditUnchanged } from '../../utils/editUnchangedCompare';
 import { useTreatmentPlansByPatient } from '../../querys/treatment-plans/queryTreatmentPlans';
 import { TreatmentPlanStatus } from '../../enums';
 
@@ -20,6 +21,7 @@ interface PerformedProcedureFormProps {
   /** En modo edición, valores iniciales (id usado para sincronizar estado) */
   initialProcedure?: PerformedProcedure;
   onSubmit: (data: CreatePerformedProcedureDto) => void;
+  onUnchanged?: () => void;
   onCancel?: () => void;
 }
 
@@ -42,6 +44,7 @@ const PerformedProcedureForm = ({
   mode = 'create',
   initialProcedure,
   onSubmit,
+  onUnchanged,
   onCancel,
 }: PerformedProcedureFormProps) => {
   const [patientId, setPatientId] = useState('');
@@ -155,6 +158,10 @@ const PerformedProcedureForm = ({
     };
     if (mode === 'create') {
       payload.treatmentPlanItemId = linkToPlan && selectedItemId ? selectedItemId : undefined;
+    }
+    if (mode === 'edit' && initialProcedure && performedProcedureEditUnchanged(initialProcedure, payload)) {
+      onUnchanged?.();
+      return;
     }
     onSubmit(payload);
   };

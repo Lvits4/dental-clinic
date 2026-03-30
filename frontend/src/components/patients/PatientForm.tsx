@@ -82,6 +82,8 @@ interface PatientFormProps {
   loading?: boolean;
   submitLabel?: string;
   onCancel?: () => void;
+  /** true en modal con altura acotada: scroll en pasos; pie de acciones fijo */
+  fillParent?: boolean;
 }
 
 /* ── Iconos de sección ── */
@@ -108,6 +110,7 @@ const PatientForm = ({
   loading = false,
   submitLabel = 'Guardar',
   onCancel,
+  fillParent = false,
 }: PatientFormProps) => {
   const [firstName, setFirstName] = useState(initialData?.firstName || '');
   const [lastName, setLastName] = useState(initialData?.lastName || '');
@@ -313,6 +316,8 @@ const PatientForm = ({
         }
         setErrors({});
       }}
+      fillParent={fillParent}
+      stepBodyClassName={fillParent ? '' : 'min-h-[min(22rem,48dvh)]'}
     />
   );
 };

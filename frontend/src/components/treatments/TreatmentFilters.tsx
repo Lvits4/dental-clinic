@@ -44,8 +44,8 @@ const TreatmentFilters = ({
 }: TreatmentFiltersProps) => {
   return (
     <div className="flex flex-col gap-2 min-w-0">
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex w-full max-w-72 md:max-w-80 min-w-0 shrink-0 flex-col">
+      <div className="flex w-full min-w-0 items-end gap-2">
+        <div className="flex min-w-0 flex-1 flex-col">
           <label
             htmlFor="treatment-filter-search"
             className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
@@ -61,7 +61,7 @@ const TreatmentFilters = ({
             rounding="compact"
           />
         </div>
-        <div className="w-full sm:w-auto sm:min-w-[9.5rem] shrink-0">
+        <div className="shrink-0 sm:min-w-[9.5rem]">
           <Select
             label="Estado"
             className={FILTER_SELECT_TRIGGER_CLASS}
@@ -70,7 +70,7 @@ const TreatmentFilters = ({
             onChange={(e) => onActiveFilterChange(e.target.value as TreatmentActiveFilter)}
           />
         </div>
-        <div className="w-full sm:w-auto sm:min-w-[12rem] shrink-0">
+        <div className="shrink-0 sm:min-w-[12rem]">
           <Select
             label="Categoría"
             className={FILTER_SELECT_TRIGGER_CLASS}

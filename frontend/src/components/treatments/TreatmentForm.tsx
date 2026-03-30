@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Textarea, Button, FormSection } from '../ui';
+import { Input, Select, Textarea, Button, FormSection, FormActionBar } from '../ui';
 import type { CreateTreatmentDto, TreatmentFormErrors, Treatment } from '../../types';
 import { TREATMENT_CATEGORIES } from '../../types';
+import { treatmentEditUnchanged } from '../../utils/editUnchangedCompare';
 
 function validateTreatment(data: CreateTreatmentDto): TreatmentFormErrors {
   const errors: TreatmentFormErrors = {};
@@ -24,9 +25,11 @@ function validateTreatment(data: CreateTreatmentDto): TreatmentFormErrors {
 interface TreatmentFormProps {
   initialData?: Treatment;
   onSubmit: (data: CreateTreatmentDto) => void;
+  onUnchanged?: () => void;
   loading?: boolean;
   submitLabel?: string;
   onCancel?: () => void;
+  fillParent?: boolean;
 }
 
 /* ── Icono de sección ── */
@@ -39,9 +42,11 @@ const IconTreatment = () => (
 const TreatmentForm = ({
   initialData,
   onSubmit,
+  onUnchanged,
   loading = false,
   submitLabel = 'Guardar',
   onCancel,
+  fillParent = false,
 }: TreatmentFormProps) => {
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');
@@ -69,58 +74,83 @@ const TreatmentForm = ({
       return;
     }
 
+    if (initialData && treatmentEditUnchanged(initialData, data)) {
+      onUnchanged?.();
+      return;
+    }
+
     onSubmit(data);
   };
 
+  const iconClose = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+
+  const fields = (
+    <FormSection title="Información del Tratamiento" icon={<IconTreatment />} description="Nombre, categoría y precio">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          label="Nombre *"
+          placeholder="Limpieza dental"
+          value={name}
+          onChange={(e) => { setName(e.target.value); clearError('name'); }}
+          error={errors.name}
+          autoFocus
+        />
+        <Select
+          label="Categoría *"
+          options={TREATMENT_CATEGORIES}
+          value={category}
+          onChange={(e) => { setCategory(e.target.value); clearError('category'); }}
+          error={errors.category}
+        />
+        <Input
+          label="Precio por defecto"
+          type="number"
+          placeholder="0.00"
+          value={defaultPrice}
+          onChange={(e) => { setDefaultPrice(e.target.value); clearError('defaultPrice'); }}
+          error={errors.defaultPrice}
+          min="0"
+          step="0.01"
+        />
+      </div>
+      <div className="mt-4">
+        <Textarea
+          label="Descripción"
+          placeholder="Descripción del tratamiento..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+        />
+      </div>
+    </FormSection>
+  );
+
+  const actions = onCancel ? (
+    <FormActionBar
+      left={<Button type="button" variant="secondary" size="md" leftIcon={iconClose} onClick={onCancel} disabled={loading}>Cancelar</Button>}
+      right={<Button type="submit" size="md" loading={loading}>{submitLabel}</Button>}
+    />
+  ) : (
+    <FormActionBar end={<Button type="submit" size="md" loading={loading}>{submitLabel}</Button>} />
+  );
+
+  if (fillParent) {
+    return (
+      <form onSubmit={handleSubmit} className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-0.5">{fields}</div>
+        {actions}
+      </form>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <FormSection title="Información del Tratamiento" icon={<IconTreatment />} description="Nombre, categoría y precio">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Nombre *"
-            placeholder="Limpieza dental"
-            value={name}
-            onChange={(e) => { setName(e.target.value); clearError('name'); }}
-            error={errors.name}
-            autoFocus
-          />
-          <Select
-            label="Categoría *"
-            options={TREATMENT_CATEGORIES}
-            value={category}
-            onChange={(e) => { setCategory(e.target.value); clearError('category'); }}
-            error={errors.category}
-          />
-          <Input
-            label="Precio por defecto"
-            type="number"
-            placeholder="0.00"
-            value={defaultPrice}
-            onChange={(e) => { setDefaultPrice(e.target.value); clearError('defaultPrice'); }}
-            error={errors.defaultPrice}
-            min="0"
-            step="0.01"
-          />
-        </div>
-        <div className="mt-4">
-          <Textarea
-            label="Descripción"
-            placeholder="Descripción del tratamiento..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-          />
-        </div>
-      </FormSection>
-
-      <div className="flex flex-wrap justify-end gap-3 pt-2">
-        {onCancel && (
-          <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
-            Cancelar
-          </Button>
-        )}
-        <Button type="submit" loading={loading}>{submitLabel}</Button>
-      </div>
+      {fields}
+      {actions}
     </form>
   );
 };

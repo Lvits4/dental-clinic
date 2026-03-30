@@ -18,8 +18,8 @@ const DoctorFilters = ({
 }: DoctorFiltersProps) => {
   return (
     <div className="flex flex-col gap-2 min-w-0">
-      <div className="flex flex-wrap items-end gap-2">
-        <div className="flex w-full max-w-72 md:max-w-80 min-w-0 shrink-0 flex-col">
+      <div className="flex w-full min-w-0 items-end gap-2">
+        <div className="flex min-w-0 flex-1 flex-col">
           <label
             htmlFor="doctor-filter-search"
             className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"

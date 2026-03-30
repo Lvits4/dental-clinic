@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Modal, Spinner } from '../ui';
+import { Modal, Spinner, FormModalScrollShell } from '../ui';
 import AppointmentForm from './AppointmentForm';
 import AppointmentStatusBadge from './AppointmentStatusBadge';
 import {
@@ -11,14 +11,11 @@ import {
 import { usePatientsList } from '../../querys/patients/queryPatients';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import { useAppointmentDetail } from '../../querys/appointments/queryAppointments';
+import toast from 'react-hot-toast';
 import { AppointmentStatus } from '../../enums';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
 import { STATUS_CONFIG } from '../../types';
 import type { Appointment } from '../../types';
-
-/** Rellena el cuerpo del modal (flex) para que MultiStepForm pueda fijar el pie y hacer scroll solo en el paso. */
-const FormScrollShell = ({ children }: { children: ReactNode }) => (
-  <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
-);
 
 const STATUS_BUTTON_CLASSES: Record<AppointmentStatus, string> = {
   [AppointmentStatus.SCHEDULED]:   'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
@@ -110,7 +107,7 @@ function CreateAppointmentModalBody({
   }
 
   return (
-    <FormScrollShell>
+    <FormModalScrollShell>
       <AppointmentForm
         fillParent
         patients={activePatients}
@@ -125,7 +122,7 @@ function CreateAppointmentModalBody({
         submitLabel="Crear cita"
         onCancel={onClose}
       />
-    </FormScrollShell>
+    </FormModalScrollShell>
   );
 }
 
@@ -151,7 +148,7 @@ function EditAppointmentModalBody({
   const allStatusesExceptCurrent = Object.values(AppointmentStatus).filter((s) => s !== localAppt.status);
 
   return (
-    <FormScrollShell>
+    <FormModalScrollShell>
       <AppointmentForm
         fillParent
         key={localAppt.id}
@@ -177,6 +174,10 @@ function EditAppointmentModalBody({
       loading={updateAppointment.isPending}
       submitLabel="Guardar cambios"
       onCancel={onClose}
+      onUnchanged={() => {
+        toast(TOAST_NO_UPDATES, { duration: 2800 });
+        onClose();
+      }}
       footerContent={
         <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-5">
           <div className="flex items-center gap-2 mb-3">
@@ -214,7 +215,7 @@ function EditAppointmentModalBody({
         </div>
       }
       />
-    </FormScrollShell>
+    </FormModalScrollShell>
   );
 }
 

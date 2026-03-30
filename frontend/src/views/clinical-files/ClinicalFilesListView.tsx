@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { PageHeader, Spinner, ConfirmDialog, Pagination } from '../../components/ui';
 import FileUploadZone from '../../components/clinical-files/FileUploadZone';
@@ -12,7 +12,7 @@ const ClinicalFilesListView = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const limit = 12;
 
-  const { data, isLoading } = useClinicalFilesList({ page, limit, patientId });
+  const { data, isLoading, isError } = useClinicalFilesList({ page, limit, patientId });
   const uploadMutation = useUploadClinicalFile(patientId!);
   const deleteMutation = useDeleteClinicalFile();
 
@@ -25,6 +25,12 @@ const ClinicalFilesListView = () => {
       deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
     }
   };
+
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages, isError]);
 
   return (
     <div className="space-y-4">
@@ -64,8 +70,8 @@ const ClinicalFilesListView = () => {
           </div>
 
           <Pagination
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
+            page={page}
+            totalPages={Math.max(1, data.meta.totalPages)}
             total={data.meta.totalItems}
             limit={data.meta.limit}
             onPageChange={setPage}

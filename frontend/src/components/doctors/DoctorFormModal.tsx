@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
-import { Modal, Spinner } from '../ui';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
+import { Modal, Spinner, FormModalScrollShell } from '../ui';
 import DoctorForm from './DoctorForm';
 import { useDoctorDetail } from '../../querys/doctors/queryDoctors';
 import { useCreateDoctor, useUpdateDoctor } from '../../querys/doctors/mutationDoctors';
@@ -17,16 +18,19 @@ function CreateDoctorModalBody({ onClose }: { onClose: () => void }) {
   const createMutation = useCreateDoctor({ skipNavigation: true });
 
   return (
-    <DoctorForm
-      onSubmit={(data) =>
-        createMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      loading={createMutation.isPending}
-      submitLabel="Crear doctor"
-      onCancel={onClose}
-    />
+    <FormModalScrollShell>
+      <DoctorForm
+        fillParent
+        onSubmit={(data) =>
+          createMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        loading={createMutation.isPending}
+        submitLabel="Crear doctor"
+        onCancel={onClose}
+      />
+    </FormModalScrollShell>
   );
 }
 
@@ -51,22 +55,25 @@ function EditDoctorModalBody({ doctorId, onClose }: { doctorId: string; onClose:
   }
 
   return (
-    <DoctorForm
-      key={doctor.id}
-      initialData={doctor}
-      onSubmit={(data) =>
-        updateMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      onUnchanged={() => {
-        toast('No hay cambios que guardar', { duration: 2800 });
-        onClose();
-      }}
-      loading={updateMutation.isPending}
-      submitLabel="Guardar cambios"
-      onCancel={onClose}
-    />
+    <FormModalScrollShell>
+      <DoctorForm
+        fillParent
+        key={doctor.id}
+        initialData={doctor}
+        onSubmit={(data) =>
+          updateMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        onUnchanged={() => {
+          toast(TOAST_NO_UPDATES, { duration: 2800 });
+          onClose();
+        }}
+        loading={updateMutation.isPending}
+        submitLabel="Guardar cambios"
+        onCancel={onClose}
+      />
+    </FormModalScrollShell>
   );
 }
 
@@ -79,7 +86,9 @@ const DoctorFormModal = ({ mode, doctorId, isOpen, onClose }: DoctorFormModalPro
       onClose={onClose}
       title={title}
       size="md"
+      containBodyHeight
       surfaceRounding="compact"
+      panelClassName="min-h-[min(26rem,90dvh)]"
     >
       {mode === 'create' ? (
         <CreateDoctorModalBody onClose={onClose} />

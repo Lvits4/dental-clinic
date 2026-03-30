@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Select, Textarea, Button, FormSection } from '../ui';
+import { Select, Textarea, Button, FormSection, FormActionBar } from '../ui';
 import type { CreateTreatmentPlanDto, Patient, Doctor } from '../../types';
+import { treatmentPlanObservationsUnchanged } from '../../utils/editUnchangedCompare';
 
 interface TreatmentPlanFormErrors {
   patientId?: string;
@@ -23,9 +24,14 @@ interface TreatmentPlanFormProps {
   initialPatientId?: string;
   initialDoctorId?: string;
   initialObservations?: string;
+  /** En edición de plan solo persisten observaciones; evita PATCH si no cambiaron. */
+  editObservationsOnly?: boolean;
+  onUnchanged?: () => void;
   /** Contenido extra que aparece entre el formulario y el botón de guardar (e.g. sección de estado) */
   footerContent?: ReactNode;
   onCancel?: () => void;
+  /** true en modal con altura acotada: scroll solo en el cuerpo; barra de acciones fija */
+  fillParent?: boolean;
 }
 
 /* ── Icono de sección ── */
@@ -44,8 +50,11 @@ const TreatmentPlanForm = ({
   initialPatientId,
   initialDoctorId,
   initialObservations,
+  editObservationsOnly = false,
+  onUnchanged,
   footerContent,
   onCancel,
+  fillParent = false,
 }: TreatmentPlanFormProps) => {
   const [patientId, setPatientId] = useState(initialPatientId ?? '');
   const [doctorId, setDoctorId] = useState(initialDoctorId ?? '');
@@ -67,11 +76,24 @@ const TreatmentPlanForm = ({
       setErrors(validationErrors);
       return;
     }
+    if (
+      editObservationsOnly &&
+      treatmentPlanObservationsUnchanged(initialObservations, data.observations)
+    ) {
+      onUnchanged?.();
+      return;
+    }
     onSubmit(data);
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+  const iconClose = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+
+  const fields = (
+    <>
       <FormSection title="Plan de Tratamiento" icon={<IconPlan />} description="Seleccione el paciente y doctor responsable">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Select
@@ -101,17 +123,32 @@ const TreatmentPlanForm = ({
           />
         </div>
       </FormSection>
-
       {footerContent}
+    </>
+  );
 
-      <div className={`flex justify-end ${onCancel ? 'gap-2' : ''}`}>
-        {onCancel && (
-          <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
-            Cancelar
-          </Button>
-        )}
-        <Button type="submit" loading={loading}>{submitLabel}</Button>
-      </div>
+  const actions = onCancel ? (
+    <FormActionBar
+      left={<Button type="button" variant="secondary" size="md" leftIcon={iconClose} onClick={onCancel} disabled={loading}>Cancelar</Button>}
+      right={<Button type="submit" size="md" loading={loading}>{submitLabel}</Button>}
+    />
+  ) : (
+    <FormActionBar end={<Button type="submit" size="md" loading={loading}>{submitLabel}</Button>} />
+  );
+
+  if (fillParent) {
+    return (
+      <form onSubmit={handleSubmit} className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden pr-0.5">{fields}</div>
+        {actions}
+      </form>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {fields}
+      {actions}
     </form>
   );
 };

@@ -1,11 +1,18 @@
 import type {
   ClinicalRecord,
+  CreateAppointmentDto,
   CreateDoctorDto,
   CreatePatientDto,
+  CreatePerformedProcedureDto,
+  CreateTreatmentDto,
   Doctor,
   Patient,
+  PerformedProcedure,
+  Treatment,
   UpdateClinicalRecordDto,
+  User,
 } from '../types';
+import type { UpdateUserDto } from '../requests/users.api';
 
 function optTrim(v?: string | null): string | undefined {
   const t = (v ?? '').trim();
@@ -74,4 +81,93 @@ export function clinicalRecordEditUnchanged(
     'observations',
   ];
   return keys.every((k) => snap[k] === submitted[k]);
+}
+
+/** Valores iniciales de cita para comparar con el envío (misma construcción que AppointmentForm). */
+export type AppointmentEditInitialValues = {
+  patientId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  durationMinutes?: number;
+  reason?: string;
+  notes?: string;
+};
+
+/** true si el usuario intenta actualizar contraseña (cualquier valor nuevo cuenta como cambio). */
+export function userEditUnchanged(user: User, submitted: UpdateUserDto): boolean {
+  if (submitted.password != null && submitted.password.length > 0) return false;
+  const fullName = submitted.fullName?.trim() ?? '';
+  const username = submitted.username?.trim() ?? '';
+  const email = submitted.email?.trim() ?? '';
+  const role = submitted.role;
+  return (
+    user.fullName.trim() === fullName &&
+    user.username.trim() === username &&
+    user.email.trim() === email &&
+    user.role === role
+  );
+}
+
+function treatmentDefaultPriceAsSubmitted(t: Treatment): number | undefined {
+  const s = t.defaultPrice.toString().trim();
+  return s ? Number(s) : undefined;
+}
+
+/** true si el payload coincide con el tratamiento cargado (edición). */
+export function treatmentEditUnchanged(treatment: Treatment, submitted: CreateTreatmentDto): boolean {
+  return (
+    treatment.name.trim() === submitted.name.trim() &&
+    optTrim(treatment.description) === optTrim(submitted.description) &&
+    treatment.category.trim() === submitted.category.trim() &&
+    treatmentDefaultPriceAsSubmitted(treatment) === submitted.defaultPrice
+  );
+}
+
+/** true si la cita enviada coincide con los valores iniciales del formulario de edición. */
+export function appointmentEditUnchanged(
+  initial: AppointmentEditInitialValues,
+  submitted: CreateAppointmentDto,
+): boolean {
+  const expectedDateTime = `${initial.date}T${initial.time}:00`;
+  const initialDuration =
+    initial.durationMinutes !== undefined && initial.durationMinutes !== null
+      ? Number(initial.durationMinutes)
+      : 30;
+  const dur = submitted.durationMinutes ?? 30;
+  const durationMatch = dur === initialDuration;
+  return (
+    submitted.patientId === initial.patientId &&
+    submitted.doctorId === initial.doctorId &&
+    submitted.dateTime === expectedDateTime &&
+    durationMatch &&
+    optTrim(initial.reason) === optTrim(submitted.reason) &&
+    optTrim(initial.notes) === optTrim(submitted.notes)
+  );
+}
+
+/** true si el procedimiento enviado coincide con el registro cargado (fecha por día calendario). */
+export function performedProcedureEditUnchanged(
+  proc: PerformedProcedure,
+  submitted: CreatePerformedProcedureDto,
+): boolean {
+  const procDay = proc.performedAt.slice(0, 10);
+  const subDay = submitted.performedAt.slice(0, 10);
+  return (
+    proc.patientId === submitted.patientId &&
+    proc.doctorId === submitted.doctorId &&
+    proc.treatmentId === submitted.treatmentId &&
+    procDay === subDay &&
+    optTrim(proc.tooth) === optTrim(submitted.tooth) &&
+    optTrim(proc.description) === optTrim(submitted.description) &&
+    optTrim(proc.notes) === optTrim(submitted.notes)
+  );
+}
+
+/** true si las observaciones del plan no cambiaron (PATCH de edición solo envía este campo). */
+export function treatmentPlanObservationsUnchanged(
+  initial: string | null | undefined,
+  submitted: string | undefined,
+): boolean {
+  return optTrim(initial) === optTrim(submitted);
 }

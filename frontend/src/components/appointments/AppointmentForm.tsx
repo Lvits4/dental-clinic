@@ -15,6 +15,10 @@ import type {
   Doctor,
 } from '../../types';
 import { DURATION_OPTIONS } from '../../types';
+import {
+  appointmentEditUnchanged,
+  type AppointmentEditInitialValues,
+} from '../../utils/editUnchangedCompare';
 
 function validateAppointment(data: CreateAppointmentDto): AppointmentFormErrors {
   const errors: AppointmentFormErrors = {};
@@ -62,6 +66,8 @@ interface AppointmentFormProps {
   };
   /** Contenido extra que aparece antes del botón Guardar/Siguiente (e.g. sección de estado) */
   footerContent?: ReactNode;
+  /** Si el envío no cambió respecto a la cita cargada (edición). */
+  onUnchanged?: () => void;
   onCancel?: () => void;
   /** true en modal con altura acotada: el scroll queda solo en el bloque del paso; botones fijos abajo */
   fillParent?: boolean;
@@ -89,6 +95,7 @@ const AppointmentForm = ({
   defaultDoctorId = '',
   initialValues = {},
   footerContent,
+  onUnchanged,
   onCancel,
   fillParent = false,
 }: AppointmentFormProps) => {
@@ -144,6 +151,23 @@ const AppointmentForm = ({
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
+    }
+
+    const { patientId: ivP, doctorId: ivD, date: ivDate, time: ivTime } = initialValues;
+    if (ivP && ivD && ivDate && ivTime && onUnchanged) {
+      const baseline: AppointmentEditInitialValues = {
+        patientId: ivP,
+        doctorId: ivD,
+        date: ivDate,
+        time: ivTime,
+        durationMinutes: initialValues.durationMinutes,
+        reason: initialValues.reason,
+        notes: initialValues.notes,
+      };
+      if (appointmentEditUnchanged(baseline, data)) {
+        onUnchanged();
+        return;
+      }
     }
 
     onSubmit(data);

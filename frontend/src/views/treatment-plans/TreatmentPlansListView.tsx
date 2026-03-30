@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { PageHeader, Button, Badge, Modal, ConfirmDialog } from '../../components/ui';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
+import { PageHeader, Button, Badge, Modal, ConfirmDialog, FormModalScrollShell } from '../../components/ui';
 import { HttpError } from '../../helpers/http';
 import { useTreatmentPlansList } from '../../querys/treatment-plans/queryTreatmentPlans';
 import {
@@ -365,7 +367,14 @@ const TreatmentPlansListView = () => {
         )}
       </Modal>
 
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Nuevo plan de tratamiento" size="md">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Nuevo plan de tratamiento"
+        size="md"
+        containBodyHeight
+        panelClassName="min-h-[min(26rem,90dvh)]"
+      >
         {createModalLoading ? (
           <FormSkeleton />
         ) : activePatients.length === 0 ? (
@@ -380,41 +389,58 @@ const TreatmentPlansListView = () => {
             linkLabel={allPatients.length > 0 ? 'Ir a Pacientes' : 'Crear Paciente'}
           />
         ) : (
-          <TreatmentPlanForm
-            key="treatment-plan-create"
-            patients={activePatients}
-            doctors={activeDoctors}
-            onSubmit={(data) => {
-              createMutation.mutate(data, {
-                onSettled: () => setCreateModalOpen(false),
-              });
-            }}
-            loading={createMutation.isPending}
-            submitLabel="Crear plan"
-            onCancel={() => setCreateModalOpen(false)}
-          />
+          <FormModalScrollShell>
+            <TreatmentPlanForm
+              key="treatment-plan-create"
+              fillParent
+              patients={activePatients}
+              doctors={activeDoctors}
+              onSubmit={(data) => {
+                createMutation.mutate(data, {
+                  onSettled: () => setCreateModalOpen(false),
+                });
+              }}
+              loading={createMutation.isPending}
+              submitLabel="Crear plan"
+              onCancel={() => setCreateModalOpen(false)}
+            />
+          </FormModalScrollShell>
         )}
       </Modal>
 
-      <Modal isOpen={!!editTarget} onClose={() => setEditTarget(null)} title="Editar plan de tratamiento" size="md">
+      <Modal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        title="Editar plan de tratamiento"
+        size="md"
+        containBodyHeight
+        panelClassName="min-h-[min(26rem,90dvh)]"
+      >
         {editTarget && (
-          <TreatmentPlanForm
-            key={editTarget.id}
-            patients={activePatients}
-            doctors={activeDoctors}
-            initialPatientId={editTarget.patientId}
-            initialDoctorId={editTarget.doctorId}
-            initialObservations={editTarget.observations}
-            onSubmit={(data) => {
-              updatePlan.mutate(
-                { id: editTarget.id, data: { observations: data.observations } },
-                { onSettled: () => setEditTarget(null) },
-              );
-            }}
-            loading={updatePlan.isPending}
-            submitLabel="Guardar cambios"
-            onCancel={() => setEditTarget(null)}
-            footerContent={
+          <FormModalScrollShell>
+            <TreatmentPlanForm
+              key={editTarget.id}
+              fillParent
+              patients={activePatients}
+              doctors={activeDoctors}
+              initialPatientId={editTarget.patientId}
+              initialDoctorId={editTarget.doctorId}
+              initialObservations={editTarget.observations}
+              editObservationsOnly
+              onUnchanged={() => {
+                toast(TOAST_NO_UPDATES, { duration: 2800 });
+                setEditTarget(null);
+              }}
+              onSubmit={(data) => {
+                updatePlan.mutate(
+                  { id: editTarget.id, data: { observations: data.observations } },
+                  { onSettled: () => setEditTarget(null) },
+                );
+              }}
+              loading={updatePlan.isPending}
+              submitLabel="Guardar cambios"
+              onCancel={() => setEditTarget(null)}
+              footerContent={
               <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-1">
                 <div className="flex items-center gap-2 mb-3">
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
@@ -450,7 +476,8 @@ const TreatmentPlansListView = () => {
                 </div>
               </div>
             }
-          />
+            />
+          </FormModalScrollShell>
         )}
       </Modal>
 

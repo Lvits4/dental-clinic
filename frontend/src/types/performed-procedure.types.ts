@@ -41,6 +41,8 @@ export interface PerformedProcedureFilters {
   doctorId?: string;
   dateFrom?: string;
   dateTo?: string;
+  /** Búsqueda en paciente, doctor, tratamiento, pieza, descripción y notas */
+  search?: string;
   sortBy?: PerformedProcedureSortBy;
   sortOrder?: PerformedProcedureSortOrder;
 }

@@ -6,6 +6,7 @@ export const useClinicalEvolutionsList = (filters: ClinicalEvolutionFilters = {}
   return useQuery({
     queryKey: ['clinical-evolutions', filters],
     queryFn: () => clinicalEvolutionsApi.getAll(filters),
+    enabled: Boolean(filters.recordId),
   });
 };
 

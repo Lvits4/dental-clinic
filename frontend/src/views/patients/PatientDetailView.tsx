@@ -211,6 +211,12 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
     dateTo: dateTo || undefined,
   });
 
+  useEffect(() => {
+    if (!data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages]);
+
   const hasDateFilters = !!(dateFrom || dateTo);
 
   const resetDateFilters = () => {
@@ -350,11 +356,11 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
           ))}
         </div>
 
-        {data.meta.totalPages > 1 && (
+        {data.meta.totalItems > 0 && (
           <Pagination
             compact
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
+            page={page}
+            totalPages={Math.max(1, data.meta.totalPages)}
             total={data.meta.totalItems}
             limit={data.meta.limit}
             onPageChange={setPage}
@@ -375,13 +381,19 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 const FilesTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { data, isLoading } = useClinicalFilesList({ page, limit: 6, patientId });
+  const { data, isLoading, isError } = useClinicalFilesList({ page, limit: 6, patientId });
   const uploadMutation = useUploadClinicalFile(patientId);
   const deleteMutation = useDeleteClinicalFile();
 
   const handleDelete = () => {
     if (deleteId) deleteMutation.mutate(deleteId, { onSuccess: () => setDeleteId(null) });
   };
+
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages, isError]);
 
   if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
 
@@ -405,11 +417,11 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
               />
             ))}
           </div>
-          {data.meta.totalPages > 1 && (
+          {data.meta.totalItems > 0 && (
             <Pagination
               compact
-              page={data.meta.page}
-              totalPages={data.meta.totalPages}
+              page={page}
+              totalPages={Math.max(1, data.meta.totalPages)}
               total={data.meta.totalItems}
               limit={data.meta.limit}
               onPageChange={setPage}
@@ -438,7 +450,13 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
   const [editTarget, setEditTarget] = useState<Appointment | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { data, isLoading } = useAppointmentsList({ page, limit: 8, patientId });
+  const { data, isLoading, isError } = useAppointmentsList({ page, limit: 8, patientId });
+
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages, isError]);
 
   if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
 
@@ -505,11 +523,11 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
           ))}
         </div>
 
-        {data.meta.totalPages > 1 && (
+        {data.meta.totalItems > 0 && (
           <Pagination
             compact
-            page={data.meta.page}
-            totalPages={data.meta.totalPages}
+            page={page}
+            totalPages={Math.max(1, data.meta.totalPages)}
             total={data.meta.totalItems}
             limit={data.meta.limit}
             onPageChange={setPage}

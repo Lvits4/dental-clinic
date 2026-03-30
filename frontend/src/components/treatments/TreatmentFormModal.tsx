@@ -1,4 +1,6 @@
-import { Modal, Spinner } from '../ui';
+import toast from 'react-hot-toast';
+import { Modal, Spinner, FormModalScrollShell } from '../ui';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
 import TreatmentForm from './TreatmentForm';
 import { useTreatmentDetail } from '../../querys/treatments/queryTreatments';
 import { useCreateTreatment, useUpdateTreatment } from '../../querys/treatments/mutationTreatments';
@@ -16,16 +18,19 @@ function CreateTreatmentModalBody({ onClose }: { onClose: () => void }) {
   const createMutation = useCreateTreatment({ skipNavigation: true });
 
   return (
-    <TreatmentForm
-      onSubmit={(data) =>
-        createMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      loading={createMutation.isPending}
-      submitLabel="Crear tratamiento"
-      onCancel={onClose}
-    />
+    <FormModalScrollShell>
+      <TreatmentForm
+        fillParent
+        onSubmit={(data) =>
+          createMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        loading={createMutation.isPending}
+        submitLabel="Crear tratamiento"
+        onCancel={onClose}
+      />
+    </FormModalScrollShell>
   );
 }
 
@@ -50,17 +55,24 @@ function EditTreatmentModalBody({ treatmentId, onClose }: { treatmentId: string;
   }
 
   return (
-    <TreatmentForm
-      initialData={treatment}
-      onSubmit={(data) =>
-        updateMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      loading={updateMutation.isPending}
-      submitLabel="Guardar cambios"
-      onCancel={onClose}
-    />
+    <FormModalScrollShell>
+      <TreatmentForm
+        fillParent
+        initialData={treatment}
+        onSubmit={(data) =>
+          updateMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        onUnchanged={() => {
+          toast(TOAST_NO_UPDATES, { duration: 2800 });
+          onClose();
+        }}
+        loading={updateMutation.isPending}
+        submitLabel="Guardar cambios"
+        onCancel={onClose}
+      />
+    </FormModalScrollShell>
   );
 }
 
@@ -73,7 +85,9 @@ const TreatmentFormModal = ({ mode, treatmentId, isOpen, onClose }: TreatmentFor
       onClose={onClose}
       title={title}
       size="md"
+      containBodyHeight
       surfaceRounding="compact"
+      panelClassName="min-h-[min(26rem,90dvh)]"
     >
       {mode === 'create' ? (
         <CreateTreatmentModalBody onClose={onClose} />

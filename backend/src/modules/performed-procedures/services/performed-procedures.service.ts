@@ -83,7 +83,8 @@ export class PerformedProceduresService {
   }
 
   async findAll(filterDto: FilterPerformedProcedureDto): Promise<PaginatedResponseDto<PerformedProcedure>> {
-    const { page = 1, limit = 10, patientId, doctorId, dateFrom, dateTo, sortBy, sortOrder } = filterDto;
+    const { page = 1, limit = 10, patientId, doctorId, dateFrom, dateTo, search, sortBy, sortOrder } =
+      filterDto;
     const query = this.procedureRepository
       .createQueryBuilder('procedure')
       .leftJoinAndSelect('procedure.patient', 'patient')
@@ -101,6 +102,26 @@ export class PerformedProceduresService {
     }
     if (dateTo) {
       query.andWhere('procedure.performedAt <= :dateTo', { dateTo });
+    }
+
+    if (search) {
+      const sanitized = search.replace(/[%_\\]/g, '');
+      if (sanitized.length > 0) {
+        const searchTerm = `%${sanitized}%`;
+        query.andWhere(
+          `(
+            patient.firstName ILIKE :searchTerm OR
+            patient.lastName ILIKE :searchTerm OR
+            doctor.firstName ILIKE :searchTerm OR
+            doctor.lastName ILIKE :searchTerm OR
+            treatment.name ILIKE :searchTerm OR
+            procedure.tooth ILIKE :searchTerm OR
+            COALESCE(procedure.description, '') ILIKE :searchTerm OR
+            COALESCE(procedure.notes, '') ILIKE :searchTerm
+          )`,
+          { searchTerm },
+        );
+      }
     }
 
     const dir = sortOrder === 'asc' ? 'ASC' : 'DESC';

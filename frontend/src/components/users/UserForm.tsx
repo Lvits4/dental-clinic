@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { Input, Select, Button, FormSection } from '../ui';
+import { Input, Select, Button, FormSection, FormActionBar } from '../ui';
 import type { User } from '../../types';
 import type { CreateUserDto, UpdateUserDto } from '../../requests/users.api';
 import { Role } from '../../enums';
+import { userEditUnchanged } from '../../utils/editUnchangedCompare';
 
 const EyeIcon = ({ open }: { open: boolean }) => open ? (
   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,15 +64,18 @@ interface UserFormCreateProps {
   loading?: boolean;
   onCancel?: () => void;
   submitLabel?: string;
+  fillParent?: boolean;
 }
 
 interface UserFormEditProps {
   mode: 'edit';
   initialData: User;
   onSubmit: (data: UpdateUserDto) => void;
+  onUnchanged?: () => void;
   loading?: boolean;
   onCancel?: () => void;
   submitLabel?: string;
+  fillParent?: boolean;
 }
 
 type UserFormProps = UserFormCreateProps | UserFormEditProps;
@@ -83,9 +87,16 @@ const IconUser = () => (
   </svg>
 );
 
+const iconClose = (
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
 const UserForm = (props: UserFormProps) => {
   const isEdit = props.mode === 'edit';
   const initial = isEdit ? props.initialData : undefined;
+  const fillParent = props.fillParent ?? false;
 
   const [fullName, setFullName] = useState(initial?.fullName || '');
   const [username, setUsername] = useState(initial?.username || '');
@@ -115,7 +126,12 @@ const UserForm = (props: UserFormProps) => {
         setErrors(validationErrors);
         return;
       }
-      (props as UserFormEditProps).onSubmit(data);
+      const editProps = props as UserFormEditProps;
+      if (userEditUnchanged(editProps.initialData, data)) {
+        editProps.onUnchanged?.();
+        return;
+      }
+      editProps.onSubmit(data);
     } else {
       const data: CreateUserDto = {
         fullName: fullName.trim(),
@@ -133,84 +149,110 @@ const UserForm = (props: UserFormProps) => {
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <FormSection title="Datos del Usuario" icon={<IconUser />} description="Credenciales, rol y datos de acceso">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  const fields = (
+    <FormSection title="Datos del Usuario" icon={<IconUser />} description="Credenciales, rol y datos de acceso">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          label="Nombre completo *"
+          placeholder="María González"
+          value={fullName}
+          onChange={(e) => { setFullName(e.target.value); clearError('fullName'); }}
+          error={errors.fullName}
+          autoFocus
+        />
+        <Input
+          label="Nombre de usuario *"
+          placeholder="mgonzalez"
+          value={username}
+          onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
+          error={errors.username}
+        />
+        <Input
+          label="Correo electrónico *"
+          type="email"
+          placeholder="usuario@clinica.com"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
+          error={errors.email}
+        />
+        <Select
+          label="Rol *"
+          options={ROLE_OPTIONS}
+          value={role}
+          onChange={(e) => { setRole(e.target.value as Role); clearError('role'); }}
+          error={errors.role}
+        />
+        {!isEdit && (
           <Input
-            label="Nombre completo *"
-            placeholder="María González"
-            value={fullName}
-            onChange={(e) => { setFullName(e.target.value); clearError('fullName'); }}
-            error={errors.fullName}
-            autoFocus
+            label="Contraseña *"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Mínimo 6 caracteres"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+            error={errors.password}
+            rightIcon={
+              <button type="button" onClick={() => setShowPassword(v => !v)} className="flex items-center cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                <EyeIcon open={showPassword} />
+              </button>
+            }
           />
+        )}
+        {isEdit && (
           <Input
-            label="Nombre de usuario *"
-            placeholder="mgonzalez"
-            value={username}
-            onChange={(e) => { setUsername(e.target.value); clearError('username'); }}
-            error={errors.username}
+            label="Nueva contraseña"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Dejar vacío para no cambiar"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+            error={errors.password}
+            helperText="Solo si deseas cambiar la contraseña actual"
+            rightIcon={
+              <button type="button" onClick={() => setShowPassword(v => !v)} className="flex items-center cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                <EyeIcon open={showPassword} />
+              </button>
+            }
           />
-          <Input
-            label="Correo electrónico *"
-            type="email"
-            placeholder="usuario@clinica.com"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
-            error={errors.email}
-          />
-          <Select
-            label="Rol *"
-            options={ROLE_OPTIONS}
-            value={role}
-            onChange={(e) => { setRole(e.target.value as Role); clearError('role'); }}
-            error={errors.role}
-          />
-          {!isEdit && (
-            <Input
-              label="Contraseña *"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Mínimo 6 caracteres"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
-              error={errors.password}
-              rightIcon={
-                <button type="button" onClick={() => setShowPassword(v => !v)} className="flex items-center cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-                  <EyeIcon open={showPassword} />
-                </button>
-              }
-            />
-          )}
-          {isEdit && (
-            <Input
-              label="Nueva contraseña"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Dejar vacío para no cambiar"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
-              error={errors.password}
-              helperText="Solo si deseas cambiar la contraseña actual"
-              rightIcon={
-                <button type="button" onClick={() => setShowPassword(v => !v)} className="flex items-center cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-                  <EyeIcon open={showPassword} />
-                </button>
-              }
-            />
-          )}
-        </div>
-      </FormSection>
+        )}
+      </div>
+    </FormSection>
+  );
 
-      <div className={`flex gap-3 pt-2 ${props.onCancel ? 'justify-end flex-wrap' : 'justify-end'}`}>
-        {props.onCancel ? (
-          <Button type="button" variant="secondary" onClick={props.onCancel} disabled={props.loading}>
-            Cancelar
-          </Button>
-        ) : null}
-        <Button type="submit" loading={props.loading}>
+  const actions = props.onCancel ? (
+    <FormActionBar
+      left={
+        <Button type="button" variant="secondary" size="md" leftIcon={iconClose} onClick={props.onCancel} disabled={props.loading}>
+          Cancelar
+        </Button>
+      }
+      right={
+        <Button type="submit" size="md" loading={props.loading}>
           {props.submitLabel ?? (isEdit ? 'Guardar cambios' : 'Crear usuario')}
         </Button>
-      </div>
+      }
+    />
+  ) : (
+    <FormActionBar
+      end={
+        <Button type="submit" size="md" loading={props.loading}>
+          {props.submitLabel ?? (isEdit ? 'Guardar cambios' : 'Crear usuario')}
+        </Button>
+      }
+    />
+  );
+
+  if (fillParent) {
+    return (
+      <form onSubmit={handleSubmit} className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-0.5">{fields}</div>
+        {actions}
+      </form>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {fields}
+      {actions}
     </form>
   );
 };

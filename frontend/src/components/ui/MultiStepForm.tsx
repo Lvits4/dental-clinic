@@ -9,6 +9,7 @@ import {
   type MouseEvent,
 } from 'react';
 import Button from './Button';
+import FormActionBar from './FormActionBar';
 
 export type MultiStepFormHandle = {
   /** Lleva al paso indicado (útil tras validación fallida en otro paso). */
@@ -120,6 +121,22 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
     ? 'flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden'
     : 'flex min-h-0 w-full flex-1 flex-col';
 
+  const iconClose = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+  const iconChevronLeft = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    </svg>
+  );
+  const iconChevronRight = (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  );
+
   return (
     <form
       onSubmit={blockNativeSubmit}
@@ -180,47 +197,37 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
         {beforeButtons ? <div className="mt-6 pb-1">{beforeButtons}</div> : null}
       </div>
 
-      {/* ── Navigation Buttons ── */}
-      <div className="mt-4 flex shrink-0 items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
-        {/* Left: Cancelar + Anterior */}
-        <div className="flex items-center gap-2">
-          {onCancel && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              leftIcon={
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              }
-              onClick={onCancel}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
-          )}
-          {!isFirst && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              leftIcon={
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              }
-              onClick={goBack}
-              disabled={loading}
-            >
-              Anterior
-            </Button>
-          )}
-        </div>
-
-        {/* Next / Submit */}
-        <div className="ml-auto">
-          {isLast ? (
+      <FormActionBar
+        left={
+          <>
+            {onCancel ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                leftIcon={iconClose}
+                onClick={onCancel}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
+            ) : null}
+            {!isFirst ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                leftIcon={iconChevronLeft}
+                onClick={goBack}
+                disabled={loading}
+              >
+                Anterior
+              </Button>
+            ) : null}
+          </>
+        }
+        right={
+          isLast ? (
             <Button
               type="button"
               variant="primary"
@@ -236,18 +243,14 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
               type="button"
               variant="primary"
               size="md"
-              rightIcon={
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              }
+              rightIcon={iconChevronRight}
               onClick={goNext}
             >
               Siguiente
             </Button>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
     </form>
   );
 });

@@ -1,9 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { Button, PageHeader, Modal, ConfirmDialog } from '../../components/ui';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
+import { Button, PageHeader, Modal, ConfirmDialog, FormModalScrollShell } from '../../components/ui';
 import { HttpError } from '../../helpers/http';
 import PerformedProceduresTable from '../../components/performed-procedures/PerformedProceduresTable';
 import PerformedProcedureForm from '../../components/performed-procedures/PerformedProcedureForm';
+import PerformedProcedureFilters from '../../components/performed-procedures/PerformedProcedureFilters';
 import { usePerformedProceduresList } from '../../querys/performed-procedures/queryPerformedProcedures';
 import {
   useCreatePerformedProcedure,
@@ -80,6 +83,7 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
 
 const PerformedProceduresListView = () => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<PerformedProcedureSortBy>('performedAt');
   const [sortOrder, setSortOrder] = useState<PerformedProcedureSortOrder>('desc');
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -94,6 +98,7 @@ const PerformedProceduresListView = () => {
     limit,
     sortBy,
     sortOrder,
+    search: search.trim() || undefined,
   });
 
   const createMutation = useCreatePerformedProcedure();
@@ -147,6 +152,18 @@ const PerformedProceduresListView = () => {
     setPage(1);
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const hasFilters = !!search.trim();
+
+  const resetFilters = () => {
+    setSearch('');
+    setPage(1);
+  };
+
   const openCreateModal = () => {
     setCreateFormKey((k) => k + 1);
     setCreateModalOpen(true);
@@ -155,6 +172,12 @@ const PerformedProceduresListView = () => {
   const deleteTargetLabel = procedureToDelete?.patient
     ? `${procedureToDelete.patient.firstName} ${procedureToDelete.patient.lastName}`
     : 'este registro';
+
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages, isError]);
 
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
@@ -165,7 +188,7 @@ const PerformedProceduresListView = () => {
           title="Procedimientos realizados"
           subtitle={
             data && !isError
-              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'registro' : 'registros'} en total`
+              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'registro' : 'registros'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
               : !isError
                 ? 'Historial de procedimientos clínicos'
                 : undefined
@@ -177,17 +200,25 @@ const PerformedProceduresListView = () => {
         />
       </div>
 
-      <div className="shrink-0 flex flex-wrap items-end justify-end gap-2">
-        <Button
-          type="button"
-          className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
-          onClick={openCreateModal}
-        >
-          <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Nuevo procedimiento
-        </Button>
+      <div className="shrink-0">
+        <PerformedProcedureFilters
+          search={search}
+          onSearchChange={handleSearchChange}
+          hasFilters={hasFilters}
+          onResetFilters={resetFilters}
+          trailingActions={
+            <Button
+              type="button"
+              className="h-10 min-h-10 shrink-0 !py-0 px-4 whitespace-nowrap rounded-md"
+              onClick={openCreateModal}
+            >
+              <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Nuevo procedimiento
+            </Button>
+          }
+        />
       </div>
 
       <div className="flex-1 flex flex-col min-h-0 min-w-0">
@@ -215,8 +246,8 @@ const PerformedProceduresListView = () => {
             pagination={
               data && !isError && data.meta.totalItems > 0
                 ? {
-                    page: data.meta.page,
-                    totalPages: data.meta.totalPages,
+                    page,
+                    totalPages: Math.max(1, data.meta.totalPages),
                     total: data.meta.totalItems,
                     limit: data.meta.limit,
                     onPageChange: setPage,
@@ -227,7 +258,14 @@ const PerformedProceduresListView = () => {
         )}
       </div>
 
-      <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} title="Nuevo procedimiento" size="lg">
+      <Modal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Nuevo procedimiento"
+        size="lg"
+        containBodyHeight
+        panelClassName="min-h-[min(26rem,90dvh)]"
+      >
         {createModalLoading ? (
           <FormSkeleton />
         ) : activePatients.length === 0 ? (
@@ -242,44 +280,59 @@ const PerformedProceduresListView = () => {
             linkLabel={allPatients.length > 0 ? 'Ir a Pacientes' : 'Crear Paciente'}
           />
         ) : (
-          <PerformedProcedureForm
-            key={createFormKey}
-            patients={patientsForProcedureForm}
-            doctors={doctorsForProcedureForm}
-            treatments={treatmentsPage?.data ?? []}
-            loading={createMutation.isPending}
-            onSubmit={(payload) => {
-              createMutation.mutate(payload, {
-                onSettled: () => setCreateModalOpen(false),
-              });
-            }}
-            onCancel={() => setCreateModalOpen(false)}
-          />
+          <FormModalScrollShell>
+            <PerformedProcedureForm
+              key={createFormKey}
+              patients={patientsForProcedureForm}
+              doctors={doctorsForProcedureForm}
+              treatments={treatmentsPage?.data ?? []}
+              loading={createMutation.isPending}
+              onSubmit={(payload) => {
+                createMutation.mutate(payload, {
+                  onSettled: () => setCreateModalOpen(false),
+                });
+              }}
+              onCancel={() => setCreateModalOpen(false)}
+            />
+          </FormModalScrollShell>
         )}
       </Modal>
 
-      <Modal isOpen={!!editTarget} onClose={() => setEditTarget(null)} title="Editar procedimiento" size="lg">
+      <Modal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        title="Editar procedimiento"
+        size="lg"
+        containBodyHeight
+        panelClassName="min-h-[min(26rem,90dvh)]"
+      >
         {editTarget &&
           (createModalLoading ? (
             <FormSkeleton />
           ) : (
-            <PerformedProcedureForm
-              key={editTarget.id}
-              mode="edit"
-              initialProcedure={editTarget}
-              patients={patientsForProcedureForm}
-              doctors={doctorsForProcedureForm}
-              treatments={treatmentsPage?.data ?? []}
-              loading={updateMutation.isPending}
-              onSubmit={(payload) => {
-                const { treatmentPlanItemId: _t, ...data } = payload;
-                updateMutation.mutate(
-                  { id: editTarget.id, data },
-                  { onSettled: () => setEditTarget(null) },
-                );
-              }}
-              onCancel={() => setEditTarget(null)}
-            />
+            <FormModalScrollShell>
+              <PerformedProcedureForm
+                key={editTarget.id}
+                mode="edit"
+                initialProcedure={editTarget}
+                patients={patientsForProcedureForm}
+                doctors={doctorsForProcedureForm}
+                treatments={treatmentsPage?.data ?? []}
+                loading={updateMutation.isPending}
+                onUnchanged={() => {
+                  toast(TOAST_NO_UPDATES, { duration: 2800 });
+                  setEditTarget(null);
+                }}
+                onSubmit={(payload) => {
+                  const { treatmentPlanItemId: _t, ...data } = payload;
+                  updateMutation.mutate(
+                    { id: editTarget.id, data },
+                    { onSettled: () => setEditTarget(null) },
+                  );
+                }}
+                onCancel={() => setEditTarget(null)}
+              />
+            </FormModalScrollShell>
           ))}
       </Modal>
 

@@ -146,7 +146,7 @@ const Modal = ({
         {/* Footer */}
         {footer && (
           <div
-            className={`px-6 py-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-end gap-3 shrink-0 bg-slate-50/50 dark:bg-slate-800/20 ${footerRounded}`}
+            className={`px-6 py-4 border-t border-slate-100 dark:border-slate-800/80 flex w-full min-w-0 shrink-0 items-center bg-slate-50/50 dark:bg-slate-800/20 ${footerRounded}`}
           >
             {footer}
           </div>

@@ -16,6 +16,7 @@ export const performedProceduresApi = {
       doctorId: filters.doctorId,
       dateFrom: filters.dateFrom,
       dateTo: filters.dateTo,
+      search: filters.search,
       sortBy: filters.sortBy,
       sortOrder: filters.sortOrder,
     } as Record<string, string | number | undefined>);

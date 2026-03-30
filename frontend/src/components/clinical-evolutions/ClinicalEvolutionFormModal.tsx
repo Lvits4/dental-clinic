@@ -1,4 +1,4 @@
-import { Modal, Spinner } from '../ui';
+import { Modal, Spinner, FormModalScrollShell } from '../ui';
 import ClinicalEvolutionForm from './ClinicalEvolutionForm';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
@@ -40,7 +40,7 @@ const ClinicalEvolutionFormModal = ({
           Este paciente no tiene expediente clínico. Cree el expediente primero.
         </p>
       ) : (
-        <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden md:min-h-[min(22rem,50dvh)]">
+        <FormModalScrollShell>
           <ClinicalEvolutionForm
             fillParent
             clinicalRecordId={record.id}
@@ -49,7 +49,7 @@ const ClinicalEvolutionFormModal = ({
             onSubmit={(data) => createMutation.mutate(data, { onSuccess: () => onClose() })}
             onCancel={onClose}
           />
-        </div>
+        </FormModalScrollShell>
       )}
     </Modal>
   );

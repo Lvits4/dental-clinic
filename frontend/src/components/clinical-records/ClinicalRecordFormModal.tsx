@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
-import { Modal } from '../ui';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
+import { Modal, FormModalScrollShell } from '../ui';
 import ClinicalRecordForm from './ClinicalRecordForm';
 import { useCreateClinicalRecord, useUpdateClinicalRecord } from '../../querys/clinical-records/mutationClinicalRecords';
 import type { ClinicalRecord, UpdateClinicalRecordDto } from '../../types';
@@ -63,10 +64,11 @@ const ClinicalRecordFormModal = ({
       title={title}
       size="md"
       fitContent
+      containBodyHeight
       surfaceRounding="compact"
       panelClassName="min-h-[min(28rem,52dvh)] w-full md:min-h-[min(32rem,50dvh)]"
     >
-      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden md:min-h-[min(22rem,50dvh)]">
+      <FormModalScrollShell>
         <ClinicalRecordForm
           fillParent
           initialData={mode === 'edit' ? record ?? undefined : undefined}
@@ -76,14 +78,14 @@ const ClinicalRecordFormModal = ({
           onUnchanged={
             mode === 'edit'
               ? () => {
-                  toast('No hay cambios que guardar', { duration: 2800 });
+                  toast(TOAST_NO_UPDATES, { duration: 2800 });
                   onClose();
                 }
               : undefined
           }
           onCancel={onClose}
         />
-      </div>
+      </FormModalScrollShell>
     </Modal>
   );
 };

@@ -61,7 +61,9 @@ const SearchInput = ({
 
       <input
         id={id}
-        type="search"
+        type="text"
+        role="searchbox"
+        autoComplete="off"
         value={localValue}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
@@ -82,7 +84,7 @@ const SearchInput = ({
         <button
           onClick={handleClear}
           className={`absolute right-2 top-1/2 -translate-y-1/2 p-1 ${r} text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors`}
-          aria-label="Limpiar busqueda"
+          aria-label="Limpiar búsqueda"
           type="button"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

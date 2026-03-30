@@ -21,6 +21,11 @@ export type { FormSectionProps } from './FormSection';
 export { default as MultiStepForm } from './MultiStepForm';
 export type { MultiStepFormHandle, MultiStepFormProps, Step } from './MultiStepForm';
 
+export { default as FormActionBar } from './FormActionBar';
+export type { FormActionBarProps } from './FormActionBar';
+
+export { default as FormModalScrollShell } from './FormModalScrollShell';
+
 export { default as Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
 

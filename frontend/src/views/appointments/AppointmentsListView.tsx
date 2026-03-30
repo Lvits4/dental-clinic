@@ -84,6 +84,12 @@ const AppointmentsListView = () => {
     setFormModal({ mode: 'create' });
   }, [location.state, location.pathname, navigate]);
 
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = Math.max(1, data.meta.totalPages);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta.totalPages, isError]);
+
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
       <div className="shrink-0">
@@ -186,8 +192,8 @@ const AppointmentsListView = () => {
             pagination={
               data && !isError
                 ? {
-                    page: data.meta.page,
-                    totalPages: data.meta.totalPages,
+                    page,
+                    totalPages: Math.max(1, data.meta.totalPages),
                     total: data.meta.totalItems,
                     limit: data.meta.limit,
                     onPageChange: setPage,

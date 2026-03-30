@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
-import { Modal, Spinner } from '../ui';
+import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
+import { Modal, Spinner, FormModalScrollShell } from '../ui';
 import PatientForm from './PatientForm';
 import { usePatientDetail } from '../../querys/patients/queryPatients';
 import { useCreatePatient, useUpdatePatient } from '../../querys/patients/mutationPatients';
@@ -17,16 +18,19 @@ function CreatePatientModalBody({ onClose }: { onClose: () => void }) {
   const createMutation = useCreatePatient({ skipNavigation: true });
 
   return (
-    <PatientForm
-      onSubmit={(data) =>
-        createMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      loading={createMutation.isPending}
-      submitLabel="Crear paciente"
-      onCancel={onClose}
-    />
+    <FormModalScrollShell>
+      <PatientForm
+        fillParent
+        onSubmit={(data) =>
+          createMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        loading={createMutation.isPending}
+        submitLabel="Crear paciente"
+        onCancel={onClose}
+      />
+    </FormModalScrollShell>
   );
 }
 
@@ -51,21 +55,24 @@ function EditPatientModalBody({ patientId, onClose }: { patientId: string; onClo
   }
 
   return (
-    <PatientForm
-      initialData={patient}
-      onSubmit={(data) =>
-        updateMutation.mutate(data, {
-          onSuccess: () => onClose(),
-        })
-      }
-      onUnchanged={() => {
-        toast('No hay cambios que guardar', { duration: 2800 });
-        onClose();
-      }}
-      loading={updateMutation.isPending}
-      submitLabel="Guardar cambios"
-      onCancel={onClose}
-    />
+    <FormModalScrollShell>
+      <PatientForm
+        fillParent
+        initialData={patient}
+        onSubmit={(data) =>
+          updateMutation.mutate(data, {
+            onSuccess: () => onClose(),
+          })
+        }
+        onUnchanged={() => {
+          toast(TOAST_NO_UPDATES, { duration: 2800 });
+          onClose();
+        }}
+        loading={updateMutation.isPending}
+        submitLabel="Guardar cambios"
+        onCancel={onClose}
+      />
+    </FormModalScrollShell>
   );
 }
 
@@ -78,7 +85,9 @@ const PatientFormModal = ({ mode, patientId, isOpen, onClose }: PatientFormModal
       onClose={onClose}
       title={title}
       size="md"
+      containBodyHeight
       surfaceRounding="compact"
+      panelClassName="min-h-[min(26rem,90dvh)]"
     >
       {mode === 'create' ? (
         <CreatePatientModalBody onClose={onClose} />

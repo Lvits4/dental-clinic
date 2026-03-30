@@ -1,4 +1,5 @@
-import { IsOptional, IsUUID, IsDateString, IsIn } from 'class-validator';
+import { IsOptional, IsUUID, IsDateString, IsIn, IsString, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
@@ -32,6 +33,19 @@ export class FilterPerformedProcedureDto extends PaginationDto {
   @IsOptional()
   @IsDateString()
   dateTo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Texto en paciente, doctor, tratamiento, pieza, descripción o notas',
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value == null || value === '') return undefined;
+    const s = String(value).trim();
+    return s === '' ? undefined : s;
+  })
+  @IsString()
+  @MaxLength(255)
+  search?: string;
 
   @ApiPropertyOptional({ enum: PERFORMED_PROCEDURE_SORT_FIELDS })
   @IsOptional()
