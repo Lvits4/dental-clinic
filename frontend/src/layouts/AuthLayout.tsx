@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import logoInicio from '../assets/logo-inicio.png';
 
@@ -26,115 +26,45 @@ const MoonIcon = () => (
 
 const AuthLayout = () => {
   const { isDark, toggleTheme } = useTheme();
-  const location = useLocation();
-  const isRegister = location.pathname.includes('register');
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* ── Panel izquierdo: Branding ── */}
-      <div className="hidden lg:flex lg:w-[480px] xl:w-[520px] relative overflow-hidden flex-col justify-between bg-linear-to-br from-emerald-600 via-emerald-700 to-teal-800 dark:from-emerald-900 dark:via-emerald-950 dark:to-slate-950 p-10 xl:p-12">
-        {/* Elementos decorativos */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-20 -left-20 w-72 h-72 rounded-md bg-white/5 blur-2xl" />
-          <div className="absolute top-1/3 -right-16 w-56 h-56 rounded-md bg-teal-400/10 blur-2xl" />
-          <div className="absolute -bottom-16 left-1/4 w-64 h-64 rounded-md bg-emerald-300/10 blur-3xl" />
-          {/* Patron de puntos sutil */}
-          <div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
-            }}
-          />
-        </div>
-
-        {/* Logo y marca */}
-        <div className="relative z-10">
-          <img src={logoInicio} alt="SmileCare" className="h-14 w-auto max-w-full object-contain object-left" />
-        </div>
-
-        {/* Contenido central */}
-        <div className="relative z-10 flex-1 flex flex-col justify-center -mt-10">
-          <h2 className="text-3xl xl:text-4xl font-bold text-white leading-tight mb-4">
-            {isRegister
-              ? 'Comienza a gestionar tu clinica'
-              : 'Bienvenido de vuelta'}
-          </h2>
-          <p className="text-emerald-100/70 text-base leading-relaxed max-w-sm">
-            {isRegister
-              ? 'Registra tu cuenta y accede a todas las herramientas para administrar pacientes, citas y tratamientos.'
-              : 'Inicia sesion para continuar administrando tus pacientes, citas y tratamientos dentales.'}
-          </p>
-
-          {/* Feature highlights */}
-          <div className="mt-10 space-y-4">
-            {[
-              { icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', label: 'Historiales clinicos completos' },
-              { icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', label: 'Agenda de citas inteligente' },
-              { icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', label: 'Reportes y estadisticas' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
-                  <svg className="w-4.5 h-4.5 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                  </svg>
-                </div>
-                <span className="text-sm text-emerald-100/80">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer del panel */}
-        <div className="relative z-10">
-          <p className="text-[11px] text-emerald-200/40">
-            &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
-          </p>
-        </div>
+    <div className="relative flex min-h-dvh flex-col bg-slate-50 dark:bg-slate-950">
+      {/* Fondo decorativo sutil */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-40 right-0 h-96 w-96 rounded-md bg-emerald-50/60 blur-3xl dark:bg-emerald-950/20" />
+        <div className="absolute bottom-0 -left-20 h-72 w-72 rounded-md bg-teal-50/40 blur-3xl dark:bg-teal-950/10" />
       </div>
 
-      {/* ── Panel derecho: Formulario ── */}
-      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0 bg-slate-50 dark:bg-slate-950 relative">
-        {/* Fondo decorativo sutil */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute -top-40 right-0 w-96 h-96 rounded-md bg-emerald-50/60 dark:bg-emerald-950/20 blur-3xl" />
-          <div className="absolute bottom-0 -left-20 w-72 h-72 rounded-md bg-teal-50/40 dark:bg-teal-950/10 blur-3xl" />
-        </div>
+      {/* Tema: flotante para no consumir una franja vertical */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="absolute right-3 top-3 z-20 rounded-md border border-transparent p-2 text-slate-400 transition-all duration-200 hover:border-slate-200 hover:bg-white hover:text-slate-600 dark:text-slate-500 dark:hover:border-slate-700 dark:hover:bg-slate-800/60 dark:hover:text-slate-300 sm:right-4 sm:top-4"
+        aria-label="Cambiar tema"
+      >
+        {isDark ? <SunIcon /> : <MoonIcon />}
+      </button>
 
-        {/* Theme toggle */}
-        <div className="relative z-10 flex justify-end p-4 lg:p-6">
-          <button
-            onClick={toggleTheme}
-            className="p-2.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-white dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-800/60 transition-all duration-200 border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-            aria-label="Cambiar tema"
-          >
-            {isDark ? <SunIcon /> : <MoonIcon />}
-          </button>
-        </div>
-
-        {/* Form area */}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-5 pb-8 sm:px-8">
-          <div className="w-full max-w-[420px] animate-fade-in-up">
-            {/* Logo mobile only */}
-            <div className="lg:hidden text-center mb-8">
+      {/* Contenido centrado en altura; scroll solo si el viewport es muy bajo (p. ej. teclado movil) */}
+      <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain">
+        <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6 sm:py-5">
+          <div className="animate-fade-in-up w-full max-w-[420px]">
+            <div className="mb-3 text-center sm:mb-4">
               <img
                 src={logoInicio}
                 alt="SmileCare"
-                className="h-16 sm:h-20 w-auto max-w-[min(100%,280px)] mx-auto object-contain"
+                className="mx-auto h-11 w-auto max-w-[min(100%,220px)] object-contain sm:h-12"
               />
             </div>
 
             <Outlet />
+
+            <p className="mt-3 text-center text-[10px] text-slate-400 dark:text-slate-600 sm:text-[11px]">
+              &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
+            </p>
           </div>
         </div>
-
-        {/* Footer mobile */}
-        <div className="lg:hidden relative z-10 pb-6 text-center">
-          <p className="text-[11px] text-slate-400 dark:text-slate-600">
-            &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
-          </p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

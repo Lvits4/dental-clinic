@@ -81,19 +81,17 @@ const RegisterView = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Crear cuenta
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
-          Completa tus datos para registrarte en el sistema
-        </p>
-      </div>
+      <div className="rounded-md border border-slate-200/70 bg-white p-5 shadow-lg shadow-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-6">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+            Crear cuenta
+          </h2>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+            Completa tus datos para registrarte en el sistema
+          </p>
+        </div>
 
-      {/* Form card */}
-      <div className="bg-white dark:bg-slate-900 rounded-md shadow-lg shadow-slate-200/60 dark:shadow-none border border-slate-200/70 dark:border-slate-800 p-6 sm:p-7">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Input
             label="Nombre completo"
             type="text"
@@ -106,6 +104,7 @@ const RegisterView = () => {
             }}
             error={errors.fullName}
             autoFocus
+            className="py-2"
             leftIcon={
               <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -125,6 +124,7 @@ const RegisterView = () => {
             }}
             error={errors.username}
             autoComplete="username"
+            className="py-2"
             leftIcon={
               <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zm0 0c0 1.657 1.007 3 2.25 3S21 13.657 21 12a9 9 0 10-2.636 6.364M16.5 12V8.25" />
@@ -132,23 +132,26 @@ const RegisterView = () => {
             }
           />
 
-          <Input
-            label="Correo electronico"
-            type="email"
-            placeholder="correo@ejemplo.com"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
-            error={errors.email}
-            autoComplete="email"
-            leftIcon={
-              <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-              </svg>
-            }
-          />
+          <div className="sm:col-span-2">
+            <Input
+              label="Correo electronico"
+              type="email"
+              placeholder="correo@ejemplo.com"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
+              error={errors.email}
+              autoComplete="email"
+              className="py-2"
+              leftIcon={
+                <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+              }
+            />
+          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
               Contrasena
             </label>
             <div className="relative">
@@ -168,7 +171,7 @@ const RegisterView = () => {
                   'bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white',
                   'placeholder-slate-400 dark:placeholder-slate-500',
                   'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-offset-0',
-                  'pl-10 pr-11 py-2.5',
+                  'pl-10 pr-11 py-2',
                   errors.password
                     ? 'border-red-300 dark:border-red-500 focus:ring-red-500/18 focus:border-red-500/80'
                     : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-600/14 dark:focus:ring-emerald-400/12 focus:border-emerald-600/45 dark:focus:border-emerald-500/40',
@@ -202,11 +205,11 @@ const RegisterView = () => {
             )}
           </div>
 
-          <div className="pt-1">
+          <div className="sm:col-span-2">
             <Button
               type="submit"
               loading={registerMutation.isPending}
-              className="w-full !py-2.5 !text-sm !font-semibold"
+              className="w-full py-2.5! text-sm! font-semibold!"
             >
               Crear cuenta
             </Button>
@@ -215,7 +218,7 @@ const RegisterView = () => {
       </div>
 
       {/* Footer link */}
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
         Ya tienes cuenta?{' '}
         <Link
           to="/login"

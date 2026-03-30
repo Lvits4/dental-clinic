@@ -41,19 +41,17 @@ const LoginView = () => {
 
   return (
     <>
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Iniciar sesion
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
-          Ingresa tus credenciales para acceder al sistema
-        </p>
-      </div>
+      <div className="rounded-md border border-slate-200/70 bg-white p-5 shadow-lg shadow-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-6">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+            Iniciar sesion
+          </h2>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+            Ingresa tus credenciales para acceder al sistema
+          </p>
+        </div>
 
-      {/* Form card */}
-      <div className="bg-white dark:bg-slate-900 rounded-md shadow-lg shadow-slate-200/60 dark:shadow-none border border-slate-200/70 dark:border-slate-800 p-6 sm:p-7">
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <Input
             label="Usuario o correo"
             type="text"
@@ -63,6 +61,7 @@ const LoginView = () => {
             error={errors.username}
             autoComplete="username"
             autoFocus
+            className="py-2"
             leftIcon={
               <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -71,7 +70,7 @@ const LoginView = () => {
           />
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
               Contrasena
             </label>
             <div className="relative">
@@ -91,7 +90,7 @@ const LoginView = () => {
                   'bg-white dark:bg-slate-800/50 text-slate-900 dark:text-white',
                   'placeholder-slate-400 dark:placeholder-slate-500',
                   'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-offset-0',
-                  'pl-10 pr-11 py-2.5',
+                  'pl-10 pr-11 py-2',
                   errors.password
                     ? 'border-red-300 dark:border-red-500 focus:ring-red-500/18 focus:border-red-500/80'
                     : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-emerald-600/14 dark:focus:ring-emerald-400/12 focus:border-emerald-600/45 dark:focus:border-emerald-500/40',
@@ -136,7 +135,7 @@ const LoginView = () => {
       </div>
 
       {/* Footer link */}
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
         No tienes cuenta?{' '}
         <Link
           to="/register"
