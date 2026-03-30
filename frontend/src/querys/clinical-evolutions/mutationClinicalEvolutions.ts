@@ -5,7 +5,12 @@ import { clinicalEvolutionsApi } from '../../requests/clinical-evolutions.api';
 import type { CreateClinicalEvolutionDto } from '../../types';
 import { HttpError } from '../../helpers/http';
 
-export const useCreateClinicalEvolution = (patientId: string) => {
+export type CreateClinicalEvolutionOptions = { skipNavigation?: boolean };
+
+export const useCreateClinicalEvolution = (
+  patientId: string,
+  options?: CreateClinicalEvolutionOptions,
+) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -14,7 +19,9 @@ export const useCreateClinicalEvolution = (patientId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clinical-evolutions'] });
       toast.success('Evolución clínica registrada');
-      navigate(`/patients/${patientId}/evolutions`);
+      if (!options?.skipNavigation) {
+        navigate(`/patients/${patientId}/evolutions`);
+      }
     },
     onError: (error: Error) => {
       if (error instanceof HttpError) {

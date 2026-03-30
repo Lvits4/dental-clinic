@@ -80,14 +80,12 @@ const Modal = ({
       {/* Panel */}
       <div
         className={[
-          'relative w-full',
+          'relative w-full min-h-0',
           fitContent ? 'md:w-max md:min-w-0' : '',
           'bg-white dark:bg-slate-900',
           'border border-slate-200/80 dark:border-slate-800',
-          'flex flex-col',
+          'flex max-h-[92dvh] flex-col overflow-hidden md:max-h-[90vh]',
           panelRounded,
-          'max-h-[92dvh] md:max-h-[90vh]',
-          'overflow-hidden',
           'shadow-2xl',
           desktopSizeClasses[size],
           !fitContent && isFullscreen ? 'md:min-h-[80vh]' : '',
@@ -124,14 +122,14 @@ const Modal = ({
           </div>
         )}
 
-        {/* Body */}
+        {/* Body: flex-1 para que el panel respete max-h y el contenido pueda usar h-full o hacer scroll */}
         <div
           className={[
-            'px-6 py-5 overflow-y-auto min-h-0',
-            fitContent
-              ? 'max-h-[calc(92dvh-7rem)] md:max-h-[calc(90vh-6.5rem)]'
-              : 'flex-1',
-          ].join(' ')}
+            'min-h-0 flex-1 overflow-y-auto px-6 py-5',
+            fitContent ? 'flex flex-col' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
         >
           {children}
         </div>

@@ -20,6 +20,11 @@ export interface MultiStepFormProps {
   onCancel?: () => void;
   /** Callback que se ejecuta cada vez que el usuario navega entre pasos */
   onStepChange?: (newStep: number) => void;
+  /**
+   * true: el formulario llena un padre con altura definida (p. ej. modal); el scroll queda en el paso.
+   * false: crece con flex-1 en un layout flex normal.
+   */
+  fillParent?: boolean;
 }
 
 const MultiStepForm = ({
@@ -30,6 +35,7 @@ const MultiStepForm = ({
   beforeButtons,
   onCancel,
   onStepChange,
+  fillParent = false,
 }: MultiStepFormProps) => {
   const [current, setCurrent] = useState(0);
   const isLast = current === steps.length - 1;
@@ -76,10 +82,18 @@ const MultiStepForm = ({
     }
   };
 
+  const formLayoutClass = fillParent
+    ? 'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden'
+    : 'flex min-h-0 w-full flex-1 flex-col';
+
   return (
-    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+    <form
+      onSubmit={handleSubmit}
+      onKeyDown={handleKeyDown}
+      className={formLayoutClass}
+    >
       {/* ── Indicador de pasos (compacto) ── */}
-      <div className="mb-5" role="navigation" aria-label="Progreso del formulario">
+      <div className="mb-4 shrink-0" role="navigation" aria-label="Progreso del formulario">
         <div className="flex items-baseline justify-between gap-3 mb-2">
           <p className="min-w-0 truncate text-sm font-medium text-slate-800 dark:text-slate-100">
             {steps[current].title}
@@ -121,21 +135,21 @@ const MultiStepForm = ({
         </div>
       </div>
 
-      {/* ── Step Content ── */}
-      <div className="min-h-0">
+      {/* ── Step Content (scroll; botones siempre visibles si el padre limita altura) ── */}
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-0.5">
         <div
           key={current}
-          className="animate-[fadeSlideIn_0.3s_ease-out]"
+          className="animate-[fadeSlideIn_0.3s_ease-out] pb-1"
         >
           {steps[current].content}
         </div>
       </div>
 
       {/* ── Contenido extra antes de los botones ── */}
-      {beforeButtons}
+      {beforeButtons ? <div className="shrink-0">{beforeButtons}</div> : null}
 
       {/* ── Navigation Buttons ── */}
-      <div className="flex items-center justify-between pt-5 mt-5 border-t border-slate-100 dark:border-slate-800">
+      <div className="mt-4 flex shrink-0 items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
         {/* Left: Cancelar + Anterior */}
         <div className="flex items-center gap-2">
           {onCancel && (

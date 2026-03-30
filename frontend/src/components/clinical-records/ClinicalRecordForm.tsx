@@ -9,6 +9,7 @@ interface ClinicalRecordFormProps {
   submitLabel?: string;
   onSubmit: (data: UpdateClinicalRecordDto) => void;
   onCancel?: () => void;
+  fillParent?: boolean;
 }
 
 /* ── Iconos de sección ── */
@@ -29,6 +30,7 @@ const ClinicalRecordForm = ({
   submitLabel = 'Guardar',
   onSubmit,
   onCancel,
+  fillParent = false,
 }: ClinicalRecordFormProps) => {
   const [medicalBackground, setMedicalBackground] = useState(initialData?.medicalBackground || '');
   const [dentalBackground, setDentalBackground] = useState(initialData?.dentalBackground || '');
@@ -50,19 +52,26 @@ const ClinicalRecordForm = ({
     {
       title: 'Antecedentes',
       content: (
-        <FormSection title="Antecedentes" icon={<IconHistory />} description="Historial médico y odontológico del paciente">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormSection
+          title="Antecedentes"
+          icon={<IconHistory />}
+          description="Historial médico y odontológico del paciente"
+          className="min-h-0"
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
             <Textarea
               label="Antecedentes Médicos"
               value={medicalBackground}
               onChange={(e) => setMedicalBackground(e.target.value)}
-              rows={4}
+              rows={3}
+              className="max-h-32 min-h-18 sm:max-h-36"
             />
             <Textarea
               label="Antecedentes Odontológicos"
               value={dentalBackground}
               onChange={(e) => setDentalBackground(e.target.value)}
-              rows={4}
+              rows={3}
+              className="max-h-32 min-h-18 sm:max-h-36"
             />
           </div>
         </FormSection>
@@ -71,26 +80,34 @@ const ClinicalRecordForm = ({
     {
       title: 'Evaluación',
       content: (
-        <FormSection title="Evaluación" icon={<IconDiagnosis />} description="Consulta, diagnóstico y observaciones">
+        <FormSection
+          title="Evaluación"
+          icon={<IconDiagnosis />}
+          description="Consulta, diagnóstico y observaciones"
+          className="min-h-0"
+        >
           <div className="space-y-4">
             <Textarea
               label="Motivo de Consulta"
               value={consultationReason}
               onChange={(e) => setConsultationReason(e.target.value)}
               rows={3}
+              className="max-h-32 min-h-18 sm:max-h-36"
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
               <Textarea
                 label="Diagnóstico"
                 value={diagnosis}
                 onChange={(e) => setDiagnosis(e.target.value)}
                 rows={3}
+                className="max-h-32 min-h-18 sm:max-h-36"
               />
               <Textarea
                 label="Observaciones"
                 value={observations}
                 onChange={(e) => setObservations(e.target.value)}
                 rows={3}
+                className="max-h-32 min-h-18 sm:max-h-36"
               />
             </div>
           </div>
@@ -106,6 +123,7 @@ const ClinicalRecordForm = ({
       submitLabel={submitLabel}
       loading={loading}
       onCancel={onCancel}
+      fillParent={fillParent}
     />
   );
 };

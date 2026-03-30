@@ -73,11 +73,10 @@ const PatientsListView = () => {
   }, [location.state, location.pathname, navigate, canEditPatient]);
 
   return (
-    <div className="flex flex-col gap-4 h-[calc(100dvh-12rem)] md:h-[calc(100dvh-8rem)] min-h-0">
+    <div className="flex flex-col gap-4 flex-1 min-h-0">
       <div className="shrink-0">
         <PageHeader
           dense
-          title="Pacientes"
           breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Pacientes' }]}
         />
       </div>

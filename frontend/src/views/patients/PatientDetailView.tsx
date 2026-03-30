@@ -16,7 +16,8 @@ import { usePatientsList } from '../../querys/patients/queryPatients';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import { AppointmentStatus, Role } from '../../enums';
 import { STATUS_CONFIG } from '../../types';
-import ClinicalRecordForm from '../../components/clinical-records/ClinicalRecordForm';
+import ClinicalRecordFormModal from '../../components/clinical-records/ClinicalRecordFormModal';
+import ClinicalEvolutionFormModal from '../../components/clinical-evolutions/ClinicalEvolutionFormModal';
 import ClinicalEvolutionCard from '../../components/clinical-evolutions/ClinicalEvolutionCard';
 import FileUploadZone from '../../components/clinical-files/FileUploadZone';
 import ClinicalFileCard from '../../components/clinical-files/ClinicalFileCard';
@@ -26,11 +27,10 @@ import { useAuth } from '../../context/AuthContext';
 import type { PatientModalLocationState } from './PatientRouteRedirects';
 import { useAppointmentsList } from '../../querys/appointments/queryAppointments';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
-import { useCreateClinicalRecord, useUpdateClinicalRecord } from '../../querys/clinical-records/mutationClinicalRecords';
 import { useClinicalEvolutionsList } from '../../querys/clinical-evolutions/queryClinicalEvolutions';
 import { useClinicalFilesList } from '../../querys/clinical-files/queryClinicalFiles';
 import { useUploadClinicalFile, useDeleteClinicalFile } from '../../querys/clinical-files/mutationClinicalFiles';
-import type { Patient, UpdateClinicalRecordDto, Appointment } from '../../types';
+import type { Patient, Appointment } from '../../types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -94,28 +94,30 @@ const PatientInfoTab = ({ patient }: { patient: Patient }) => {
   ];
 
   return (
-    <div>
-      <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Información general</h3>
-      <div className={DETAIL_INFO_GRID_CLASS}>
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className={[DETAIL_INFO_TILE_CLASS, item.fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
-          >
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{item.label}</p>
-            <p
-              className={[
-                'text-sm font-medium text-slate-900 dark:text-white',
-                item.breakWords ? 'break-words' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
+    <div className="flex flex-1 flex-col min-h-0">
+      <section className="flex flex-1 flex-col min-h-0 rounded-lg border border-slate-200/80 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/30 p-4 sm:p-5">
+        <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Información general</h3>
+        <div className={DETAIL_INFO_GRID_CLASS}>
+          {items.map((item) => (
+            <div
+              key={item.label}
+              className={[DETAIL_INFO_TILE_CLASS, item.fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
             >
-              {item.value}
-            </p>
-          </div>
-        ))}
-      </div>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{item.label}</p>
+              <p
+                className={[
+                  'text-sm font-medium text-slate-900 dark:text-white',
+                  item.breakWords ? 'break-words' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
@@ -124,69 +126,76 @@ const PatientInfoTab = ({ patient }: { patient: Patient }) => {
 
 const RecordTab = ({ patientId }: { patientId: string }) => {
   const { data: record, isLoading, error } = useClinicalRecord(patientId);
-  const createMutation = useCreateClinicalRecord();
-  const updateMutation = useUpdateClinicalRecord(record?.id || '', patientId);
-  const [editing, setEditing] = useState(false);
+  const [recordModal, setRecordModal] = useState<null | 'create' | 'edit'>(null);
   const noRecord = !!error && !record;
-
-  const handleSubmit = (data: UpdateClinicalRecordDto) => {
-    if (record) {
-      updateMutation.mutate(data, { onSuccess: () => setEditing(false) });
-    } else {
-      createMutation.mutate({ patientId, ...data }, { onSuccess: () => setEditing(false) });
-    }
-  };
 
   if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
 
-  if (noRecord && !editing) {
+  if (noRecord) {
     return (
-      <div className="text-center py-8">
-        <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
-        </svg>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Este paciente no tiene expediente clinico aun.</p>
-        <Button onClick={() => setEditing(true)} size="sm">Crear Expediente</Button>
-      </div>
-    );
-  }
-
-  if (editing) {
-    return (
-      <ClinicalRecordForm
-        initialData={record}
-        loading={createMutation.isPending || updateMutation.isPending}
-        submitLabel={record ? 'Guardar' : 'Crear Expediente'}
-        onSubmit={handleSubmit}
-        onCancel={() => setEditing(false)}
-      />
+      <>
+        <div className="text-center py-8">
+          <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+          </svg>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Este paciente no tiene expediente clinico aun.</p>
+          <Button type="button" onClick={() => setRecordModal('create')} size="sm">
+            Crear Expediente
+          </Button>
+        </div>
+        <ClinicalRecordFormModal
+          patientId={patientId}
+          isOpen={recordModal === 'create'}
+          onClose={() => setRecordModal(null)}
+          mode="create"
+        />
+      </>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>Editar</Button>
+    <>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-white min-w-0">
+            Expediente clínico
+          </h3>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setRecordModal('edit')}
+          >
+            Editar
+          </Button>
+        </div>
+        <div className={DETAIL_INFO_GRID_CLASS}>
+          {RECORD_SECTIONS.map((s) => {
+            const text = record?.[s.key] || '—';
+            const fullWidth = 'fullWidth' in s && s.fullWidth;
+            return (
+              <div
+                key={s.key}
+                className={[DETAIL_INFO_TILE_CLASS, fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
+              >
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{s.label}</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white whitespace-pre-line break-words">
+                  {text}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <h3 className={DETAIL_INFO_SECTION_TITLE_CLASS}>Expediente clínico</h3>
-      <div className={DETAIL_INFO_GRID_CLASS}>
-        {RECORD_SECTIONS.map((s) => {
-          const text = record?.[s.key] || '—';
-          const fullWidth = 'fullWidth' in s && s.fullWidth;
-          return (
-            <div
-              key={s.key}
-              className={[DETAIL_INFO_TILE_CLASS, fullWidth ? 'sm:col-span-2' : ''].filter(Boolean).join(' ')}
-            >
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{s.label}</p>
-              <p className="text-sm font-medium text-slate-900 dark:text-white whitespace-pre-line break-words">
-                {text}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      <ClinicalRecordFormModal
+        patientId={patientId}
+        isOpen={recordModal === 'edit'}
+        onClose={() => setRecordModal(null)}
+        mode="edit"
+        record={record}
+      />
+    </>
   );
 };
 
@@ -194,6 +203,7 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
 
 const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
+  const [evolutionModalOpen, setEvolutionModalOpen] = useState(false);
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId);
   const { data, isLoading } = useClinicalEvolutionsList({ page, limit: 5, recordId: record?.id });
 
@@ -211,50 +221,61 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 
   if (!data?.data?.length) {
     return (
-      <div className="text-center py-8">
-        <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
-        <Link to={`/patients/${patientId}/evolutions/new`}>
-          <Button size="sm">Nueva Evolucion</Button>
-        </Link>
-      </div>
+      <>
+        <div className="text-center py-8">
+          <svg className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay evoluciones registradas.</p>
+          <Button type="button" size="sm" onClick={() => setEvolutionModalOpen(true)}>
+            Nueva Evolucion
+          </Button>
+        </div>
+        <ClinicalEvolutionFormModal
+          patientId={patientId}
+          isOpen={evolutionModalOpen}
+          onClose={() => setEvolutionModalOpen(false)}
+        />
+      </>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <Link to={`/patients/${patientId}/evolutions/new`}>
-          <Button size="sm">
+    <>
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <Button type="button" size="sm" onClick={() => setEvolutionModalOpen(true)}>
             <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Nueva Evolucion
           </Button>
-        </Link>
-      </div>
+        </div>
 
-      {/* Timeline */}
-      <div className="relative space-y-3 pl-5">
-        <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
-        {data.data.map((evolution) => (
-          <div key={evolution.id} className="relative">
-            <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-lg bg-emerald-500 border-2 border-white dark:border-slate-900" />
-            <ClinicalEvolutionCard evolution={evolution} />
-          </div>
-        ))}
-      </div>
+        <div className="relative space-y-3 pl-5">
+          <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
+          {data.data.map((evolution) => (
+            <div key={evolution.id} className="relative">
+              <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-lg bg-emerald-500 border-2 border-white dark:border-slate-900" />
+              <ClinicalEvolutionCard evolution={evolution} />
+            </div>
+          ))}
+        </div>
 
-      {data.meta.totalPages > 1 && (
-        <Pagination
-          page={data.meta.page}
-          totalPages={data.meta.totalPages}
-          total={data.meta.totalItems}
-          limit={data.meta.limit}
-          onPageChange={setPage}
-        />
-      )}
-    </div>
+        {data.meta.totalPages > 1 && (
+          <Pagination
+            page={data.meta.page}
+            totalPages={data.meta.totalPages}
+            total={data.meta.totalItems}
+            limit={data.meta.limit}
+            onPageChange={setPage}
+          />
+        )}
+      </div>
+      <ClinicalEvolutionFormModal
+        patientId={patientId}
+        isOpen={evolutionModalOpen}
+        onClose={() => setEvolutionModalOpen(false)}
+      />
+    </>
   );
 };
 
@@ -572,7 +593,7 @@ const PatientDetailView = () => {
   }
 
   return (
-    <div className="flex flex-col gap-2 min-h-0 h-[calc(100dvh-12rem)] md:h-[calc(100dvh-8rem)]">
+    <div className="flex flex-col gap-2 flex-1 min-h-0">
       <div className="shrink-0">
         <PageHeader
           dense
@@ -643,7 +664,7 @@ const PatientDetailView = () => {
         className="flex flex-1 min-h-0 flex-col overflow-hidden"
         bodyClassName="flex flex-1 min-h-0 flex-col overflow-hidden"
       >
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5">
+        <div className="flex flex-1 min-h-0 flex-col overflow-y-auto p-4 sm:p-5">
           {activeTab === 'info' && <PatientInfoTab patient={patient} />}
           {activeTab === 'record' && <RecordTab patientId={id!} />}
           {activeTab === 'evolutions' && <EvolutionsTab patientId={id!} />}

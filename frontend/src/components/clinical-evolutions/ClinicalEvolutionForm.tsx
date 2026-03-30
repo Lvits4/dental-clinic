@@ -9,6 +9,8 @@ interface ClinicalEvolutionFormProps {
   loading?: boolean;
   onSubmit: (data: CreateClinicalEvolutionDto) => void;
   onCancel?: () => void;
+  /** Para modales: el formulario llena el alto y solo el paso hace scroll */
+  fillParent?: boolean;
 }
 
 /* ── Iconos de sección ── */
@@ -34,6 +36,7 @@ const ClinicalEvolutionForm = ({
   loading = false,
   onSubmit,
   onCancel,
+  fillParent = false,
 }: ClinicalEvolutionFormProps) => {
   const [doctorId, setDoctorId] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -102,19 +105,22 @@ const ClinicalEvolutionForm = ({
               value={consultationReason}
               onChange={(e) => setConsultationReason(e.target.value)}
               rows={2}
+              className="max-h-24 min-h-16 sm:max-h-28"
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
               <Textarea
                 label="Hallazgos *"
                 value={findings}
                 onChange={(e) => setFindings(e.target.value)}
                 rows={2}
+                className="max-h-24 min-h-16 sm:max-h-28"
               />
               <Textarea
                 label="Diagnóstico *"
                 value={diagnosis}
                 onChange={(e) => setDiagnosis(e.target.value)}
                 rows={2}
+                className="max-h-24 min-h-16 sm:max-h-28"
               />
             </div>
             <Textarea
@@ -122,6 +128,7 @@ const ClinicalEvolutionForm = ({
               value={procedurePerformed}
               onChange={(e) => setProcedurePerformed(e.target.value)}
               rows={2}
+              className="max-h-24 min-h-16 sm:max-h-28"
             />
           </div>
         </FormSection>
@@ -157,6 +164,7 @@ const ClinicalEvolutionForm = ({
       submitLabel="Registrar Evolución"
       loading={loading}
       onCancel={onCancel}
+      fillParent={fillParent}
     />
   );
 };
