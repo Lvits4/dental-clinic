@@ -164,9 +164,9 @@ const DashboardView = () => {
         dense
       />
 
-      {/* Fila de KPI: ancho completo del contenedor, 6 columnas */}
+      {/* Fila de KPI: 2 cols móvil, 3 tablet, 6 escritorio */}
       <div className="shrink-0 w-full min-w-0 stagger-fade">
-        <div className="grid w-full grid-cols-6 gap-2 min-w-0">
+        <div className="grid w-full min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">
           {statCards.map((card) => (
             <div key={card.title} className="min-w-0">
               <StatCard

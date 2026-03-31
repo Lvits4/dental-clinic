@@ -598,28 +598,30 @@ const PatientDetailView = () => {
       </div>
 
       <Card padding="sm" rounding="compact" className="shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-md bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-            <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-              {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">
-              {patient.firstName} {patient.lastName}
-            </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {SEX_LABELS[patient.sex]} &middot; {calculateAge(patient.dateOfBirth)} anos
-              {!patient.isActive && (
-                <span className="text-amber-600 dark:text-amber-400"> &middot; Paciente inactivo</span>
-              )}
-            </p>
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3 basis-[min(100%,16rem)] sm:basis-auto">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-md bg-emerald-100 dark:bg-emerald-900/30">
+              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate text-lg font-bold text-slate-900 dark:text-white">
+                {patient.firstName} {patient.lastName}
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                {SEX_LABELS[patient.sex]} &middot; {calculateAge(patient.dateOfBirth)} anos
+                {!patient.isActive && (
+                  <span className="text-amber-600 dark:text-amber-400"> &middot; Paciente inactivo</span>
+                )}
+              </p>
+            </div>
           </div>
           {canEditPatient && (
             <Button
               type="button"
               variant="secondary"
-              className="shrink-0 rounded-md"
+              className="w-full shrink-0 rounded-md sm:ml-auto sm:w-auto"
               onClick={() => setEditModalOpen(true)}
             >
               Editar

@@ -95,11 +95,12 @@ const AppointmentAgendaView = () => {
           ]}
           action={
             <Link
+              className="block w-full sm:inline-block sm:w-auto"
               to="/appointments"
               state={{ openAppointmentModal: 'create' } satisfies AppointmentModalLocationState}
             >
-              <Button className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md">
-                <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Button className="h-10 min-h-10 w-full shrink-0 rounded-md py-0! px-4 whitespace-nowrap sm:w-auto">
+                <svg className="mr-1.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Nueva cita
@@ -112,31 +113,39 @@ const AppointmentAgendaView = () => {
       <div className="flex-1 flex flex-col min-h-0 min-w-0 space-y-4">
 
       {/* Controles de navegación */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 min-w-0">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-2 min-w-0 w-full sm:w-auto">
           <button
+            type="button"
             onClick={() => navigateWeek(-1)}
-            className="p-1.5 rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="shrink-0 p-1.5 rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 min-w-48 text-center">
-            {new Date(from).toLocaleDateString('es', { day: 'numeric', month: 'short' })} —{' '}
-            {new Date(to).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}
+          <span className="min-w-0 flex-1 basis-[min(100%,12rem)] sm:flex-initial sm:basis-auto text-center text-xs font-medium text-slate-700 dark:text-slate-300 sm:text-sm px-1 leading-snug">
+            <span className="block sm:inline">
+              {new Date(from).toLocaleDateString('es', { day: 'numeric', month: 'short' })}
+            </span>
+            <span className="sm:mx-1"> — </span>
+            <span className="block sm:inline">
+              {new Date(to).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
           </span>
           <button
+            type="button"
             onClick={() => navigateWeek(1)}
-            className="p-1.5 rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="shrink-0 p-1.5 rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
           <button
+            type="button"
             onClick={() => setBaseDate(new Date())}
-            className="px-3 py-1.5 text-xs rounded-md border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="shrink-0 px-3 py-1.5 text-xs rounded-md border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             Hoy
           </button>

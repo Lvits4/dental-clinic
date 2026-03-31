@@ -44,6 +44,7 @@ const DoctorDetailView = () => {
         ]}
         action={
           <Link
+            className="block w-full sm:inline-block sm:w-auto"
             to="/doctors"
             state={
               {
@@ -52,7 +53,10 @@ const DoctorDetailView = () => {
               } satisfies DoctorModalLocationState
             }
           >
-            <Button variant="secondary" className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md">
+            <Button
+              variant="secondary"
+              className="h-10 min-h-10 w-full shrink-0 rounded-md py-0! px-4 whitespace-nowrap sm:w-auto"
+            >
               Editar
             </Button>
           </Link>

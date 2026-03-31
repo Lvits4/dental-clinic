@@ -31,12 +31,16 @@ const TreatmentFilters = ({
   trailingActions,
 }: TreatmentFiltersProps) => {
   return (
-    <div className="flex flex-col gap-2 min-w-0">
-      <div className="flex w-full min-w-0 items-end gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
+      {/*
+        En viewport estrecho, fila única (buscar + categoría + botón) solapa etiquetas y comprime el select.
+        Apilar hasta lg; en lg+ una sola fila alineada al pie de los campos.
+      */}
+      <div className="flex w-full min-w-0 flex-col gap-3 lg:flex-row lg:items-end lg:gap-2">
         <div className="flex min-w-0 flex-1 flex-col">
           <label
             htmlFor="treatment-filter-search"
-            className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+            className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
           >
             Buscar
           </label>
@@ -49,7 +53,7 @@ const TreatmentFilters = ({
             rounding="compact"
           />
         </div>
-        <div className="shrink-0 sm:min-w-48">
+        <div className="min-w-0 w-full lg:w-auto lg:min-w-48 lg:max-w-xs lg:shrink-0">
           <Select
             label="Categoría"
             className={FILTER_SELECT_TRIGGER_CLASS}
@@ -59,14 +63,16 @@ const TreatmentFilters = ({
           />
         </div>
         {trailingActions ? (
-          <div className="flex shrink-0 flex-col">
+          <div className="flex w-full shrink-0 flex-col lg:w-auto">
             <span
-              className="invisible mb-1.5 block select-none text-sm font-medium"
+              className="mb-1.5 hidden h-5 select-none text-sm font-medium lg:block lg:invisible"
               aria-hidden="true"
             >
               Categoría
             </span>
-            <div className="flex h-10 min-h-10 items-center">{trailingActions}</div>
+            <div className="flex min-h-10 w-full items-center lg:h-10 lg:w-auto [&_button]:w-full lg:[&_button]:w-auto">
+              {trailingActions}
+            </div>
           </div>
         ) : null}
       </div>

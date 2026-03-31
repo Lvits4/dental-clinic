@@ -106,14 +106,14 @@ const AppointmentsListView = () => {
           }
           breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Citas' }]}
           action={
-            <div className="flex flex-wrap items-center gap-2">
-              <Link to="/appointments/agenda">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+              <Link to="/appointments/agenda" className="block w-full sm:inline-block sm:w-auto">
                 <Button
                   type="button"
                   variant="secondary"
-                  className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
+                  className="h-10 min-h-10 w-full shrink-0 rounded-md py-0! px-4 whitespace-nowrap sm:w-auto"
                 >
-                  <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="mr-1.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -126,10 +126,10 @@ const AppointmentsListView = () => {
               </Link>
               <Button
                 type="button"
-                className="h-10 min-h-10 shrink-0 py-0! px-4 whitespace-nowrap rounded-md"
+                className="h-10 min-h-10 w-full shrink-0 rounded-md py-0! px-4 whitespace-nowrap sm:w-auto"
                 onClick={() => setFormModal({ mode: 'create' })}
               >
-                <svg className="w-4 h-4 mr-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="mr-1.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Nueva cita

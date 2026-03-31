@@ -108,10 +108,10 @@ const AccountView = () => {
     'min-w-0 h-full min-h-0 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 sm:p-4 flex flex-col';
   const sectionFieldsetClear =
     '!border-0 !bg-transparent !p-0 !shadow-none ring-0 focus-within:ring-0 flex h-full min-h-0 flex-col flex-1';
-  /** Campos más estrechos; el bloque no ocupa todo el ancho de la columna */
-  const fieldsCol = 'w-full max-w-[min(100%,17.5rem)] sm:max-w-xs';
-  /** Misma altura de descripción en ambas columnas → inputs alineados en horizontal */
-  const sectionDescAlign = 'min-h-[2.75rem] sm:min-h-10 text-balance';
+  /** En móvil ancho completo; en escritorio columnas más contenidas */
+  const fieldsCol = 'w-full max-w-none sm:max-w-xs';
+  /** Misma altura de descripción cuando hay dos columnas */
+  const sectionDescAlign = 'text-balance md:min-h-[2.75rem] lg:min-h-10';
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col gap-3">
@@ -123,7 +123,7 @@ const AccountView = () => {
       />
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 items-stretch">
+        <div className="grid grid-cols-1 gap-3 items-stretch md:grid-cols-2 md:gap-4">
           <div className={sectionShell}>
             <FormSection
               title="Perfil"
@@ -183,10 +183,10 @@ const AccountView = () => {
           </div>
         </div>
 
-        <div className="flex justify-end border-t border-slate-200/80 dark:border-slate-700 pt-3 sm:grid sm:grid-cols-2 sm:gap-4">
-          <div className="hidden min-h-0 sm:block" aria-hidden />
-          <div className="flex w-full justify-end sm:w-auto">
-            <Button type="submit" disabled={mutation.isPending}>
+        <div className="flex justify-end border-t border-slate-200/80 dark:border-slate-700 pt-3 md:grid md:grid-cols-2 md:gap-4">
+          <div className="hidden min-h-0 md:block" aria-hidden />
+          <div className="flex w-full md:justify-end">
+            <Button type="submit" className="w-full md:w-auto" disabled={mutation.isPending}>
               {mutation.isPending ? 'Guardando…' : 'Guardar cambios'}
             </Button>
           </div>
