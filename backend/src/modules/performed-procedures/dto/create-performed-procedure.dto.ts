@@ -19,6 +19,11 @@ export class CreatePerformedProcedureDto {
   @IsUUID()
   treatmentPlanItemId?: string;
 
+  @ApiPropertyOptional({ description: 'Vincula el procedimiento al plan (sin ítem)' })
+  @IsOptional()
+  @IsUUID()
+  treatmentPlanId?: string;
+
   @ApiPropertyOptional({ example: '14' })
   @IsOptional()
   @IsString()

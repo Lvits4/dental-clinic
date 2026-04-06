@@ -16,6 +16,9 @@ interface AppointmentsTableProps {
     total: number;
     limit: number;
     onPageChange: (page: number) => void;
+    onLimitChange?: (limit: number) => void;
+    minLimit?: number;
+    maxLimit?: number;
   };
   /** Si se define, la edición la abre el padre (p. ej. lista con un solo modal) */
   onEditRequest?: (appointment: Appointment) => void;

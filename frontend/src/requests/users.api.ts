@@ -1,5 +1,5 @@
 import { http } from '../helpers/http';
-import type { User } from '../types';
+import type { PaginatedResponse, User, UserFilters } from '../types';
 import type { Role } from '../enums';
 
 export interface CreateUserDto {
@@ -20,8 +20,15 @@ export interface UpdateUserDto {
 }
 
 export const usersApi = {
-  getAll(): Promise<User[]> {
-    return http.get<User[]>('/users');
+  getAll(filters: UserFilters = {}): Promise<PaginatedResponse<User>> {
+    return http.get<PaginatedResponse<User>>('/users', {
+      page: filters.page,
+      limit: filters.limit,
+      search: filters.search,
+      role: filters.role,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+    } as Record<string, string | number | undefined>);
   },
 
   getById(id: string): Promise<User> {

@@ -11,6 +11,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Role } from '../../enums';
 import type { TreatmentModalLocationState } from './TreatmentRouteRedirects';
 import type { Treatment, TreatmentSortBy, TreatmentSortOrder } from '../../types';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, TREATMENTS_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 type TreatmentListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
 
@@ -27,7 +29,7 @@ const TreatmentsListView = () => {
   const [treatmentToDelete, setTreatmentToDelete] = useState<Treatment | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
   const { data, isPending, isError, error, refetch } = useTreatmentsList({
     page,
@@ -94,9 +96,9 @@ const TreatmentsListView = () => {
 
   useEffect(() => {
     if (isError || !data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages, isError]);
+  }, [data?.meta, isError, limit]);
 
   const deleteTargetLabel = treatmentToDelete?.name ?? 'este tratamiento';
 
@@ -173,10 +175,16 @@ const TreatmentsListView = () => {
               data && !isError
                 ? {
                     page,
-                    totalPages: Math.max(1, data.meta.totalPages),
+                    totalPages: totalPagesFromMeta(data.meta, limit),
                     total: data.meta.totalItems,
-                    limit: data.meta.limit,
+                    limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: TREATMENTS_PAGE_SIZE_MAX,
                   }
                 : undefined
             }

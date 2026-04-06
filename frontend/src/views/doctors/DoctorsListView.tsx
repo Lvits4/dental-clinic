@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, PageHeader } from '../../components/ui';
 import { HttpError } from '../../helpers/http';
@@ -7,55 +7,11 @@ import DoctorFilters from '../../components/doctors/DoctorFilters';
 import DoctorFormModal from '../../components/doctors/DoctorFormModal';
 import { useDoctorsList } from '../../querys/doctors/queryDoctors';
 import type { DoctorModalLocationState } from './DoctorRouteRedirects';
-import type { Doctor, DoctorSortBy, DoctorSortOrder } from '../../types';
+import type { DoctorSortBy, DoctorSortOrder } from '../../types';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 type DoctorListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
-
-function matchesSearch(d: Doctor, q: string): boolean {
-  if (!q.trim()) return true;
-  const s = q.trim().toLowerCase();
-  const hay = [
-    d.firstName,
-    d.lastName,
-    d.specialty,
-    d.email,
-    d.phone,
-    d.licenseNumber,
-  ]
-    .join(' ')
-    .toLowerCase();
-  return hay.includes(s);
-}
-
-function compareDoctors(a: Doctor, b: Doctor, sortBy: DoctorSortBy, sortOrder: DoctorSortOrder): number {
-  const dir = sortOrder === 'asc' ? 1 : -1;
-  let cmp = 0;
-  switch (sortBy) {
-    case 'name':
-      cmp = `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, 'es', {
-        sensitivity: 'base',
-      });
-      break;
-    case 'specialty':
-      cmp = a.specialty.localeCompare(b.specialty, 'es', { sensitivity: 'base' });
-      break;
-    case 'phone':
-      cmp = a.phone.localeCompare(b.phone, undefined, { numeric: true });
-      break;
-    case 'email':
-      cmp = (a.email || '').localeCompare(b.email || '', 'es', { sensitivity: 'base' });
-      break;
-    case 'licenseNumber':
-      cmp = a.licenseNumber.localeCompare(b.licenseNumber, undefined, { numeric: true });
-      break;
-    case 'isActive':
-      cmp = Number(a.isActive) - Number(b.isActive);
-      break;
-    default:
-      cmp = 0;
-  }
-  return cmp * dir;
-}
 
 const DoctorsListView = () => {
   const [page, setPage] = useState(1);
@@ -65,33 +21,15 @@ const DoctorsListView = () => {
   const [modal, setModal] = useState<DoctorListModal>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
-  const { data: rawList, isPending, isError, error, refetch } = useDoctorsList();
-
-  const filtered = useMemo(() => {
-    const list = rawList ?? [];
-    return list.filter((d) => matchesSearch(d, search));
-  }, [rawList, search]);
-
-  const sortedFiltered = useMemo(() => {
-    const list = [...filtered];
-    list.sort((a, b) => compareDoctors(a, b, sortBy, sortOrder));
-    return list;
-  }, [filtered, sortBy, sortOrder]);
-
-  const totalItems = sortedFiltered.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
-
-  useEffect(() => {
-    setPage((p) => Math.min(p, totalPages));
-  }, [totalPages]);
-
-  const safePage = Math.min(page, totalPages);
-  const pageData = useMemo(() => {
-    const start = (safePage - 1) * limit;
-    return sortedFiltered.slice(start, start + limit);
-  }, [sortedFiltered, safePage, limit]);
+  const { data, isPending, isError, error, refetch } = useDoctorsList({
+    page,
+    limit,
+    search: search.trim() || undefined,
+    sortBy,
+    sortOrder,
+  });
 
   const listErrorMessage =
     error instanceof HttpError
@@ -140,6 +78,12 @@ const DoctorsListView = () => {
     }
   }, [location.state, location.pathname, navigate]);
 
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = totalPagesFromMeta(data.meta, limit);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta, isError, limit]);
+
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
       <div className="shrink-0">
@@ -148,8 +92,8 @@ const DoctorsListView = () => {
           titleTone="subtle"
           title="Doctores"
           subtitle={
-            rawList && !isError
-              ? `${totalItems} ${totalItems === 1 ? 'doctor' : 'doctores'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
+            data && !isError
+              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'doctor' : 'doctores'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
               : !isError
                 ? 'Equipo médico de la clínica'
                 : undefined
@@ -192,21 +136,27 @@ const DoctorsListView = () => {
           </div>
         ) : (
           <DoctorsTable
-            data={pageData}
-            loading={isPending && !rawList}
+            data={data?.data || []}
+            loading={isPending && !data}
             onEditDoctor={(d) => setModal({ mode: 'edit', id: d.id })}
             sortColumn={sortBy}
             sortDirection={sortOrder}
             onSort={handleSort}
             fillHeight
             pagination={
-              !isError && totalItems > 0
+              data && !isError
                 ? {
-                    page: safePage,
-                    totalPages,
-                    total: totalItems,
+                    page,
+                    totalPages: totalPagesFromMeta(data.meta, limit),
+                    total: data.meta.totalItems,
                     limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: LIST_PAGE_SIZE_MAX,
                   }
                 : undefined
             }

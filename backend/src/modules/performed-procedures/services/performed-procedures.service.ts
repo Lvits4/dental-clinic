@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PerformedProcedure } from '../entities/performed-procedure.entity';
@@ -22,43 +22,89 @@ export class PerformedProceduresService {
   ) {}
 
   async create(createDto: CreatePerformedProcedureDto): Promise<PerformedProcedure> {
+    if (createDto.treatmentPlanItemId && createDto.treatmentPlanId) {
+      throw new BadRequestException('No puede vincular a un plan y a un ítem a la vez');
+    }
+
+    let linkedItem: TreatmentPlanItem | null = null;
+    let linkedPlan: TreatmentPlan | null = null;
+
+    if (createDto.treatmentPlanItemId) {
+      linkedItem = await this.planItemRepository.findOne({
+        where: { id: createDto.treatmentPlanItemId },
+        relations: ['treatmentPlan'],
+      });
+      if (!linkedItem) {
+        throw new BadRequestException('El ítem del plan indicado no existe');
+      }
+      if (linkedItem.treatmentId !== createDto.treatmentId) {
+        throw new BadRequestException(
+          'El tratamiento no coincide con el ítem del plan seleccionado',
+        );
+      }
+      if (!linkedItem.treatmentPlan || linkedItem.treatmentPlan.patientId !== createDto.patientId) {
+        throw new BadRequestException('El plan no corresponde al paciente del procedimiento');
+      }
+      if (
+        linkedItem.status === TreatmentPlanStatus.CANCELLED ||
+        linkedItem.status === TreatmentPlanStatus.COMPLETED
+      ) {
+        throw new BadRequestException(
+          'No se puede vincular a un ítem cancelado o ya completado',
+        );
+      }
+    }
+
+    if (createDto.treatmentPlanId) {
+      linkedPlan = await this.planRepository.findOne({
+        where: { id: createDto.treatmentPlanId },
+      });
+      if (!linkedPlan) {
+        throw new BadRequestException('El plan de tratamiento indicado no existe');
+      }
+      if (linkedPlan.patientId !== createDto.patientId) {
+        throw new BadRequestException('El plan no corresponde al paciente del procedimiento');
+      }
+      if (linkedPlan.status === TreatmentPlanStatus.CANCELLED) {
+        throw new BadRequestException('No se puede vincular a un plan cancelado');
+      }
+    }
+
     const procedure = this.procedureRepository.create(createDto);
     const saved = await this.procedureRepository.save(procedure);
 
-    // Si viene vinculado a un ítem del plan, actualizarlo automáticamente
-    if (createDto.treatmentPlanItemId) {
-      const item = await this.planItemRepository.findOne({
-        where: { id: createDto.treatmentPlanItemId },
+    if (createDto.treatmentPlanItemId && linkedItem) {
+      await this.planItemRepository.update(linkedItem.id, {
+        status: TreatmentPlanStatus.COMPLETED,
       });
 
-      if (item) {
-        // Marcar el ítem como completado
-        await this.planItemRepository.update(item.id, {
-          status: TreatmentPlanStatus.COMPLETED,
+      const allItems = await this.planItemRepository.find({
+        where: { treatmentPlanId: linkedItem.treatmentPlanId },
+      });
+
+      const activeItems = allItems.filter(
+        (i) => i.status !== TreatmentPlanStatus.CANCELLED,
+      );
+      const linkedId = linkedItem.id;
+      const allDone = activeItems.every(
+        (i) => i.id === linkedId || i.status === TreatmentPlanStatus.COMPLETED,
+      );
+
+      const plan = await this.planRepository.findOne({
+        where: { id: linkedItem.treatmentPlanId },
+      });
+
+      if (plan && plan.status !== TreatmentPlanStatus.CANCELLED) {
+        const newPlanStatus = allDone
+          ? TreatmentPlanStatus.COMPLETED
+          : TreatmentPlanStatus.IN_PROGRESS;
+        await this.planRepository.update(plan.id, { status: newPlanStatus });
+      }
+    } else if (createDto.treatmentPlanId && linkedPlan) {
+      if (linkedPlan.status === TreatmentPlanStatus.PENDING) {
+        await this.planRepository.update(linkedPlan.id, {
+          status: TreatmentPlanStatus.IN_PROGRESS,
         });
-
-        // Revisar si todos los ítems del plan están completados o cancelados
-        const allItems = await this.planItemRepository.find({
-          where: { treatmentPlanId: item.treatmentPlanId },
-        });
-
-        const activeItems = allItems.filter(
-          (i) => i.status !== TreatmentPlanStatus.CANCELLED,
-        );
-        const allDone = activeItems.every(
-          (i) => i.id === item.id || i.status === TreatmentPlanStatus.COMPLETED,
-        );
-
-        const plan = await this.planRepository.findOne({
-          where: { id: item.treatmentPlanId },
-        });
-
-        if (plan && plan.status !== TreatmentPlanStatus.CANCELLED) {
-          const newPlanStatus = allDone
-            ? TreatmentPlanStatus.COMPLETED
-            : TreatmentPlanStatus.IN_PROGRESS;
-          await this.planRepository.update(plan.id, { status: newPlanStatus });
-        }
       }
     }
 
@@ -67,7 +113,12 @@ export class PerformedProceduresService {
 
   async update(id: string, updateDto: UpdatePerformedProcedureDto): Promise<PerformedProcedure> {
     const procedure = await this.findOne(id);
-    const { treatmentPlanItemId: _ignored, performedAt, ...rest } = updateDto;
+    const {
+      treatmentPlanItemId: _ignoredItem,
+      treatmentPlanId: _ignoredPlan,
+      performedAt,
+      ...rest
+    } = updateDto;
 
     (Object.entries(rest) as [keyof typeof rest, (typeof rest)[keyof typeof rest]][]).forEach(([key, value]) => {
       if (value !== undefined) {
@@ -152,7 +203,7 @@ export class PerformedProceduresService {
   async findOne(id: string): Promise<PerformedProcedure> {
     const procedure = await this.procedureRepository.findOne({
       where: { id },
-      relations: ['patient', 'doctor', 'treatment', 'treatmentPlanItem'],
+      relations: ['patient', 'doctor', 'treatment', 'treatmentPlanItem', 'treatmentPlan'],
     });
     if (!procedure) {
       throw new NotFoundException(`Performed procedure with ID ${id} not found`);

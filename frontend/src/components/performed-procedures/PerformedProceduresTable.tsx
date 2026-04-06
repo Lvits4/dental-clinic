@@ -30,6 +30,9 @@ interface PerformedProceduresTableProps {
     total: number;
     limit: number;
     onPageChange: (page: number) => void;
+    onLimitChange?: (limit: number) => void;
+    minLimit?: number;
+    maxLimit?: number;
   };
   onViewProcedure: (p: PerformedProcedure) => void;
   onEditProcedure: (p: PerformedProcedure) => void;

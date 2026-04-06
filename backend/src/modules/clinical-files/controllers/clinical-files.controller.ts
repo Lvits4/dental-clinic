@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -32,7 +33,7 @@ export class ClinicalFilesController {
   constructor(private readonly filesService: ClinicalFilesService) {}
 
   @Post('upload')
-  @Roles(Role.DOCTOR, Role.ADMIN)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.RECEPTIONIST)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload a clinical file' })
@@ -52,6 +53,9 @@ export class ClinicalFilesController {
     @Body() uploadDto: UploadFileDto,
     @CurrentUser('sub') userId: string,
   ) {
+    if (!file?.originalname) {
+      throw new BadRequestException('No se recibió ningún archivo');
+    }
     return this.filesService.upload(
       file,
       uploadDto.patientId,
@@ -66,12 +70,6 @@ export class ClinicalFilesController {
     return this.filesService.findAll(filterDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get clinical file details' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.filesService.findOne(id);
-  }
-
   @Get(':id/download')
   @ApiOperation({ summary: 'Download a clinical file' })
   async download(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
@@ -79,6 +77,12 @@ export class ClinicalFilesController {
     res.setHeader('Content-Type', fileInfo.mimeType);
     res.setHeader('Content-Disposition', `attachment; filename="${fileInfo.fileName}"`);
     res.sendFile(fileInfo.path, { root: '.' });
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get clinical file details' })
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.filesService.findOne(id);
   }
 
   @Delete(':id')

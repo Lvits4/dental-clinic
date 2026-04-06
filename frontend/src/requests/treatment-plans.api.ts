@@ -1,10 +1,18 @@
 import { http } from '../helpers/http';
-import type { TreatmentPlan, CreateTreatmentPlanDto } from '../types';
+import type { TreatmentPlan, CreateTreatmentPlanDto, PaginatedResponse, TreatmentPlanListFilters } from '../types';
 import { TreatmentPlanStatus } from '../enums';
 
 export const treatmentPlansApi = {
-  getAll(): Promise<TreatmentPlan[]> {
-    return http.get<TreatmentPlan[]>('/treatment-plans');
+  getAll(filters: TreatmentPlanListFilters = {}): Promise<PaginatedResponse<TreatmentPlan>> {
+    return http.get<PaginatedResponse<TreatmentPlan>>('/treatment-plans', {
+      page: filters.page,
+      limit: filters.limit,
+      patientId: filters.patientId,
+      status: filters.status,
+      search: filters.search,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+    } as Record<string, string | number | undefined>);
   },
 
   getById(id: string): Promise<TreatmentPlan> {

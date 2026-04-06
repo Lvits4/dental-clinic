@@ -5,13 +5,15 @@ import ClinicalEvolutionCard from '../../components/clinical-evolutions/Clinical
 import { useClinicalEvolutionsList } from '../../querys/clinical-evolutions/queryClinicalEvolutions';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
 import { Pagination } from '../../components/ui';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 const ClinicalEvolutionsListView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId!);
   const { data, isLoading } = useClinicalEvolutionsList({
@@ -32,9 +34,9 @@ const ClinicalEvolutionsListView = () => {
 
   useEffect(() => {
     if (!data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages]);
+  }, [data?.meta, limit]);
 
   if (loadingRecord) {
     return (
@@ -56,7 +58,7 @@ const ClinicalEvolutionsListView = () => {
         ]}
         action={
           record ? (
-            <Link to={`/patients/${patientId}/evolutions/new`} className="block w-full sm:inline-block sm:w-auto">
+            <Link to={`/patients/${patientId}/evolutions/new`} viewTransition className="block w-full sm:inline-block sm:w-auto">
               <Button className="w-full sm:w-auto">
                 <svg className="mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -75,6 +77,7 @@ const ClinicalEvolutionsListView = () => {
           </p>
           <Link
             to={`/patients/${patientId}/clinical-record`}
+            viewTransition
             className="text-emerald-600 dark:text-emerald-400 hover:underline text-sm mt-2 inline-block"
           >
             Ir al expediente
@@ -84,7 +87,7 @@ const ClinicalEvolutionsListView = () => {
         <div className="flex justify-center py-12">
           <Spinner />
         </div>
-      ) : !data?.data?.length ? (
+      ) : (data?.meta?.totalItems ?? 0) === 0 ? (
         <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-8 text-center space-y-3">
           <p className="text-slate-500 dark:text-slate-400">
             {hasDateFilters
@@ -137,27 +140,37 @@ const ClinicalEvolutionsListView = () => {
             )}
           </div>
 
-          {/* Timeline de evoluciones */}
-          <div className="relative space-y-4 pl-4 sm:pl-6">
-            {/* Línea vertical */}
-            <div className="absolute left-1 sm:left-2 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
+          {data && data.data.length > 0 ? (
+            <div className="relative space-y-4 pl-4 sm:pl-6">
+              <div className="absolute left-1 sm:left-2 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
+              {data.data.map((evolution) => (
+                <div key={evolution.id} className="relative">
+                  <div className="absolute -left-3 sm:-left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
+                  <ClinicalEvolutionCard evolution={evolution} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center py-8 text-sm text-slate-500 dark:text-slate-400">
+              No hay resultados en esta página. Use la paginación para ir a otra página.
+            </p>
+          )}
 
-            {data.data.map((evolution) => (
-              <div key={evolution.id} className="relative">
-                {/* Punto en la línea */}
-                <div className="absolute -left-3 sm:-left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
-                <ClinicalEvolutionCard evolution={evolution} />
-              </div>
-            ))}
-          </div>
-
-          <Pagination
-            page={page}
-            totalPages={Math.max(1, data.meta.totalPages)}
-            total={data.meta.totalItems}
-            limit={data.meta.limit}
-            onPageChange={setPage}
-          />
+          {data?.meta ? (
+            <Pagination
+              page={page}
+              totalPages={totalPagesFromMeta(data.meta, limit)}
+              total={data.meta.totalItems}
+              limit={limit}
+              onPageChange={setPage}
+              onLimitChange={(n) => {
+                setLimit(n);
+                setPage(1);
+              }}
+              minLimit={1}
+              maxLimit={LIST_PAGE_SIZE_MAX}
+            />
+          ) : null}
         </>
       )}
     </div>

@@ -5,7 +5,7 @@ import { PageHeader, Button, Select, Spinner } from '../../components/ui';
 import AppointmentStatusBadge from '../../components/appointments/AppointmentStatusBadge';
 import AppointmentFormModal from '../../components/appointments/AppointmentFormModal';
 import { useAppointmentsAgenda } from '../../querys/appointments/queryAppointments';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import type { Appointment } from '../../types';
 
 function getWeekRange(date: Date): { from: string; to: string } {
@@ -42,7 +42,7 @@ const AppointmentAgendaView = () => {
     doctorId: doctorId || undefined,
   });
 
-  const { data: doctors } = useDoctorsList();
+  const { data: doctors } = useDoctorsForSelect();
 
   const doctorOptions = (doctors || []).map((d) => ({
     value: d.id,
@@ -97,6 +97,7 @@ const AppointmentAgendaView = () => {
             <Link
               className="block w-full sm:inline-block sm:w-auto"
               to="/appointments"
+              viewTransition
               state={{ openAppointmentModal: 'create' } satisfies AppointmentModalLocationState}
             >
               <Button className="h-10 min-h-10 w-full shrink-0 rounded-md py-0! px-4 whitespace-nowrap sm:w-auto">

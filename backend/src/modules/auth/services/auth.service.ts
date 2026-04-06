@@ -17,8 +17,8 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     // El primer usuario registrado se convierte en ADMIN automáticamente
     // Los siguientes se registran como RECEPTIONIST por defecto
-    const allUsers = await this.usersService.findAll();
-    const role = allUsers.length === 0 ? Role.ADMIN : Role.RECEPTIONIST;
+    const activeCount = await this.usersService.countActiveUsers();
+    const role = activeCount === 0 ? Role.ADMIN : Role.RECEPTIONIST;
 
     const user = await this.usersService.create({
       ...registerDto,

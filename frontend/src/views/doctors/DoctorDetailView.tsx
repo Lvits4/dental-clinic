@@ -46,6 +46,7 @@ const DoctorDetailView = () => {
           <Link
             className="block w-full sm:inline-block sm:w-auto"
             to="/doctors"
+            viewTransition
             state={
               {
                 openDoctorModal: 'edit',

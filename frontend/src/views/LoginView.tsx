@@ -139,6 +139,7 @@ const LoginView = () => {
         No tienes cuenta?{' '}
         <Link
           to="/register"
+          viewTransition
           className="font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
         >
           Registrate aqui

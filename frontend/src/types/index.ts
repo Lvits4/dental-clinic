@@ -13,6 +13,7 @@ export type {
   User,
   UserSortBy,
   UserSortOrder,
+  UserFilters,
 } from './user.types';
 
 export type {
@@ -83,6 +84,7 @@ export type {
   CreateTreatmentPlanDto,
   TreatmentPlanSortBy,
   TreatmentPlanSortOrder,
+  TreatmentPlanListFilters,
 } from './treatment-plan.types';
 export { PLAN_STATUS_CONFIG, VALID_PLAN_STATUS_TRANSITIONS } from './treatment-plan.types';
 

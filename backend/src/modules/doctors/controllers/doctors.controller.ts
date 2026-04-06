@@ -10,8 +10,9 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DoctorsService } from '../services/doctors.service';
+import { FilterDoctorDto } from '../dto/filter-doctor.dto';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
@@ -36,16 +37,11 @@ export class DoctorsController {
   @Get()
   @ApiOperation({
     summary: 'List doctors',
-    description: 'Por defecto solo activos. Use isActive=false para listar inactivos.',
+    description:
+      'Paginado. Por defecto solo activos; use isActive=false para inactivos. Filtros: search, sortBy, sortOrder.',
   })
-  @ApiQuery({
-    name: 'isActive',
-    required: false,
-    type: Boolean,
-    description: 'false = solo inactivos; omitido o true = solo activos',
-  })
-  findAll(@Query('isActive') isActive?: boolean) {
-    return this.doctorsService.findAll(isActive);
+  findAll(@Query() filterDto: FilterDoctorDto) {
+    return this.doctorsService.findAll(filterDto);
   }
 
   @Get(':id')

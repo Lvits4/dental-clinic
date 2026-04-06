@@ -20,7 +20,7 @@ export const useCreateClinicalEvolution = (
       queryClient.invalidateQueries({ queryKey: ['clinical-evolutions'] });
       toast.success('Evolución clínica registrada');
       if (!options?.skipNavigation) {
-        navigate(`/patients/${patientId}/evolutions`);
+        navigate(`/patients/${patientId}/evolutions`, { viewTransition: true });
       }
     },
     onError: (error: Error) => {

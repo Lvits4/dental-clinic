@@ -10,6 +10,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Role } from '../../enums';
 import type { PatientModalLocationState } from './PatientRouteRedirects';
 import type { PatientSortBy, PatientSortOrder } from '../../types';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 type PatientListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
 
@@ -26,7 +28,7 @@ const PatientsListView = () => {
   const [modal, setModal] = useState<PatientListModal>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
   const { data, isPending, isError, error, refetch } = usePatientsList({
     page,
@@ -74,9 +76,9 @@ const PatientsListView = () => {
 
   useEffect(() => {
     if (isError || !data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages, isError]);
+  }, [data?.meta, isError, limit]);
 
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
@@ -143,10 +145,16 @@ const PatientsListView = () => {
               data && !isError
                 ? {
                     page,
-                    totalPages: Math.max(1, data.meta.totalPages),
+                    totalPages: totalPagesFromMeta(data.meta, limit),
                     total: data.meta.totalItems,
-                    limit: data.meta.limit,
+                    limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: LIST_PAGE_SIZE_MAX,
                   }
                 : undefined
             }

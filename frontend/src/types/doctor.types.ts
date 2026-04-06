@@ -23,9 +23,14 @@ export interface CreateDoctorDto {
 // DTO para actualizar doctor
 export type UpdateDoctorDto = Partial<CreateDoctorDto> & { isActive?: boolean };
 
-// Filtros
+// Filtros (listado paginado en API)
 export interface DoctorFilters {
+  page?: number;
+  limit?: number;
   isActive?: boolean;
+  search?: string;
+  sortBy?: DoctorSortBy;
+  sortOrder?: DoctorSortOrder;
 }
 
 export type DoctorSortBy =

@@ -11,6 +11,7 @@ export interface PerformedProcedure {
   treatmentId: string;
   treatment?: Treatment;
   treatmentPlanItemId?: string;
+  treatmentPlanId?: string;
   tooth?: string;
   description?: string;
   notes?: string;
@@ -22,13 +23,22 @@ export interface CreatePerformedProcedureDto {
   doctorId: string;
   treatmentId: string;
   treatmentPlanItemId?: string;
-  tooth?: string;
-  description?: string;
-  notes?: string;
+  treatmentPlanId?: string;
+  /** En alta suele ir `undefined`; en edición puede ir `null` para borrar en el servidor. */
+  tooth?: string | null;
+  description?: string | null;
+  notes?: string | null;
   performedAt: string;
 }
 
-export type UpdatePerformedProcedureDto = Partial<CreatePerformedProcedureDto>;
+/** PATCH: permite `null` en textos opcionales para borrarlos en servidor. */
+export type UpdatePerformedProcedureDto = Partial<
+  Omit<CreatePerformedProcedureDto, 'tooth' | 'description' | 'notes'>
+> & {
+  tooth?: string | null;
+  description?: string | null;
+  notes?: string | null;
+};
 
 export type PerformedProcedureSortBy = 'performedAt' | 'patient' | 'doctor' | 'treatment' | 'tooth';
 

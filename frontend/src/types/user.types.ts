@@ -13,3 +13,12 @@ export interface User {
 export type UserSortBy = 'fullName' | 'username' | 'email' | 'role';
 
 export type UserSortOrder = 'asc' | 'desc';
+
+export interface UserFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: Role;
+  sortBy?: UserSortBy;
+  sortOrder?: UserSortOrder;
+}

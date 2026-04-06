@@ -11,6 +11,12 @@ import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdateAccountDto } from '../dto/update-account.dto';
+import {
+  FilterUserDto,
+  UserSortBy,
+  UserSortOrder,
+} from '../dto/filter-user.dto';
+import { PaginatedResponseDto } from '../../../common/dto/paginated-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -40,8 +46,58 @@ export class UsersService {
     return saved;
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find({ where: { isActive: true } });
+  async findAll(filterDto: FilterUserDto): Promise<PaginatedResponseDto<User>> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      role,
+      sortBy = UserSortBy.FULL_NAME,
+      sortOrder = UserSortOrder.ASC,
+    } = filterDto;
+
+    const qb = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.is_active = :active', { active: true });
+
+    if (search) {
+      const q = `%${search.toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(user.full_name) LIKE :q OR LOWER(user.username) LIKE :q OR LOWER(user.email) LIKE :q)',
+        { q },
+      );
+    }
+    if (role != null) {
+      qb.andWhere('user.role = :role', { role });
+    }
+
+    const dir = sortOrder === UserSortOrder.DESC ? 'DESC' : 'ASC';
+    switch (sortBy) {
+      case UserSortBy.USERNAME:
+        qb.orderBy('user.username', dir);
+        break;
+      case UserSortBy.EMAIL:
+        qb.orderBy('user.email', dir);
+        break;
+      case UserSortBy.ROLE:
+        qb.orderBy('user.role', dir);
+        break;
+      case UserSortBy.FULL_NAME:
+      default:
+        qb.orderBy('user.full_name', dir);
+    }
+
+    qb.skip((page - 1) * limit).take(limit);
+    const [data, totalItems] = await qb.getManyAndCount();
+    for (const u of data) {
+      delete (u as { password?: string }).password;
+    }
+    return new PaginatedResponseDto(data, totalItems, page, limit);
+  }
+
+  /** Para registro: saber si ya existe algún usuario activo (sin cargar la lista completa). */
+  async countActiveUsers(): Promise<number> {
+    return this.userRepository.count({ where: { isActive: true } });
   }
 
   async findOne(id: string): Promise<User> {

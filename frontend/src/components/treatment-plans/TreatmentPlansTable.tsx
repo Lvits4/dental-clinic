@@ -3,6 +3,7 @@ import type { Column } from '../ui';
 import type { TreatmentPlan, TreatmentPlanSortBy, TreatmentPlanSortOrder } from '../../types';
 import { PLAN_STATUS_CONFIG } from '../../types';
 import { TreatmentPlanStatus } from '../../enums';
+import { countPerformedProceduresOnPlan } from '../../utils/treatmentPlans';
 
 const TrashIcon = () => (
   <svg className="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -24,6 +25,9 @@ interface TreatmentPlansTableProps {
     total: number;
     limit: number;
     onPageChange: (page: number) => void;
+    onLimitChange?: (limit: number) => void;
+    minLimit?: number;
+    maxLimit?: number;
   };
   onViewPlan: (plan: TreatmentPlan) => void;
   onEditPlan: (plan: TreatmentPlan) => void;
@@ -121,19 +125,8 @@ const TreatmentPlansTable = ({
       key: 'items',
       header: 'Procedimientos',
       sortKey: 'items',
-      render: (p) => `${p.items?.length || 0}`,
+      render: (p) => `${countPerformedProceduresOnPlan(p)}`,
       hideOnMobile: true,
-    },
-    {
-      key: 'createdAt',
-      header: 'Creado',
-      sortKey: 'createdAt',
-      className: 'whitespace-nowrap',
-      hideOnMobile: true,
-      render: (p) =>
-        p.createdAt
-          ? new Date(p.createdAt).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })
-          : '—',
     },
     {
       key: 'actions',
@@ -182,6 +175,9 @@ const TreatmentPlansTable = ({
                       <Badge className={cfg.className}>{cfg.label}</Badge>
                     </div>
                   ) : null}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                    Procedimientos realizados: {countPerformedProceduresOnPlan(p)}
+                  </p>
                 </div>
                 <div className="flex justify-center pt-2 border-t border-slate-100 dark:border-slate-700">
                   {actionButtons(p)}

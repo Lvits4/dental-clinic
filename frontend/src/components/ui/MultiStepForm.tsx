@@ -93,8 +93,13 @@ const MultiStepForm = forwardRef<MultiStepFormHandle, MultiStepFormProps>(functi
   /** Envío real solo desde el botón del último paso (type=button), nunca desde submit nativo del form: evita cierres obsoletos que enviaban en el paso 2. */
   const finishLastStep = (e: MouseEvent<HTMLButtonElement>) => {
     if (loading) return;
-    const step = steps[current];
-    if (step.validate && !step.validate()) return;
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      if (s.validate && !s.validate()) {
+        goToStep(i);
+        return;
+      }
+    }
     onSubmit(e as unknown as FormEvent<HTMLFormElement>);
   };
 

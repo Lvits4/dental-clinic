@@ -10,6 +10,10 @@
   --radius-2xl: 0.8125rem;
   --radius-3xl: 1.0625rem;
   --radius-4xl: 1.4375rem;
+
+  /* Animaciones reutilizables (keyframes definidos más abajo) */
+  --animate-slide-up: slideUp 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+  --animate-fade-in: fadeIn 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -236,4 +240,44 @@ button.table-sort-header-btn::-moz-focus-inner {
 
 .dark .glass {
   background: rgba(15, 23, 42, 0.8);
+}
+
+/* ── View Transitions (React Router viewTransition + API nativa) ── */
+
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 280ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-old(root) {
+    animation-name: vtRootOut;
+  }
+
+  ::view-transition-new(root) {
+    animation-name: vtRootIn;
+  }
+}
+
+@keyframes vtRootIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vtRootOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }

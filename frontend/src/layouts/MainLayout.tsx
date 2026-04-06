@@ -164,6 +164,7 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
   <NavLink
     to={item.to}
     end={item.end}
+    viewTransition
     title={collapsed ? item.label : undefined}
     className={({ isActive }) =>
       [
@@ -215,7 +216,7 @@ const MainLayout = () => {
   const handleLogout = () => {
     setUserMenuOpen(false);
     logout();
-    navigate('/login');
+    navigate('/login', { viewTransition: true });
   };
 
   const visibleNavItems = filterByRole(sidebarNavItems, user?.role);
@@ -309,6 +310,7 @@ const MainLayout = () => {
 
           <NavLink
             to="/account"
+            viewTransition
             aria-label="Ir a mi cuenta"
             title={collapsed ? (user?.fullName ?? 'Mi cuenta') : undefined}
             className={({ isActive }) =>
@@ -386,7 +388,7 @@ const MainLayout = () => {
       {/* ── HEADER MOBILE (< md) ── */}
       <header className="md:hidden sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-b border-slate-200/60 dark:border-slate-800/60">
         {/* Logo */}
-        <NavLink to="/" className="flex items-center gap-2.5">
+        <NavLink to="/" viewTransition className="flex items-center gap-2.5">
           <div className="h-8 w-8 shrink-0 overflow-hidden rounded-md flex items-center justify-center">
             <img src={LOGO_COLAPSADO_URL} alt="SmileCare" className="max-h-full max-w-full object-contain" />
           </div>
@@ -398,22 +400,36 @@ const MainLayout = () => {
         {/* Avatar con dropdown */}
         <div className="relative">
           <button
+            type="button"
             onClick={() => setUserMenuOpen(!userMenuOpen)}
             className="w-9 h-9 rounded-md bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 shadow-sm cursor-pointer"
             aria-label="Menu de usuario"
+            aria-expanded={userMenuOpen}
+            aria-haspopup="menu"
           >
             {userInitial}
           </button>
 
-          {userMenuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setUserMenuOpen(false)}
-              />
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-md shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden">
+          <>
+            <div
+              className={`fixed inset-0 z-10 md:hidden transition-opacity duration-200 ease-out ${
+                userMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+              onClick={() => setUserMenuOpen(false)}
+              aria-hidden={!userMenuOpen}
+            />
+            <div
+              role="menu"
+              aria-hidden={!userMenuOpen}
+              className={`absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-md shadow-xl border border-slate-200/80 dark:border-slate-800 z-20 overflow-hidden origin-top-right transition-all duration-200 ease-out ${
+                userMenuOpen
+                  ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                  : 'opacity-0 scale-95 -translate-y-1 pointer-events-none invisible'
+              }`}
+            >
                 <NavLink
                   to="/account"
+                  viewTransition
                   onClick={() => setUserMenuOpen(false)}
                   className={({ isActive }) =>
                     [
@@ -466,8 +482,7 @@ const MainLayout = () => {
                   </button>
                 </div>
               </div>
-            </>
-          )}
+          </>
         </div>
       </header>
 
@@ -492,6 +507,7 @@ const MainLayout = () => {
             key={item.to}
             to={item.to}
             end={item.end}
+            viewTransition
             className={({ isActive }) =>
               `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-all duration-200 min-h-[44px] ${
                 isActive
@@ -533,16 +549,21 @@ const MainLayout = () => {
       </nav>
 
       {/* ── DRAWER "MAS" MOBILE ── */}
-      {drawerOpen && (
+      {mobileMoreNavItems.length > 0 && (
         <>
-          {/* Backdrop */}
           <div
-            className="md:hidden fixed inset-0 z-30 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+            className={`md:hidden fixed inset-0 z-30 bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-200 ease-out ${
+              drawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
             onClick={() => setDrawerOpen(false)}
+            aria-hidden={!drawerOpen}
           />
 
-          {/* Panel deslizable desde abajo */}
-          <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 rounded-t-md shadow-2xl border-t border-slate-200/80 dark:border-slate-800 animate-slide-up">
+          <div
+            className={`md:hidden fixed bottom-0 inset-x-0 z-40 max-h-[85dvh] flex flex-col bg-white dark:bg-slate-900 rounded-t-md shadow-2xl border-t border-slate-200/80 dark:border-slate-800 transition-transform duration-300 ease-out ${
+              drawerOpen ? 'translate-y-0' : 'translate-y-full pointer-events-none'
+            }`}
+          >
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-md bg-slate-200 dark:bg-slate-700" />
@@ -563,11 +584,12 @@ const MainLayout = () => {
             </div>
 
             {/* Resto de rutas (no estan en la barra inferior) */}
-            <nav className="px-3 py-2 space-y-0 pb-8">
+            <nav className="px-3 py-2 space-y-0 pb-8 min-h-0 flex-1 overflow-y-auto">
               {mobileMoreNavItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  viewTransition
                   onClick={() => setDrawerOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${

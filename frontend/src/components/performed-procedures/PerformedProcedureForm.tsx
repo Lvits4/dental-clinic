@@ -3,8 +3,6 @@ import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepFor
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment, PerformedProcedure } from '../../types';
 import { performedProcedureEditUnchanged } from '../../utils/editUnchangedCompare';
-import { useTreatmentPlansByPatient } from '../../querys/treatment-plans/queryTreatmentPlans';
-import { TreatmentPlanStatus } from '../../enums';
 
 interface ProcedureFormErrors {
   patientId?: string;
@@ -23,6 +21,23 @@ interface PerformedProcedureFormProps {
   onSubmit: (data: CreatePerformedProcedureDto) => void;
   onUnchanged?: () => void;
   onCancel?: () => void;
+}
+
+/** En edición conserva la hora/zona del registro; solo cambia el día del calendario. */
+function buildPerformedAtIso(
+  mode: 'create' | 'edit',
+  dateInput: string,
+  original?: string | Date,
+): string {
+  if (mode === 'edit' && original != null) {
+    const origStr =
+      typeof original === 'string' ? original : new Date(original).toISOString();
+    const tIdx = origStr.indexOf('T');
+    if (tIdx !== -1) {
+      return `${dateInput}${origStr.slice(tIdx)}`;
+    }
+  }
+  return `${dateInput}T00:00:00.000Z`;
 }
 
 const IconProcedure = () => (
@@ -56,11 +71,6 @@ const PerformedProcedureForm = ({
   const [performedAt, setPerformedAt] = useState(new Date().toISOString().split('T')[0]);
   const [errors, setErrors] = useState<ProcedureFormErrors>({});
 
-  // Vinculación con plan
-  const [linkToPlan, setLinkToPlan] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState('');
-  const [selectedItemId, setSelectedItemId] = useState('');
-
   useEffect(() => {
     if (mode !== 'edit' || !initialProcedure) return;
     setPatientId(initialProcedure.patientId ?? initialProcedure.patient?.id ?? '');
@@ -74,13 +84,8 @@ const PerformedProcedureForm = ({
         ? initialProcedure.performedAt.slice(0, 10)
         : new Date(initialProcedure.performedAt).toISOString().slice(0, 10),
     );
-    setLinkToPlan(false);
-    setSelectedPlanId('');
-    setSelectedItemId('');
     setErrors({});
   }, [mode, initialProcedure?.id]);
-
-  const { data: patientPlans = [] } = useTreatmentPlansByPatient(patientId);
 
   const patientOptions = useMemo(() => patients
     .map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` })), [patients]);
@@ -108,67 +113,36 @@ const PerformedProcedureForm = ({
     return active;
   }, [treatments, mode, initialProcedure]);
 
-  const planOptions = useMemo(() => patientPlans.map((plan) => ({
-    value: plan.id,
-    label: `Plan ${new Date(plan.createdAt ?? '').toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })} — ${plan.status}`,
-  })), [patientPlans]);
-
-  const selectedPlan = useMemo(
-    () => patientPlans.find((p) => p.id === selectedPlanId),
-    [patientPlans, selectedPlanId],
-  );
-
-  const pendingItems = useMemo(
-    () => (selectedPlan?.items ?? []).filter(
-      (i) => i.status !== TreatmentPlanStatus.COMPLETED && i.status !== TreatmentPlanStatus.CANCELLED,
-    ),
-    [selectedPlan],
-  );
-
-  const itemOptions = useMemo(() => pendingItems.map((item) => ({
-    value: item.id,
-    label: `${item.treatment?.name ?? 'Tratamiento'}${item.tooth ? ` — Pieza ${item.tooth}` : ''}`,
-  })), [pendingItems]);
-
-  // Al seleccionar un ítem del plan, pre-llenar treatmentId
-  const handleItemSelect = (itemId: string) => {
-    setSelectedItemId(itemId);
-    const item = pendingItems.find((i) => i.id === itemId);
-    if (item?.treatmentId) {
-      setTreatmentId(item.treatmentId);
-    }
-  };
-
-  // Al cambiar paciente, resetear vinculación
   const handlePatientChange = (id: string) => {
     setPatientId(id);
-    setLinkToPlan(false);
-    setSelectedPlanId('');
-    setSelectedItemId('');
     setErrors((p) => ({ ...p, patientId: undefined }));
   };
 
   const validateStep1 = useCallback(() => {
     const stepErrors: ProcedureFormErrors = {};
-    if (!patientId)   stepErrors.patientId   = 'Debe seleccionar un paciente';
-    if (!doctorId)    stepErrors.doctorId    = 'Debe seleccionar un doctor';
+    if (!patientId) stepErrors.patientId = 'Debe seleccionar un paciente';
+    if (!doctorId) stepErrors.doctorId = 'Debe seleccionar un doctor';
     if (!treatmentId) stepErrors.treatmentId = 'Debe seleccionar un tratamiento';
     setErrors(stepErrors);
     return Object.keys(stepErrors).length === 0;
   }, [patientId, doctorId, treatmentId]);
 
   const handleSubmit: FormEventHandler = () => {
+    const performedAtIso = buildPerformedAtIso(mode, performedAt, initialProcedure?.performedAt);
     const payload: CreatePerformedProcedureDto = {
       patientId,
       doctorId,
       treatmentId,
-      tooth: tooth.trim() || undefined,
-      description: description.trim() || undefined,
-      notes: notes.trim() || undefined,
-      performedAt: `${performedAt}T00:00:00.000Z`,
+      performedAt: performedAtIso,
     };
-    if (mode === 'create') {
-      payload.treatmentPlanItemId = linkToPlan && selectedItemId ? selectedItemId : undefined;
+    if (mode === 'edit') {
+      payload.tooth = tooth.trim() ? tooth.trim() : null;
+      payload.description = description.trim() ? description.trim() : null;
+      payload.notes = notes.trim() ? notes.trim() : null;
+    } else {
+      payload.tooth = tooth.trim() || undefined;
+      payload.description = description.trim() || undefined;
+      payload.notes = notes.trim() || undefined;
     }
     if (mode === 'edit' && initialProcedure && performedProcedureEditUnchanged(initialProcedure, payload)) {
       onUnchanged?.();
@@ -190,7 +164,11 @@ const PerformedProcedureForm = ({
       title: 'Procedimiento',
       validate: validateStep1,
       content: (
-        <FormSection title="Datos del Procedimiento" icon={<IconProcedure />} description="Paciente, doctor, tratamiento y fecha">
+        <FormSection
+          title="Datos del Procedimiento"
+          icon={<IconProcedure />}
+          description="Paciente, doctor, tratamiento y fecha. En planes de tratamiento, el conteo usa el mismo paciente y el tratamiento elegido (cuando coincide con ítems del plan)."
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
               label="Paciente *"
@@ -212,7 +190,10 @@ const PerformedProcedureForm = ({
               label="Tratamiento *"
               options={treatmentOptions}
               value={treatmentId}
-              onChange={(e) => { setTreatmentId(e.target.value); setErrors((p) => ({ ...p, treatmentId: undefined })); }}
+              onChange={(e) => {
+                setTreatmentId(e.target.value);
+                setErrors((p) => ({ ...p, treatmentId: undefined }));
+              }}
               placeholder="Seleccionar..."
               error={errors.treatmentId}
             />
@@ -226,52 +207,9 @@ const PerformedProcedureForm = ({
               placeholder="Ej: 18, 21"
               value={tooth}
               onChange={(e) => setTooth(e.target.value)}
+              className="sm:col-span-2"
             />
           </div>
-
-          {/* Vinculación con plan — solo al crear */}
-          {mode === 'create' && patientId && patientPlans.length > 0 && (
-            <div className="mt-5 pt-5 border-t border-slate-200 dark:border-slate-700">
-              <label className="flex items-center gap-3 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={linkToPlan}
-                  onChange={(e) => {
-                    setLinkToPlan(e.target.checked);
-                    if (!e.target.checked) {
-                      setSelectedPlanId('');
-                      setSelectedItemId('');
-                    }
-                  }}
-                  className="w-4 h-4 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-700"
-                />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Vincular a un plan de tratamiento
-                </span>
-              </label>
-
-              {linkToPlan && (
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Select
-                    label="Plan de tratamiento"
-                    options={planOptions}
-                    value={selectedPlanId}
-                    onChange={(e) => { setSelectedPlanId(e.target.value); setSelectedItemId(''); }}
-                    placeholder="Seleccionar plan..."
-                  />
-                  {selectedPlanId && (
-                    <Select
-                      label="Ítem del plan"
-                      options={itemOptions}
-                      value={selectedItemId}
-                      onChange={(e) => handleItemSelect(e.target.value)}
-                      placeholder={pendingItems.length === 0 ? 'Sin ítems pendientes' : 'Seleccionar ítem...'}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-          )}
         </FormSection>
       ),
     },

@@ -6,10 +6,12 @@ import AppointmentsTable from '../../components/appointments/AppointmentsTable';
 import AppointmentFilters from '../../components/appointments/AppointmentFilters';
 import AppointmentFormModal from '../../components/appointments/AppointmentFormModal';
 import { useAppointmentsList } from '../../querys/appointments/queryAppointments';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import { AppointmentStatus } from '../../enums';
 import type { AppointmentModalLocationState } from './AppointmentRouteRedirects';
 import type { Appointment, AppointmentSortBy, AppointmentSortOrder } from '../../types';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 type ListFormModal = null | { mode: 'create' } | { mode: 'edit'; appointment: Appointment };
 
@@ -25,7 +27,7 @@ const AppointmentsListView = () => {
   const [formModal, setFormModal] = useState<ListFormModal>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
   const { data, isPending, isError, error, refetch } = useAppointmentsList({
     page,
@@ -38,7 +40,7 @@ const AppointmentsListView = () => {
     sortOrder,
   });
 
-  const { data: doctors } = useDoctorsList();
+  const { data: doctors } = useDoctorsForSelect();
 
   const doctorOptions = (doctors || []).map((d) => ({
     value: d.id,
@@ -86,9 +88,9 @@ const AppointmentsListView = () => {
 
   useEffect(() => {
     if (isError || !data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages, isError]);
+  }, [data?.meta, isError, limit]);
 
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
@@ -107,7 +109,7 @@ const AppointmentsListView = () => {
           breadcrumb={[{ label: 'Inicio', to: '/' }, { label: 'Citas' }]}
           action={
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-              <Link to="/appointments/agenda" className="block w-full sm:inline-block sm:w-auto">
+              <Link to="/appointments/agenda" viewTransition className="block w-full sm:inline-block sm:w-auto">
                 <Button
                   type="button"
                   variant="secondary"
@@ -193,10 +195,16 @@ const AppointmentsListView = () => {
               data && !isError
                 ? {
                     page,
-                    totalPages: Math.max(1, data.meta.totalPages),
+                    totalPages: totalPagesFromMeta(data.meta, limit),
                     total: data.meta.totalItems,
-                    limit: data.meta.limit,
+                    limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: LIST_PAGE_SIZE_MAX,
                   }
                 : undefined
             }

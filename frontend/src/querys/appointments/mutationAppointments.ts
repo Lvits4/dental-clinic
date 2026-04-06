@@ -19,7 +19,7 @@ export function useCreateAppointment(options?: CreateAppointmentOptions) {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast.success('Cita creada exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/appointments');
+        navigate('/appointments', { viewTransition: true });
       }
     },
     onError: (error: Error) => {

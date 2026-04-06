@@ -166,7 +166,8 @@ const Table = <T,>({
       sentenceHeaders
         ? 'px-5 py-3 min-h-[42px] text-sm font-semibold text-slate-600 dark:text-slate-300 tracking-tight align-middle'
         : 'px-5 py-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider align-middle',
-      'sticky top-0 z-[1] bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90',
+      /* Fondo opaco sin backdrop-blur: evita costuras oscuras al repintar junto al cuerpo al ordenar. */
+      'sticky top-0 z-[1] bg-slate-100 dark:bg-slate-800 border-b border-slate-200/90 dark:border-slate-700/90',
       textAlignClass(cellAlign(col)),
       col.className ?? '',
     ].join(' ');
@@ -248,7 +249,7 @@ const Table = <T,>({
       key={col.key}
       className={
         sentenceHeaders
-          ? `px-5 py-3 min-h-[42px] text-sm font-semibold text-slate-600 dark:text-slate-300 ${textAlignClass(cellAlign(col))} sticky top-0 z-1 bg-slate-100/95 dark:bg-slate-800/90 backdrop-blur-sm border-b border-slate-200/90 dark:border-slate-700/90 ${col.className ?? ''}`
+          ? `px-5 py-3 min-h-[42px] text-sm font-semibold text-slate-600 dark:text-slate-300 ${textAlignClass(cellAlign(col))} sticky top-0 z-1 bg-slate-100 dark:bg-slate-800 border-b border-slate-200/90 dark:border-slate-700/90 ${col.className ?? ''}`
           : `px-5 py-3 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${textAlignClass(cellAlign(col))} ${col.className ?? ''}`
       }
     >
@@ -268,11 +269,11 @@ const Table = <T,>({
       <>
         <div className={desktopOuter}>
           <div className={desktopScroll}>
-            <table className="w-full table-auto border-collapse outline-none">
+            <table className="w-full table-auto border-separate border-spacing-0 outline-none">
               <thead>
                 <tr>{columns.map((col) => renderSkeletonTh(col))}</tr>
               </thead>
-              <tbody className="divide-y divide-slate-50 dark:divide-slate-800/60">
+              <tbody className="[&>tr:not(:last-child)>td]:border-b [&>tr:not(:last-child)>td]:border-slate-100 dark:[&>tr:not(:last-child)>td]:border-slate-800/60">
                 {Array.from({ length: skeletonRows }).map((_, i) => (
                   <SkeletonRow key={i} cols={columns.length} r={r} />
                 ))}
@@ -297,13 +298,13 @@ const Table = <T,>({
     <>
       <div className={desktopOuter}>
         <div className={desktopScroll}>
-          <table className="w-full table-auto border-collapse outline-none">
+          <table className="w-full table-auto border-separate border-spacing-0 outline-none">
             <thead>
               <tr>
                 {columns.map((col) => renderHeaderCell(col))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+            <tbody className="[&>tr:not(:last-child)>td]:border-b [&>tr:not(:last-child)>td]:border-slate-100 dark:[&>tr:not(:last-child)>td]:border-slate-800/50">
               {isEmpty ? (
                 <tr>
                   <td colSpan={columns.length} className="px-5 py-14 text-center">
@@ -318,7 +319,7 @@ const Table = <T,>({
                     key={keyExtractor(item)}
                     onClick={() => onRowClick?.(item)}
                     className={[
-                      'transition-colors duration-150',
+                      /* Sin transition-colors: con divide/bordes evita parpadeos al repintar al ordenar. */
                       onRowClick
                         ? 'cursor-pointer hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10'
                         : '',

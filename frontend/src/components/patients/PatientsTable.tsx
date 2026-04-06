@@ -22,6 +22,9 @@ interface PatientsTableProps {
     total: number;
     limit: number;
     onPageChange: (page: number) => void;
+    onLimitChange?: (limit: number) => void;
+    minLimit?: number;
+    maxLimit?: number;
   };
 }
 
@@ -59,7 +62,7 @@ const PatientsTable = ({
 
   const actionButtons = (p: Patient) => (
     <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-      <Link to={`/patients/${p.id}`}>
+      <Link to={`/patients/${p.id}`} viewTransition>
         <button
           type="button"
           title="Ver detalle"
@@ -173,7 +176,7 @@ const PatientsTable = ({
             >
               <button
                 type="button"
-                onClick={() => navigate(`/patients/${p.id}`)}
+                onClick={() => navigate(`/patients/${p.id}`, { viewTransition: true })}
                 className="w-full text-left mb-3"
               >
                 <span className="font-medium text-slate-900 dark:text-white block">
@@ -203,7 +206,7 @@ const PatientsTable = ({
           columns={columns}
           data={data}
           keyExtractor={(p) => p.id}
-          onRowClick={(p) => navigate(`/patients/${p.id}`)}
+          onRowClick={(p) => navigate(`/patients/${p.id}`, { viewTransition: true })}
           loading={loading}
           emptyMessage="No se encontraron pacientes"
           sortColumn={sortColumn ?? undefined}

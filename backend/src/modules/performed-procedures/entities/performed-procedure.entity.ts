@@ -12,6 +12,7 @@ import { Patient } from '../../patients/entities/patient.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import { Treatment } from '../../treatments/entities/treatment.entity';
 import { TreatmentPlanItem } from '../../treatment-plans/entities/treatment-plan-item.entity';
+import { TreatmentPlan } from '../../treatment-plans/entities/treatment-plan.entity';
 
 @Entity('performed_procedures')
 export class PerformedProcedure {
@@ -45,6 +46,13 @@ export class PerformedProcedure {
   @ManyToOne(() => TreatmentPlanItem, (item) => item.performedProcedures, { nullable: true })
   @JoinColumn({ name: 'treatment_plan_item_id' })
   treatmentPlanItem: TreatmentPlanItem;
+
+  @Column({ name: 'treatment_plan_id', nullable: true })
+  treatmentPlanId: string | null;
+
+  @ManyToOne(() => TreatmentPlan, { nullable: true })
+  @JoinColumn({ name: 'treatment_plan_id' })
+  treatmentPlan: TreatmentPlan;
 
   @Column({ nullable: true })
   tooth: string;

@@ -1,15 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ClinicalFile } from './entities/clinical-file.entity';
+import { Patient } from '../patients/entities/patient.entity';
 import { ClinicalFilesService } from './services/clinical-files.service';
 import { ClinicalFilesController } from './controllers/clinical-files.controller';
 import { FileStorageService } from './services/file-storage.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ClinicalFile]),
+    TypeOrmModule.forFeature([ClinicalFile, Patient]),
     MulterModule.register({
+      storage: memoryStorage(),
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),
   ],

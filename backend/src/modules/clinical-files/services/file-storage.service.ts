@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -27,7 +27,16 @@ export class FileStorageService {
     const fileKey = `${uuidv4()}${ext}`;
     const filePath = path.join(this.uploadPath, fileKey);
 
-    fs.writeFileSync(filePath, file.buffer);
+    let buffer: Buffer;
+    if (file.buffer != null && Buffer.isBuffer(file.buffer)) {
+      buffer = file.buffer;
+    } else if (file.path) {
+      buffer = fs.readFileSync(file.path);
+    } else {
+      throw new BadRequestException('No se pudo leer el contenido del archivo');
+    }
+
+    fs.writeFileSync(filePath, buffer);
 
     return {
       fileKey,

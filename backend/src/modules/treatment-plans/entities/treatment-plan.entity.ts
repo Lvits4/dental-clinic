@@ -8,7 +8,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Patient } from '../../patients/entities/patient.entity';
 import { Doctor } from '../../doctors/entities/doctor.entity';
 import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
@@ -48,7 +48,10 @@ export class TreatmentPlan {
   })
   items: TreatmentPlanItem[];
 
-  @Exclude()
+  /** Rellenado al listar/detalle; no es columna en BD. */
+  @Expose()
+  proceduresPerformedCount?: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

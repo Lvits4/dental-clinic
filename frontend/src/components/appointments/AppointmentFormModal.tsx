@@ -9,7 +9,7 @@ import {
   useUpdateStatus,
 } from '../../querys/appointments/mutationAppointments';
 import { usePatientsList } from '../../querys/patients/queryPatients';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import { useAppointmentDetail } from '../../querys/appointments/queryAppointments';
 import toast from 'react-hot-toast';
 import { AppointmentStatus } from '../../enums';
@@ -65,6 +65,7 @@ const EmptyState = ({
     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">{message}</p>
     <Link
       to={linkTo}
+      viewTransition
       className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
     >
       {linkLabel}
@@ -81,7 +82,7 @@ function CreateAppointmentModalBody({
 }) {
   const createMutation = useCreateAppointment({ skipNavigation: true });
   const { data: patientsData, isLoading: loadingPatients } = usePatientsList({ limit: 100, isActive: true });
-  const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
+  const { data: doctors, isLoading: loadingDoctors } = useDoctorsForSelect();
 
   const loading = loadingPatients || loadingDoctors;
   const activePatients = patientsData?.data || [];
@@ -141,7 +142,7 @@ function EditAppointmentModalBody({
   const updateAppointment = useUpdateAppointment();
   const updateStatus = useUpdateStatus();
   const { data: patientsData } = usePatientsList({ limit: 100 });
-  const { data: doctorsData } = useDoctorsList();
+  const { data: doctorsData } = useDoctorsForSelect();
   const activePatients = (patientsData?.data ?? []).filter((p) => p.isActive);
   const activeDoctors = (doctorsData ?? []).filter((d) => d.isActive);
 

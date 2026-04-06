@@ -2,18 +2,34 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { doctorsApi } from '../../requests/doctors.api';
-import type { CreateDoctorDto, Doctor, UpdateDoctorDto } from '../../types';
+import type { CreateDoctorDto, Doctor, PaginatedResponse, UpdateDoctorDto } from '../../types';
 import { HttpError } from '../../helpers/http';
 
 type DoctorMutationNavOptions = { skipNavigation?: boolean };
 
 function isDoctorsListQueryKey(key: readonly unknown[]): boolean {
-  return key[0] === 'doctors' && key.length === 2 && typeof key[1] === 'object' && key[1] !== null;
+  return key[0] === 'doctors' && key[1] === 'list';
 }
 
 function stripDoctorFromList(old: unknown, id: string): unknown {
-  if (!Array.isArray(old)) return old;
-  return old.filter((d) => (d as Doctor).id !== id);
+  if (old && typeof old === 'object' && 'data' in old && Array.isArray((old as PaginatedResponse<Doctor>).data)) {
+    const pr = old as PaginatedResponse<Doctor>;
+    const data = pr.data.filter((d) => d.id !== id);
+    const removed = pr.data.length - data.length;
+    const totalItems = Math.max(0, pr.meta.totalItems - removed);
+    const limit = Math.max(1, pr.meta.limit);
+    return {
+      ...pr,
+      data,
+      meta: {
+        ...pr.meta,
+        totalItems,
+        totalPages: Math.max(1, Math.ceil(totalItems / limit)),
+      },
+    };
+  }
+  if (Array.isArray(old)) return old.filter((d) => (d as Doctor).id !== id);
+  return old;
 }
 
 export const useCreateDoctor = (options?: DoctorMutationNavOptions) => {
@@ -26,7 +42,7 @@ export const useCreateDoctor = (options?: DoctorMutationNavOptions) => {
       queryClient.invalidateQueries({ queryKey: ['doctors'] });
       toast.success('Doctor creado exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/doctors');
+        navigate('/doctors', { viewTransition: true });
       }
     },
     onError: (error: Error) => {
@@ -51,7 +67,7 @@ export const useUpdateDoctor = (id: string, options?: DoctorMutationNavOptions) 
       queryClient.invalidateQueries({ queryKey: ['doctors', id] });
       toast.success('Doctor actualizado exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/doctors');
+        navigate('/doctors', { viewTransition: true });
       }
     },
     onError: (error: Error) => {

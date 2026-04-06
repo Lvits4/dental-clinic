@@ -41,6 +41,9 @@ interface UsersTableProps {
     total: number;
     limit: number;
     onPageChange: (page: number) => void;
+    onLimitChange?: (limit: number) => void;
+    minLimit?: number;
+    maxLimit?: number;
   };
 }
 

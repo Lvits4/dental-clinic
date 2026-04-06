@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from '../services/users.service';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { Role } from '../../../common/enums/role.enum';
+import { FilterUserDto } from '../dto/filter-user.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -37,10 +39,10 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @ApiOperation({
     summary: 'List active users',
-    description: 'Devuelve únicamente usuarios con cuenta activa (isActive: true).',
+    description: 'Devuelve únicamente usuarios con cuenta activa (isActive: true), con paginación.',
   })
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() filterDto: FilterUserDto) {
+    return this.usersService.findAll(filterDto);
   }
 
   @Get(':id')

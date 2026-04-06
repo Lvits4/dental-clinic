@@ -17,7 +17,7 @@ export function useCreateTreatment(options?: TreatmentMutationNavOptions) {
       queryClient.invalidateQueries({ queryKey: ['treatments'] });
       toast.success('Tratamiento creado exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/treatments');
+        navigate('/treatments', { viewTransition: true });
       }
     },
     onError: (error: Error) => {
@@ -42,7 +42,7 @@ export function useUpdateTreatment(id: string, options?: TreatmentMutationNavOpt
       queryClient.invalidateQueries({ queryKey: ['treatments', id] });
       toast.success('Tratamiento actualizado');
       if (!options?.skipNavigation) {
-        navigate('/treatments');
+        navigate('/treatments', { viewTransition: true });
       }
     },
     onError: (error: Error) => {

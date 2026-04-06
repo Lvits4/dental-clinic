@@ -32,6 +32,8 @@ export interface TreatmentPlan {
   observations?: string;
   items?: TreatmentPlanItem[];
   createdAt?: string;
+  /** Conteo agregado en API: vinculados a ítems + no vinculados del paciente con tratamiento del plan */
+  proceduresPerformedCount?: number;
 }
 
 export interface CreateTreatmentPlanDto {
@@ -44,6 +46,17 @@ export interface CreateTreatmentPlanDto {
 export type TreatmentPlanSortBy = 'patient' | 'doctor' | 'status' | 'items' | 'createdAt';
 
 export type TreatmentPlanSortOrder = 'asc' | 'desc';
+
+export interface TreatmentPlanListFilters {
+  page?: number;
+  limit?: number;
+  patientId?: string;
+  /** Un estado concreto; omitir para todos */
+  status?: TreatmentPlanStatus;
+  search?: string;
+  sortBy?: TreatmentPlanSortBy;
+  sortOrder?: TreatmentPlanSortOrder;
+}
 
 export const PLAN_STATUS_CONFIG: Record<TreatmentPlanStatus, { label: string; className: string }> = {
   [TreatmentPlanStatus.PENDING]: {

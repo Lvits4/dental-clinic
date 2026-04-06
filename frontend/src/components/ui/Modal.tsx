@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode, type TransitionEvent } from 'react';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullscreen';
 
@@ -30,6 +30,8 @@ const desktopSizeClasses: Record<ModalSize, string> = {
   fullscreen: 'md:max-w-4xl',
 };
 
+type Phase = 'closed' | 'open' | 'closing';
+
 const Modal = ({
   isOpen,
   onClose,
@@ -43,32 +45,70 @@ const Modal = ({
   surfaceRounding = 'compact',
 }: ModalProps) => {
   void surfaceRounding;
+  const [phase, setPhase] = useState<Phase>(() => (isOpen ? 'open' : 'closed'));
+  const [paintOpen, setPaintOpen] = useState(false);
+
   useEffect(() => {
-    if (!isOpen) return;
+    setPhase((prev) => {
+      if (isOpen) return 'open';
+      if (prev === 'open') return 'closing';
+      return prev;
+    });
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (phase !== 'open') {
+      setPaintOpen(false);
+      return;
+    }
+    setPaintOpen(false);
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setPaintOpen(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === 'closed' || phase === 'closing') return;
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
+  }, [phase, onClose]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    }
+    if (phase === 'closed') return;
+    document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen]);
+  }, [phase]);
 
-  if (!isOpen) return null;
+  const handleBackdropTransitionEnd = (e: TransitionEvent<HTMLDivElement>) => {
+    if (phase !== 'closing') return;
+    if (e.target !== e.currentTarget) return;
+    if (e.propertyName !== 'opacity') return;
+    setPhase('closed');
+  };
 
+  if (phase === 'closed') return null;
+
+  const closing = phase === 'closing';
   const isFullscreen = size === 'fullscreen';
 
   const panelRounded = 'rounded-t-md md:rounded-md';
   const footerRounded = 'rounded-b-md';
   const closeBtnRounded = 'rounded-md';
   const handleBarRounded = 'rounded-md';
+
+  const backdropClass =
+    closing || !paintOpen ? 'opacity-0' : 'opacity-100';
+  const panelSettled = closing
+    ? 'opacity-0 translate-y-10 md:translate-y-2 md:scale-[0.97]'
+    : paintOpen
+      ? 'opacity-100 translate-y-0 md:scale-100'
+      : 'opacity-0 translate-y-10 md:translate-y-2 md:scale-[0.97]';
 
   return (
     <div
@@ -77,17 +117,16 @@ const Modal = ({
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
-      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+        className={`absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-200 ease-out ${backdropClass}`}
         onClick={onClose}
+        onTransitionEnd={handleBackdropTransitionEnd}
         aria-hidden="true"
       />
 
-      {/* Panel */}
       <div
         className={[
-          'relative w-full min-h-0',
+          'relative w-full min-h-0 transition-all duration-200 ease-out',
           fitContent ? 'md:w-max md:min-w-0' : '',
           'bg-white dark:bg-slate-900',
           'border border-slate-200/80 dark:border-slate-800',
@@ -96,18 +135,16 @@ const Modal = ({
           'shadow-2xl',
           desktopSizeClasses[size],
           !fitContent && isFullscreen ? 'md:min-h-[80vh]' : '',
-          'animate-slide-up md:animate-fade-in',
+          panelSettled,
           panelClassName,
         ]
           .filter(Boolean)
           .join(' ')}
       >
-        {/* Handle (solo mobile) */}
         <div className="md:hidden flex justify-center pt-3 pb-1 shrink-0">
           <div className={`w-10 h-1 ${handleBarRounded} bg-slate-200 dark:bg-slate-700`} />
         </div>
 
-        {/* Header */}
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 shrink-0">
             <h2
@@ -129,7 +166,6 @@ const Modal = ({
           </div>
         )}
 
-        {/* Body: flex-1 para que el panel respete max-h; scroll en el body o delegado al hijo */}
         <div
           className={[
             'min-h-0 flex-1 px-6 py-5',
@@ -143,7 +179,6 @@ const Modal = ({
           {children}
         </div>
 
-        {/* Footer */}
         {footer && (
           <div
             className={`px-6 py-4 border-t border-slate-100 dark:border-slate-800/80 flex w-full min-w-0 shrink-0 items-center bg-slate-50/50 dark:bg-slate-800/20 ${footerRounded}`}

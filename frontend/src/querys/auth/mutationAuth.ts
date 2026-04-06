@@ -15,7 +15,7 @@ export const useLogin = () => {
     onSuccess: (data) => {
       setSession(data.accessToken, data.user);
       toast.success('Inicio de sesion exitoso');
-      navigate('/');
+      navigate('/', { viewTransition: true });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Credenciales invalidas');
@@ -30,7 +30,7 @@ export const useRegister = () => {
     mutationFn: (data: RegisterDto) => authApi.register(data),
     onSuccess: () => {
       toast.success('Cuenta creada exitosamente. Ahora inicia sesion.');
-      navigate('/login');
+      navigate('/login', { viewTransition: true });
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Error al crear la cuenta');

@@ -34,6 +34,7 @@ export const useUpdatePerformedProcedure = () => {
     onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['performed-procedures'] });
       queryClient.invalidateQueries({ queryKey: ['performed-procedures', id] });
+      queryClient.invalidateQueries({ queryKey: ['treatment-plans'] });
       toast.success('Procedimiento actualizado');
     },
     onError: (error: Error) => {
@@ -55,6 +56,7 @@ export const useDeletePerformedProcedure = () => {
     onSuccess: (_void, id) => {
       queryClient.invalidateQueries({ queryKey: ['performed-procedures'] });
       queryClient.removeQueries({ queryKey: ['performed-procedures', id] });
+      queryClient.invalidateQueries({ queryKey: ['treatment-plans'] });
       toast.success('Procedimiento eliminado');
     },
     onError: (error: Error) => {

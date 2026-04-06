@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, PageHeader } from '../../components/ui';
 import { HttpError } from '../../helpers/http';
@@ -6,44 +6,11 @@ import UsersTable from '../../components/users/UsersTable';
 import UserFilters from '../../components/users/UserFilters';
 import UserFormModal from '../../components/users/UserFormModal';
 import { useUsersList } from '../../querys/users/queryUsers';
-import type { User, UserSortBy, UserSortOrder } from '../../types';
+import type { UserSortBy, UserSortOrder } from '../../types';
 import { Role } from '../../enums';
 import type { UserModalLocationState } from './UserRouteRedirects';
-
-const ROLE_SORT_LABEL: Record<Role, string> = {
-  [Role.ADMIN]: 'Administrador',
-  [Role.DOCTOR]: 'Doctor',
-  [Role.RECEPTIONIST]: 'Recepcionista',
-};
-
-function matchesSearch(u: User, q: string): boolean {
-  if (!q.trim()) return true;
-  const s = q.trim().toLowerCase();
-  const hay = [u.fullName, u.username, u.email].join(' ').toLowerCase();
-  return hay.includes(s);
-}
-
-function compareUsers(a: User, b: User, sortBy: UserSortBy, sortOrder: UserSortOrder): number {
-  const dir = sortOrder === 'asc' ? 1 : -1;
-  let cmp = 0;
-  switch (sortBy) {
-    case 'fullName':
-      cmp = a.fullName.localeCompare(b.fullName, 'es', { sensitivity: 'base' });
-      break;
-    case 'username':
-      cmp = a.username.localeCompare(b.username, undefined, { sensitivity: 'base' });
-      break;
-    case 'email':
-      cmp = a.email.localeCompare(b.email, 'es', { sensitivity: 'base' });
-      break;
-    case 'role':
-      cmp = ROLE_SORT_LABEL[a.role].localeCompare(ROLE_SORT_LABEL[b.role], 'es', { sensitivity: 'base' });
-      break;
-    default:
-      cmp = 0;
-  }
-  return cmp * dir;
-}
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 type UserListModal = null | { mode: 'create' } | { mode: 'edit'; id: string };
 
@@ -56,37 +23,16 @@ const UsersListView = () => {
   const [modal, setModal] = useState<UserListModal>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
-  const { data: rawList, isPending, isError, error, refetch } = useUsersList();
-
-  const filtered = useMemo(() => {
-    const list = rawList ?? [];
-    return list.filter((u) => {
-      if (!matchesSearch(u, search)) return false;
-      if (roleFilter && u.role !== roleFilter) return false;
-      return true;
-    });
-  }, [rawList, search, roleFilter]);
-
-  const sortedFiltered = useMemo(() => {
-    const list = [...filtered];
-    list.sort((a, b) => compareUsers(a, b, sortBy, sortOrder));
-    return list;
-  }, [filtered, sortBy, sortOrder]);
-
-  const totalItems = sortedFiltered.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
-
-  useEffect(() => {
-    setPage((p) => Math.min(p, totalPages));
-  }, [totalPages]);
-
-  const safePage = Math.min(page, totalPages);
-  const pageData = useMemo(() => {
-    const start = (safePage - 1) * limit;
-    return sortedFiltered.slice(start, start + limit);
-  }, [sortedFiltered, safePage, limit]);
+  const { data, isPending, isError, error, refetch } = useUsersList({
+    page,
+    limit,
+    search: search.trim() || undefined,
+    role: roleFilter ? (roleFilter as Role) : undefined,
+    sortBy,
+    sortOrder,
+  });
 
   const listErrorMessage =
     error instanceof HttpError
@@ -141,6 +87,12 @@ const UsersListView = () => {
     }
   }, [location.state, location.pathname, navigate]);
 
+  useEffect(() => {
+    if (isError || !data?.meta) return;
+    const tp = totalPagesFromMeta(data.meta, limit);
+    setPage((p) => Math.min(p, tp));
+  }, [data?.meta, isError, limit]);
+
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
       <div className="shrink-0">
@@ -149,8 +101,8 @@ const UsersListView = () => {
           titleTone="subtle"
           title="Usuarios"
           subtitle={
-            rawList && !isError
-              ? `${totalItems} ${totalItems === 1 ? 'usuario' : 'usuarios'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
+            data && !isError
+              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'usuario' : 'usuarios'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
               : !isError
                 ? 'Administración de cuentas del sistema'
                 : undefined
@@ -195,21 +147,27 @@ const UsersListView = () => {
           </div>
         ) : (
           <UsersTable
-            data={pageData}
-            loading={isPending && !rawList}
+            data={data?.data || []}
+            loading={isPending && !data}
             onEditUser={(u) => setModal({ mode: 'edit', id: u.id })}
             sortColumn={sortBy}
             sortDirection={sortOrder}
             onSort={handleSort}
             fillHeight
             pagination={
-              !isError && totalItems > 0
+              data && !isError
                 ? {
-                    page: safePage,
-                    totalPages,
-                    total: totalItems,
+                    page,
+                    totalPages: totalPagesFromMeta(data.meta, limit),
+                    total: data.meta.totalItems,
                     limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: LIST_PAGE_SIZE_MAX,
                   }
                 : undefined
             }

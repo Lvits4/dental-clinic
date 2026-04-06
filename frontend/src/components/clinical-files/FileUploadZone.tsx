@@ -1,20 +1,35 @@
 import { useRef, useState, type DragEvent, type ChangeEvent } from 'react';
+import toast from 'react-hot-toast';
+
+const DEFAULT_MAX_BYTES = 10 * 1024 * 1024;
 
 interface FileUploadZoneProps {
   onUpload: (file: File) => void;
   loading?: boolean;
   accept?: string;
+  /** Tamaño máximo en bytes (debe coincidir con el límite del backend). */
+  maxBytes?: number;
 }
 
 const FileUploadZone = ({
   onUpload,
   loading = false,
   accept = 'image/*,.pdf,.doc,.docx',
+  maxBytes = DEFAULT_MAX_BYTES,
 }: FileUploadZoneProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = (file: File) => {
+    if (file.size === 0) {
+      toast.error('El archivo está vacío');
+      return;
+    }
+    if (file.size > maxBytes) {
+      toast.error(`El archivo supera el máximo de ${Math.round(maxBytes / (1024 * 1024))} MB`);
+      return;
+    }
     onUpload(file);
   };
 
@@ -28,6 +43,8 @@ const FileUploadZone = ({
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    dragDepth.current = 0;
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) handleFile(file);
@@ -35,16 +52,32 @@ const FileUploadZone = ({
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepth.current += 1;
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => setIsDragging(false);
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepth.current -= 1;
+    if (dragDepth.current <= 0) {
+      dragDepth.current = 0;
+      setIsDragging(false);
+    }
+  };
 
   return (
     <div
       onClick={() => !loading && inputRef.current?.click()}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       className={[
         'flex flex-col items-center justify-center gap-3 p-8 rounded-md border-2 border-dashed cursor-pointer transition-colors',

@@ -14,7 +14,7 @@ import {
   useDeletePerformedProcedure,
 } from '../../querys/performed-procedures/mutationPerformedProcedures';
 import { usePatientsList } from '../../querys/patients/queryPatients';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import { useTreatmentsForSelect } from '../../querys/treatments/queryTreatments';
 import type {
   Doctor,
@@ -24,6 +24,8 @@ import type {
   PerformedProcedureSortOrder,
   Treatment,
 } from '../../types';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 const FormSkeleton = () => (
   <div className="animate-pulse space-y-5">
@@ -66,6 +68,7 @@ const CreateProcedureEmptyState = ({
     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">{message}</p>
     <Link
       to={linkTo}
+      viewTransition
       className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
     >
       {linkLabel}
@@ -98,7 +101,7 @@ const PerformedProceduresListView = () => {
   const [viewTarget, setViewTarget] = useState<PerformedProcedure | null>(null);
   const [editTarget, setEditTarget] = useState<PerformedProcedure | null>(null);
   const [procedureToDelete, setProcedureToDelete] = useState<PerformedProcedure | null>(null);
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
   const { data, isPending, isError, error, refetch } = usePerformedProceduresList({
     page,
@@ -113,7 +116,7 @@ const PerformedProceduresListView = () => {
   const deleteProcedure = useDeletePerformedProcedure();
 
   const { data: patientsData, isLoading: patientsLoading } = usePatientsList({ limit: 100 });
-  const { data: doctorsData, isLoading: doctorsLoading } = useDoctorsList();
+  const { data: doctorsData, isLoading: doctorsLoading } = useDoctorsForSelect();
   const { data: treatmentsPage, isLoading: treatmentsLoading } = useTreatmentsForSelect();
 
   const allPatients = patientsData?.data ?? [];
@@ -201,9 +204,9 @@ const PerformedProceduresListView = () => {
 
   useEffect(() => {
     if (isError || !data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages, isError]);
+  }, [data?.meta, isError, limit]);
 
   return (
     <div className="flex flex-col gap-2 flex-1 min-h-0 sm:gap-3">
@@ -273,10 +276,16 @@ const PerformedProceduresListView = () => {
               data && !isError && data.meta.totalItems > 0
                 ? {
                     page,
-                    totalPages: Math.max(1, data.meta.totalPages),
+                    totalPages: totalPagesFromMeta(data.meta, limit),
                     total: data.meta.totalItems,
-                    limit: data.meta.limit,
+                    limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: LIST_PAGE_SIZE_MAX,
                   }
                 : undefined
             }
@@ -350,8 +359,9 @@ const PerformedProceduresListView = () => {
                   setEditTarget(null);
                 }}
                 onSubmit={(payload) => {
-                  const { treatmentPlanItemId, ...data } = payload;
+                  const { treatmentPlanItemId, treatmentPlanId, ...data } = payload;
                   void treatmentPlanItemId;
+                  void treatmentPlanId;
                   updateMutation.mutate(
                     { id: editTarget.id, data },
                     { onSettled: () => setEditTarget(null) },

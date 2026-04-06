@@ -146,17 +146,26 @@ export function appointmentEditUnchanged(
   );
 }
 
+function performedProcedureDay(iso: string | Date | undefined): string {
+  if (iso == null) return '';
+  if (iso instanceof Date) return iso.toISOString().slice(0, 10);
+  if (typeof iso === 'string' && iso.length >= 10) return iso.slice(0, 10);
+  return '';
+}
+
 /** true si el procedimiento enviado coincide con el registro cargado (fecha por día calendario). */
 export function performedProcedureEditUnchanged(
   proc: PerformedProcedure,
   submitted: CreatePerformedProcedureDto,
 ): boolean {
-  const procDay = proc.performedAt.slice(0, 10);
-  const subDay = submitted.performedAt.slice(0, 10);
+  const procPatient = proc.patientId ?? proc.patient?.id ?? '';
+  const procTreatment = proc.treatmentId ?? proc.treatment?.id ?? '';
+  const procDay = performedProcedureDay(proc.performedAt);
+  const subDay = performedProcedureDay(submitted.performedAt);
   return (
-    proc.patientId === submitted.patientId &&
+    procPatient === submitted.patientId &&
     proc.doctorId === submitted.doctorId &&
-    proc.treatmentId === submitted.treatmentId &&
+    procTreatment === submitted.treatmentId &&
     procDay === subDay &&
     optTrim(proc.tooth) === optTrim(submitted.tooth) &&
     optTrim(proc.description) === optTrim(submitted.description) &&

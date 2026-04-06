@@ -17,7 +17,7 @@ export const useCreateUser = (options?: UserMutationNavOptions) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Usuario creado exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/users');
+        navigate('/users', { viewTransition: true });
       }
     },
     onError: (error: Error) => {
@@ -42,7 +42,7 @@ export const useUpdateUser = (id: string, options?: UserMutationNavOptions) => {
       queryClient.invalidateQueries({ queryKey: ['users', id] });
       toast.success('Usuario actualizado exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/users');
+        navigate('/users', { viewTransition: true });
       }
     },
     onError: (error: Error) => {

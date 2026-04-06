@@ -57,7 +57,7 @@ const ClinicalRecordView = () => {
         ]}
         action={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <Link to={`/patients/${patientId}/evolutions`} className="block w-full sm:inline-block sm:w-auto">
+            <Link to={`/patients/${patientId}/evolutions`} viewTransition className="block w-full sm:inline-block sm:w-auto">
               <Button variant="ghost" className="w-full sm:w-auto">
                 Ver Evoluciones
               </Button>

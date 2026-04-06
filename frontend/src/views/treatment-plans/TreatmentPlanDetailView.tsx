@@ -50,7 +50,7 @@ const TreatmentPlanDetailView = () => {
             <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:w-32 shrink-0">Paciente</dt>
             <dd className="text-sm text-slate-900 dark:text-white">
               {plan.patient
-                ? <Link to={`/patients/${plan.patientId}`} className="text-emerald-600 dark:text-emerald-400 hover:underline">{plan.patient.firstName} {plan.patient.lastName}</Link>
+                ? <Link to={`/patients/${plan.patientId}`} viewTransition className="text-emerald-600 dark:text-emerald-400 hover:underline">{plan.patient.firstName} {plan.patient.lastName}</Link>
                 : '—'}
             </dd>
           </div>

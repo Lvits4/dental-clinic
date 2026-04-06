@@ -4,6 +4,12 @@ import { Repository } from 'typeorm';
 import { Doctor } from '../entities/doctor.entity';
 import { CreateDoctorDto } from '../dto/create-doctor.dto';
 import { UpdateDoctorDto } from '../dto/update-doctor.dto';
+import {
+  FilterDoctorDto,
+  DoctorSortBy,
+  DoctorSortOrder,
+} from '../dto/filter-doctor.dto';
+import { PaginatedResponseDto } from '../../../common/dto/paginated-response.dto';
 
 @Injectable()
 export class DoctorsService {
@@ -27,10 +33,56 @@ export class DoctorsService {
     return this.doctorRepository.save(doctor);
   }
 
-  async findAll(isActive?: boolean): Promise<Doctor[]> {
-    /** Sin `isActive` en query: solo activos. `isActive=false` devuelve solo inactivos (p. ej. recuperación). */
+  async findAll(filterDto: FilterDoctorDto): Promise<PaginatedResponseDto<Doctor>> {
+    const {
+      page = 1,
+      limit = 10,
+      isActive,
+      search,
+      sortBy = DoctorSortBy.NAME,
+      sortOrder = DoctorSortOrder.ASC,
+    } = filterDto;
+
+    /** Sin `isActive` en query: solo activos. `isActive=false` devuelve solo inactivos. */
     const onlyActive = isActive !== false;
-    return this.doctorRepository.find({ where: { isActive: onlyActive } });
+
+    const qb = this.doctorRepository
+      .createQueryBuilder('doctor')
+      .where('doctor.is_active = :active', { active: onlyActive });
+
+    if (search) {
+      const q = `%${search.toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(doctor.first_name) LIKE :q OR LOWER(doctor.last_name) LIKE :q OR LOWER(doctor.specialty) LIKE :q OR LOWER(doctor.email) LIKE :q OR LOWER(doctor.phone) LIKE :q OR LOWER(doctor.license_number) LIKE :q)',
+        { q },
+      );
+    }
+
+    const dir = sortOrder === DoctorSortOrder.DESC ? 'DESC' : 'ASC';
+    switch (sortBy) {
+      case DoctorSortBy.SPECIALTY:
+        qb.orderBy('doctor.specialty', dir);
+        break;
+      case DoctorSortBy.PHONE:
+        qb.orderBy('doctor.phone', dir);
+        break;
+      case DoctorSortBy.EMAIL:
+        qb.orderBy('doctor.email', dir);
+        break;
+      case DoctorSortBy.LICENSE_NUMBER:
+        qb.orderBy('doctor.license_number', dir);
+        break;
+      case DoctorSortBy.IS_ACTIVE:
+        qb.orderBy('doctor.is_active', dir);
+        break;
+      case DoctorSortBy.NAME:
+      default:
+        qb.orderBy('doctor.last_name', dir).addOrderBy('doctor.first_name', dir);
+    }
+
+    qb.skip((page - 1) * limit).take(limit);
+    const [data, totalItems] = await qb.getManyAndCount();
+    return new PaginatedResponseDto(data, totalItems, page, limit);
   }
 
   async findOne(id: string): Promise<Doctor> {

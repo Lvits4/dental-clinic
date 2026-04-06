@@ -3,7 +3,7 @@ import { PageHeader, Card } from '../../components/ui';
 import ClinicalEvolutionForm from '../../components/clinical-evolutions/ClinicalEvolutionForm';
 import { useCreateClinicalEvolution } from '../../querys/clinical-evolutions/mutationClinicalEvolutions';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 
 const FormSkeleton = () => (
   <div className="animate-pulse space-y-5">
@@ -27,7 +27,7 @@ const ClinicalEvolutionCreateView = () => {
   const { id: patientId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId!);
-  const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
+  const { data: doctors, isLoading: loadingDoctors } = useDoctorsForSelect();
   const createMutation = useCreateClinicalEvolution(patientId!);
 
   const loading = loadingRecord || loadingDoctors;

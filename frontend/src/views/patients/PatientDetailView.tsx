@@ -27,6 +27,8 @@ import { useClinicalEvolutionsList } from '../../querys/clinical-evolutions/quer
 import { useClinicalFilesList } from '../../querys/clinical-files/queryClinicalFiles';
 import { useUploadClinicalFile, useDeleteClinicalFile } from '../../querys/clinical-files/mutationClinicalFiles';
 import type { Patient, Appointment } from '../../types';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -197,15 +199,18 @@ const RecordTab = ({ patientId }: { patientId: string }) => {
 
 // ─── Tab: Evoluciones ─────────────────────────────────────────────────────────
 
+const EVOLUTIONS_PAGE_LIMIT = 5;
+
 const EvolutionsTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(EVOLUTIONS_PAGE_LIMIT);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [evolutionModalOpen, setEvolutionModalOpen] = useState(false);
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId);
   const { data, isLoading } = useClinicalEvolutionsList({
     page,
-    limit: 5,
+    limit,
     recordId: record?.id,
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
@@ -213,9 +218,9 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 
   useEffect(() => {
     if (!data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages]);
+  }, [data?.meta, limit]);
 
   const hasDateFilters = !!(dateFrom || dateTo);
 
@@ -293,7 +298,7 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
     );
   }
 
-  if (!data?.data?.length) {
+  if ((data?.meta?.totalItems ?? 0) === 0) {
     return (
       <>
         <div className="space-y-3">
@@ -330,26 +335,38 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
       <div className="space-y-4">
         {evolutionsToolbar}
 
-        <div className="relative space-y-3 pl-5">
-          <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
-          {data.data.map((evolution) => (
-            <div key={evolution.id} className="relative">
-              <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
-              <ClinicalEvolutionCard evolution={evolution} />
-            </div>
-          ))}
-        </div>
+        {data && data.data.length > 0 ? (
+          <div className="relative space-y-3 pl-5">
+            <div className="absolute left-1 top-0 bottom-0 w-0.5 bg-emerald-200 dark:bg-emerald-800" />
+            {data.data.map((evolution) => (
+              <div key={evolution.id} className="relative">
+                <div className="absolute -left-4 top-5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900" />
+                <ClinicalEvolutionCard evolution={evolution} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center py-5 text-sm text-slate-500 dark:text-slate-400">
+            No hay resultados en esta página.
+          </p>
+        )}
 
-        {data.meta.totalItems > 0 && (
+        {data?.meta ? (
           <Pagination
             compact
             page={page}
-            totalPages={Math.max(1, data.meta.totalPages)}
+            totalPages={totalPagesFromMeta(data.meta, limit)}
             total={data.meta.totalItems}
-            limit={data.meta.limit}
+            limit={limit}
             onPageChange={setPage}
+            onLimitChange={(n) => {
+              setLimit(n);
+              setPage(1);
+            }}
+            minLimit={1}
+            maxLimit={LIST_PAGE_SIZE_MAX}
           />
-        )}
+        ) : null}
       </div>
       <ClinicalEvolutionFormModal
         patientId={patientId}
@@ -362,10 +379,17 @@ const EvolutionsTab = ({ patientId }: { patientId: string }) => {
 
 // ─── Tab: Archivos ────────────────────────────────────────────────────────────
 
+const FILES_PAGE_LIMIT = 6;
+
 const FilesTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(FILES_PAGE_LIMIT);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { data, isLoading, isError } = useClinicalFilesList({ page, limit: 6, patientId });
+  const { data, isLoading, isError, refetch } = useClinicalFilesList({
+    page,
+    limit,
+    patientId,
+  });
   const uploadMutation = useUploadClinicalFile(patientId);
   const deleteMutation = useDeleteClinicalFile();
 
@@ -375,9 +399,9 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
 
   useEffect(() => {
     if (isError || !data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages, isError]);
+  }, [data?.meta, isError, limit]);
 
   if (isLoading) return <div className="flex justify-center py-8"><Spinner /></div>;
 
@@ -385,32 +409,49 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
     <div className="space-y-4">
       <FileUploadZone onUpload={(file) => uploadMutation.mutate({ file })} loading={uploadMutation.isPending} />
 
-      {!data?.data?.length ? (
+      {isError ? (
+        <div className="rounded-md border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/20 px-4 py-3 text-center space-y-2">
+          <p className="text-sm text-red-700 dark:text-red-300">No se pudieron cargar los archivos clínicos.</p>
+          <Button type="button" variant="secondary" className="text-sm" onClick={() => refetch()}>
+            Reintentar
+          </Button>
+        </div>
+      ) : (data?.meta?.totalItems ?? 0) === 0 ? (
         <div className="text-center py-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">No hay archivos clinicos.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">No hay archivos clínicos.</p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.data.map((file) => (
-              <ClinicalFileCard
-                key={file.id}
-                file={file}
-                onDelete={(id) => setDeleteId(id)}
-                deleteLoading={deleteMutation.isPending && deleteId === file.id}
-              />
-            ))}
-          </div>
-          {data.meta.totalItems > 0 && (
+          {data && data.data.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {data.data.map((file) => (
+                <ClinicalFileCard
+                  key={file.id}
+                  file={file}
+                  onDelete={(id) => setDeleteId(id)}
+                  deleteLoading={deleteMutation.isPending && deleteId === file.id}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center py-4 text-sm text-slate-500 dark:text-slate-400">No hay archivos en esta página.</p>
+          )}
+          {data?.meta ? (
             <Pagination
               compact
               page={page}
-              totalPages={Math.max(1, data.meta.totalPages)}
+              totalPages={totalPagesFromMeta(data.meta, limit)}
               total={data.meta.totalItems}
-              limit={data.meta.limit}
+              limit={limit}
               onPageChange={setPage}
+              onLimitChange={(n) => {
+                setLimit(n);
+                setPage(1);
+              }}
+              minLimit={1}
+              maxLimit={LIST_PAGE_SIZE_MAX}
             />
-          )}
+          ) : null}
         </>
       )}
 
@@ -429,18 +470,25 @@ const FilesTab = ({ patientId }: { patientId: string }) => {
 
 // ─── Tab: Citas ───────────────────────────────────────────────────────────────
 
+const APPOINTMENTS_PAGE_LIMIT = 8;
+
 const AppointmentsTab = ({ patientId }: { patientId: string }) => {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(APPOINTMENTS_PAGE_LIMIT);
   const [editTarget, setEditTarget] = useState<Appointment | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { data, isLoading, isError } = useAppointmentsList({ page, limit: 8, patientId });
+  const { data, isLoading, isError } = useAppointmentsList({
+    page,
+    limit,
+    patientId,
+  });
 
   useEffect(() => {
     if (isError || !data?.meta) return;
-    const tp = Math.max(1, data.meta.totalPages);
+    const tp = totalPagesFromMeta(data.meta, limit);
     setPage((p) => Math.min(p, tp));
-  }, [data?.meta.totalPages, isError]);
+  }, [data?.meta, isError, limit]);
 
   if (isLoading) {
     return (
@@ -450,7 +498,15 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
     );
   }
 
-  if (!data?.data?.length) {
+  if (isError || !data) {
+    return (
+      <div className="flex flex-1 min-h-0 flex-col items-center justify-center py-8 text-center">
+        <p className="text-sm text-slate-500 dark:text-slate-400">No se pudieron cargar las citas.</p>
+      </div>
+    );
+  }
+
+  if ((data.meta?.totalItems ?? 0) === 0) {
     return (
       <>
         <div className="flex flex-1 min-h-0 flex-col">
@@ -487,43 +543,53 @@ const AppointmentsTab = ({ patientId }: { patientId: string }) => {
         </div>
 
         <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
-          {data.data.map((apt) => (
-            <button
-              key={apt.id}
-              type="button"
-              onClick={() => setEditTarget(apt)}
-              className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">
-                    {formatDateTime(apt.dateTime)}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    {apt.doctor ? `Dr. ${apt.doctor.firstName} ${apt.doctor.lastName}` : '—'}
-                    {apt.reason ? ` · ${apt.reason}` : ''}
-                  </p>
+          {data.data.length > 0 ? (
+            data.data.map((apt) => (
+              <button
+                key={apt.id}
+                type="button"
+                onClick={() => setEditTarget(apt)}
+                className="w-full text-left bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-200/80 dark:border-slate-700/50 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">
+                      {formatDateTime(apt.dateTime)}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {apt.doctor ? `Dr. ${apt.doctor.firstName} ${apt.doctor.lastName}` : '—'}
+                      {apt.reason ? ` · ${apt.reason}` : ''}
+                    </p>
+                  </div>
+                  <div className="shrink-0 flex items-center gap-2">
+                    <AppointmentStatusBadge status={apt.status} />
+                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="shrink-0 flex items-center gap-2">
-                  <AppointmentStatusBadge status={apt.status} />
-                  <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))
+          ) : (
+            <p className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">No hay citas en esta página.</p>
+          )}
         </div>
 
-        {data.meta.totalItems > 0 ? (
+        {data.meta ? (
           <div className="shrink-0 border-t border-slate-200/70 pt-3 dark:border-slate-700/60">
             <Pagination
               compact
               page={page}
-              totalPages={Math.max(1, data.meta.totalPages)}
+              totalPages={totalPagesFromMeta(data.meta, limit)}
               total={data.meta.totalItems}
-              limit={data.meta.limit}
+              limit={limit}
               onPageChange={setPage}
+              onLimitChange={(n) => {
+                setLimit(n);
+                setPage(1);
+              }}
+              minLimit={1}
+              maxLimit={LIST_PAGE_SIZE_MAX}
             />
           </div>
         ) : null}

@@ -1,7 +1,7 @@
 import { Modal, Spinner, FormModalScrollShell } from '../ui';
 import ClinicalEvolutionForm from './ClinicalEvolutionForm';
 import { useClinicalRecord } from '../../querys/clinical-records/queryClinicalRecords';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import { useCreateClinicalEvolution } from '../../querys/clinical-evolutions/mutationClinicalEvolutions';
 
 export interface ClinicalEvolutionFormModalProps {
@@ -16,7 +16,7 @@ const ClinicalEvolutionFormModal = ({
   onClose,
 }: ClinicalEvolutionFormModalProps) => {
   const { data: record, isLoading: loadingRecord } = useClinicalRecord(patientId);
-  const { data: doctors, isLoading: loadingDoctors } = useDoctorsList();
+  const { data: doctors, isLoading: loadingDoctors } = useDoctorsForSelect();
   const createMutation = useCreateClinicalEvolution(patientId, { skipNavigation: true });
 
   const loading = loadingRecord || loadingDoctors;

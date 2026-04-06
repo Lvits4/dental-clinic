@@ -56,6 +56,7 @@ const PageHeader = ({
                   {item.to && !isLast ? (
                     <Link
                       to={item.to}
+                      viewTransition
                       className="text-xs text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors font-medium"
                     >
                       {item.label}

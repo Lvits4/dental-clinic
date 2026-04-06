@@ -40,7 +40,7 @@ export const useCreatePatient = (options?: PatientMutationNavOptions) => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       toast.success('Paciente creado exitosamente');
       if (!options?.skipNavigation) {
-        navigate('/patients');
+        navigate('/patients', { viewTransition: true });
       }
     },
     onError: (error: Error) => {
@@ -65,7 +65,7 @@ export const useUpdatePatient = (id: string, options?: PatientMutationNavOptions
       queryClient.invalidateQueries({ queryKey: ['patients', id] });
       toast.success('Paciente actualizado exitosamente');
       if (!options?.skipNavigation) {
-        navigate(`/patients/${id}`);
+        navigate(`/patients/${id}`, { viewTransition: true });
       }
     },
     onError: (error: Error) => {

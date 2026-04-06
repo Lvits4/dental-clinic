@@ -7,7 +7,8 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string | undefined): string {
+  if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('es', {
     day: '2-digit',
     month: 'short',

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClinicalFile } from '../entities/clinical-file.entity';
+import { Patient } from '../../patients/entities/patient.entity';
 import { FileStorageService } from './file-storage.service';
 import { FilterFileDto } from '../dto/filter-file.dto';
 import { PaginatedResponseDto } from '../../../common/dto/paginated-response.dto';
@@ -11,6 +12,8 @@ export class ClinicalFilesService {
   constructor(
     @InjectRepository(ClinicalFile)
     private readonly fileRepository: Repository<ClinicalFile>,
+    @InjectRepository(Patient)
+    private readonly patientRepository: Repository<Patient>,
     private readonly fileStorageService: FileStorageService,
   ) {}
 
@@ -20,6 +23,11 @@ export class ClinicalFilesService {
     uploadedBy: string,
     clinicalEvolutionId?: string,
   ): Promise<ClinicalFile> {
+    const patientExists = await this.patientRepository.exist({ where: { id: patientId } });
+    if (!patientExists) {
+      throw new NotFoundException('Paciente no encontrado');
+    }
+
     const uploadResult = await this.fileStorageService.upload(file);
 
     const clinicalFile = this.fileRepository.create({
@@ -44,10 +52,10 @@ export class ClinicalFilesService {
       .leftJoinAndSelect('file.uploader', 'uploader');
 
     if (patientId) {
-      query.andWhere('file.patient_id = :patientId', { patientId });
+      query.andWhere('file.patientId = :patientId', { patientId });
     }
     if (clinicalEvolutionId) {
-      query.andWhere('file.clinical_evolution_id = :clinicalEvolutionId', { clinicalEvolutionId });
+      query.andWhere('file.clinicalEvolutionId = :clinicalEvolutionId', { clinicalEvolutionId });
     }
 
     query.orderBy('file.created_at', 'DESC');

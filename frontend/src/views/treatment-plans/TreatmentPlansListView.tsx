@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
@@ -12,13 +12,15 @@ import {
   useDeleteTreatmentPlan,
 } from '../../querys/treatment-plans/mutationTreatmentPlans';
 import { usePatientsList } from '../../querys/patients/queryPatients';
-import { useDoctorsList } from '../../querys/doctors/queryDoctors';
+import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import TreatmentPlanForm from '../../components/treatment-plans/TreatmentPlanForm';
 import TreatmentPlanFilters, { type PlanStatusFilter } from '../../components/treatment-plans/TreatmentPlanFilters';
 import TreatmentPlansTable from '../../components/treatment-plans/TreatmentPlansTable';
-import type { TreatmentPlan, TreatmentPlanSortBy, TreatmentPlanSortOrder } from '../../types';
+import type { Doctor, PaginatedResponse, TreatmentPlan, TreatmentPlanSortBy, TreatmentPlanSortOrder } from '../../types';
 import { PLAN_STATUS_CONFIG } from '../../types';
 import { TreatmentPlanStatus } from '../../enums';
+import { totalPagesFromMeta } from '../../utils/pagination';
+import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
 
 const PLAN_STATUS_BUTTON_CLASSES: Record<string, string> = {
   [TreatmentPlanStatus.PENDING]: 'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20',
@@ -26,32 +28,6 @@ const PLAN_STATUS_BUTTON_CLASSES: Record<string, string> = {
   [TreatmentPlanStatus.COMPLETED]: 'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-400 dark:hover:bg-emerald-900/20',
   [TreatmentPlanStatus.CANCELLED]: 'border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20',
 };
-
-function matchesSearch(p: TreatmentPlan, q: string): boolean {
-  if (!q.trim()) return true;
-  const s = q.trim().toLowerCase();
-  const hay = [
-    p.patient?.firstName,
-    p.patient?.lastName,
-    p.doctor?.firstName,
-    p.doctor?.lastName,
-    p.observations,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-  return hay.includes(s);
-}
-
-function patientSortKey(p: TreatmentPlan): string {
-  if (!p.patient) return '';
-  return `${p.patient.firstName} ${p.patient.lastName}`.toLowerCase();
-}
-
-function doctorSortKey(p: TreatmentPlan): string {
-  if (!p.doctor) return '';
-  return `${p.doctor.firstName} ${p.doctor.lastName}`.toLowerCase();
-}
 
 const FormSkeleton = () => (
   <div className="animate-pulse space-y-5">
@@ -100,6 +76,7 @@ const CreatePlanEmptyState = ({
     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">{message}</p>
     <Link
       to={linkTo}
+      viewTransition
       className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
     >
       {linkLabel}
@@ -111,15 +88,22 @@ const TreatmentPlansListView = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<PlanStatusFilter>('all');
-  const [sortBy, setSortBy] = useState<TreatmentPlanSortBy>('createdAt');
-  const [sortOrder, setSortOrder] = useState<TreatmentPlanSortOrder>('desc');
+  const [sortBy, setSortBy] = useState<TreatmentPlanSortBy>('patient');
+  const [sortOrder, setSortOrder] = useState<TreatmentPlanSortOrder>('asc');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [viewTarget, setViewTarget] = useState<TreatmentPlan | null>(null);
   const [editTarget, setEditTarget] = useState<TreatmentPlan | null>(null);
   const [planToDelete, setPlanToDelete] = useState<TreatmentPlan | null>(null);
-  const limit = 10;
+  const [limit, setLimit] = useState(DEFAULT_LIST_PAGE_SIZE);
 
-  const { data: rawList, isPending, isError, error, refetch } = useTreatmentPlansList();
+  const { data, isPending, isError, error, refetch } = useTreatmentPlansList({
+    page,
+    limit,
+    search: search.trim() || undefined,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+    sortBy,
+    sortOrder,
+  });
 
   const createMutation = useCreateTreatmentPlan();
   const deletePlan = useDeleteTreatmentPlan();
@@ -128,69 +112,29 @@ const TreatmentPlansListView = () => {
   const updatePlan = useUpdateTreatmentPlan();
 
   const { data: patientsData, isLoading: patientsLoading } = usePatientsList({ limit: 100 });
-  const { data: doctorsData, isLoading: doctorsLoading } = useDoctorsList();
+  const { data: doctorsList, isLoading: doctorsLoading } = useDoctorsForSelect();
   const allPatients = patientsData?.data ?? [];
   const activePatients = allPatients.filter((p) => p.isActive);
-  const activeDoctors = (doctorsData ?? []).filter((d) => d.isActive);
+  const doctorsForForm: Doctor[] = Array.isArray(doctorsList)
+    ? doctorsList
+    : doctorsList &&
+        typeof doctorsList === 'object' &&
+        'data' in doctorsList &&
+        Array.isArray((doctorsList as PaginatedResponse<Doctor>).data)
+      ? (doctorsList as PaginatedResponse<Doctor>).data
+      : [];
+  const activeDoctors = doctorsForForm.filter((d) => d.isActive);
   const createModalLoading = patientsLoading || doctorsLoading;
 
   const allStatusesExceptCurrent = editTarget
     ? Object.values(TreatmentPlanStatus).filter((s) => s !== editTarget.status)
     : [];
 
-  const filtered = useMemo(() => {
-    const list = rawList ?? [];
-    return list.filter((p) => {
-      if (!matchesSearch(p, search)) return false;
-      if (statusFilter !== 'all' && p.status !== statusFilter) return false;
-      return true;
-    });
-  }, [rawList, search, statusFilter]);
-
-  const sortedFiltered = useMemo(() => {
-    const arr = [...filtered];
-    const dir = sortOrder === 'asc' ? 1 : -1;
-    arr.sort((a, b) => {
-      let cmp = 0;
-      switch (sortBy) {
-        case 'patient':
-          cmp = patientSortKey(a).localeCompare(patientSortKey(b), 'es');
-          break;
-        case 'doctor':
-          cmp = doctorSortKey(a).localeCompare(doctorSortKey(b), 'es');
-          break;
-        case 'status':
-          cmp = a.status.localeCompare(b.status);
-          break;
-        case 'items':
-          cmp = (a.items?.length ?? 0) - (b.items?.length ?? 0);
-          break;
-        case 'createdAt': {
-          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          cmp = ta - tb;
-          break;
-        }
-        default:
-          cmp = 0;
-      }
-      return cmp * dir;
-    });
-    return arr;
-  }, [filtered, sortBy, sortOrder]);
-
-  const totalItems = sortedFiltered.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
-
   useEffect(() => {
-    setPage((pg) => Math.min(pg, totalPages));
-  }, [totalPages]);
-
-  const safePage = Math.min(page, totalPages);
-  const pageData = useMemo(() => {
-    const start = (safePage - 1) * limit;
-    return sortedFiltered.slice(start, start + limit);
-  }, [sortedFiltered, safePage, limit]);
+    if (isError || !data?.meta) return;
+    const tp = totalPagesFromMeta(data.meta, limit);
+    setPage((pg) => Math.min(pg, tp));
+  }, [data?.meta, isError, limit]);
 
   const listErrorMessage =
     error instanceof HttpError
@@ -244,8 +188,8 @@ const TreatmentPlansListView = () => {
           titleTone="subtle"
           title="Planes de tratamiento"
           subtitle={
-            rawList && !isError
-              ? `${totalItems} ${totalItems === 1 ? 'plan' : 'planes'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
+            data && !isError
+              ? `${data.meta.totalItems} ${data.meta.totalItems === 1 ? 'plan' : 'planes'} ${hasFilters ? 'con el filtro actual' : 'en total'}`
               : !isError
                 ? 'Planes clínicos por paciente'
                 : undefined
@@ -290,8 +234,8 @@ const TreatmentPlansListView = () => {
           </div>
         ) : (
           <TreatmentPlansTable
-            data={pageData}
-            loading={isPending && !rawList}
+            data={data?.data || []}
+            loading={isPending && !data}
             fillHeight
             onViewPlan={setViewTarget}
             onEditPlan={setEditTarget}
@@ -300,13 +244,19 @@ const TreatmentPlansListView = () => {
             sortDirection={sortOrder}
             onSort={handleSort}
             pagination={
-              !isError && totalItems > 0
+              data && !isError
                 ? {
-                    page: safePage,
-                    totalPages,
-                    total: totalItems,
+                    page,
+                    totalPages: totalPagesFromMeta(data.meta, limit),
+                    total: data.meta.totalItems,
                     limit,
                     onPageChange: setPage,
+                    onLimitChange: (n) => {
+                      setLimit(n);
+                      setPage(1);
+                    },
+                    minLimit: 1,
+                    maxLimit: LIST_PAGE_SIZE_MAX,
                   }
                 : undefined
             }
