@@ -123,7 +123,7 @@ const TreatmentPlansTable = ({
     },
     {
       key: 'items',
-      header: 'Procedimientos',
+      header: 'Proc. realizados',
       sortKey: 'items',
       render: (p) => `${countPerformedProceduresOnPlan(p)}`,
       hideOnMobile: true,
@@ -176,7 +176,7 @@ const TreatmentPlansTable = ({
                     </div>
                   ) : null}
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Procedimientos realizados: {countPerformedProceduresOnPlan(p)}
+                    Proc. realizados: {countPerformedProceduresOnPlan(p)}
                   </p>
                 </div>
                 <div className="flex justify-center pt-2 border-t border-slate-100 dark:border-slate-700">

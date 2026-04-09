@@ -1,5 +1,6 @@
 import type { ClinicalFile } from '../../types';
-import { API_BASE_URL } from '../../config/api';
+import { useClinicalFileUrl, useClinicalFileDownloadUrl } from '../../hooks/useClinicalFileUrl';
+import { Spinner } from '../ui';
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -27,25 +28,28 @@ interface ClinicalFileCardProps {
 }
 
 const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFileCardProps) => {
-  const downloadUrl = `${API_BASE_URL}/clinical-files/${file.id}/download`;
+  const imageUrl = useClinicalFileUrl(file.id, file.mimeType);
+  const downloadFile = useClinicalFileDownloadUrl(file.id);
+  const isImageFile = isImage(file.mimeType);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 overflow-hidden">
-      {/* Preview de imagen */}
-      {isImage(file.mimeType) && (
-        <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
-          <img
-            src={downloadUrl}
-            alt={file.fileName}
-            className="w-full h-32 object-cover bg-slate-100 dark:bg-slate-700"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-        </a>
+      {isImageFile && (
+        <div className="w-full h-32 bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+          {imageUrl ? (
+            <a href={imageUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
+              <img
+                src={imageUrl}
+                alt={file.fileName}
+                className="w-full h-full object-cover hover:opacity-90 transition-opacity"
+              />
+            </a>
+          ) : (
+            <Spinner size="sm" />
+          )}
+        </div>
       )}
 
-      {/* Info */}
       <div className="p-3 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-900 dark:text-white truncate" title={file.fileName}>
@@ -58,11 +62,8 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
-          {/* Descargar */}
-          <a
-            href={downloadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => downloadFile(file.fileName)}
             className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:text-emerald-400 dark:hover:bg-emerald-900/20 transition-colors"
             title="Descargar"
           >
@@ -74,9 +75,8 @@ const ClinicalFileCard = ({ file, onDelete, deleteLoading = false }: ClinicalFil
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-          </a>
+          </button>
 
-          {/* Eliminar */}
           <button
             onClick={() => onDelete(file.id)}
             disabled={deleteLoading}

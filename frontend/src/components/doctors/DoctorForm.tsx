@@ -1,6 +1,6 @@
-import { useState, useCallback, type FormEventHandler } from 'react';
+import { useState, useCallback, useRef, type FormEventHandler } from 'react';
 import { Input, FormSection, MultiStepForm } from '../ui';
-import type { Step } from '../ui';
+import type { MultiStepFormHandle, Step } from '../ui';
 import type { CreateDoctorDto, Doctor, DoctorFormErrors } from '../../types';
 import { doctorEditUnchanged } from '../../utils/editUnchangedCompare';
 
@@ -42,6 +42,21 @@ function validateDoctor(data: CreateDoctorDto): DoctorFormErrors {
   return errors;
 }
 
+const DOCTOR_FIELD_ORDER: (keyof DoctorFormErrors)[] = [
+  'firstName',
+  'lastName',
+  'specialty',
+  'licenseNumber',
+  'phone',
+  'email',
+];
+
+function stepIndexForDoctorErrorKey(key: keyof DoctorFormErrors): number {
+  if (['firstName', 'lastName', 'specialty', 'licenseNumber'].includes(key)) return 0;
+  if (['phone', 'email'].includes(key)) return 1;
+  return 0;
+}
+
 interface DoctorFormProps {
   initialData?: Doctor;
   onSubmit: (data: CreateDoctorDto) => void;
@@ -80,6 +95,8 @@ const DoctorForm = ({
   const [email, setEmail] = useState(initialData?.email || '');
   const [licenseNumber, setLicenseNumber] = useState(initialData?.licenseNumber || '');
   const [errors, setErrors] = useState<DoctorFormErrors>({});
+  const multiStepRef = useRef<MultiStepFormHandle>(null);
+  const skipClearErrorsOnNextStepChange = useRef(false);
 
   const clearError = (field: keyof DoctorFormErrors) => {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -88,7 +105,9 @@ const DoctorForm = ({
   const validateStep1 = useCallback(() => {
     const stepErrors: DoctorFormErrors = {};
     if (!firstName.trim()) stepErrors.firstName = 'El nombre es obligatorio';
+    else if (firstName.trim().length < 2) stepErrors.firstName = 'El nombre debe tener al menos 2 caracteres';
     if (!lastName.trim()) stepErrors.lastName = 'El apellido es obligatorio';
+    else if (lastName.trim().length < 2) stepErrors.lastName = 'El apellido debe tener al menos 2 caracteres';
     if (!specialty.trim()) stepErrors.specialty = 'La especialidad es obligatoria';
     if (!licenseNumber.trim()) stepErrors.licenseNumber = 'El número de licencia es obligatorio';
 
@@ -117,8 +136,11 @@ const DoctorForm = ({
     };
 
     const validationErrors = validateDoctor(data);
-    if (Object.keys(validationErrors).length > 0) {
+    const firstErrorKey = DOCTOR_FIELD_ORDER.find((k) => validationErrors[k]);
+    if (firstErrorKey) {
       setErrors(validationErrors);
+      skipClearErrorsOnNextStepChange.current = true;
+      multiStepRef.current?.goToStep(stepIndexForDoctorErrorKey(firstErrorKey));
       return;
     }
 
@@ -199,12 +221,19 @@ const DoctorForm = ({
 
   return (
     <MultiStepForm
+      ref={multiStepRef}
       steps={steps}
       onSubmit={handleSubmit}
       submitLabel={submitLabel}
       loading={loading}
       onCancel={onCancel}
-      onStepChange={() => setErrors({})}
+      onStepChange={() => {
+        if (skipClearErrorsOnNextStepChange.current) {
+          skipClearErrorsOnNextStepChange.current = false;
+          return;
+        }
+        setErrors({});
+      }}
       fillParent={fillParent}
       stepBodyClassName={fillParent ? '' : 'min-h-[min(22rem,48dvh)]'}
     />

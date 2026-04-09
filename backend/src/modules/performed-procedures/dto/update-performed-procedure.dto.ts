@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreatePerformedProcedureDto } from './create-performed-procedure.dto';
 
-/** Actualización parcial; la vinculación al plan no se modifica por PATCH. */
+/** Actualización parcial; `treatmentPlanId` / `treatmentPlanItemId` pueden enviarse o anularse con `null`. */
 export class UpdatePerformedProcedureDto extends PartialType(CreatePerformedProcedureDto) {}

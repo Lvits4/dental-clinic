@@ -33,6 +33,9 @@ export class TreatmentPlan {
   @JoinColumn({ name: 'doctor_id' })
   doctor: Doctor;
 
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  title: string;
+
   @Column({
     type: 'enum',
     enum: TreatmentPlanStatus,

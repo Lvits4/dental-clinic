@@ -166,84 +166,40 @@ export class TreatmentPlansService {
   }
 
   /**
-   * Agrega proceduresPerformedCount: vinculados al plan (treatment_plan_id), a ítems del plan,
-   * más heurística de no vinculados (mismo paciente/tratamiento que un ítem, sin plan ni ítem).
+   * Agrega proceduresPerformedCount: procedimientos con vínculo explícito al plan
+   * (`treatment_plan_id`) o a algún ítem del plan (`treatment_plan_item_id`), sin duplicar ni
+   * atribuir huérfanos a varios planes del mismo paciente.
    */
   private async attachPerformedProcedureCounts(plans: TreatmentPlan[]): Promise<void> {
     if (plans.length === 0) return;
 
     const mgr = this.performedProcedureRepository.manager;
-
     const planIds = plans.map((p) => p.id);
-    const directByPlanId = new Map<string, number>();
-    if (planIds.length > 0) {
-      const directRows: { planId: string; cnt: number | string }[] = await mgr.query(
-        `
-        SELECT treatment_plan_id AS "planId", COUNT(*)::int AS cnt
-        FROM performed_procedures
-        WHERE treatment_plan_id IS NOT NULL AND treatment_plan_id = ANY($1::uuid[])
-        GROUP BY treatment_plan_id
-        `,
-        [planIds],
-      );
-      for (const r of directRows) {
-        if (r.planId) directByPlanId.set(r.planId, Number(r.cnt));
-      }
-    }
 
-    const allItemIds = plans.flatMap((p) => p.items?.map((i) => i.id) ?? []);
-    const linkedByItemId = new Map<string, number>();
-    if (allItemIds.length > 0) {
-      const linkedRows: { itemId: string; cnt: number | string }[] = await mgr.query(
-        `
-        SELECT treatment_plan_item_id AS "itemId", COUNT(*)::int AS cnt
-        FROM performed_procedures
-        WHERE treatment_plan_item_id IS NOT NULL AND treatment_plan_item_id = ANY($1::uuid[])
-        GROUP BY treatment_plan_item_id
-        `,
-        [allItemIds],
-      );
-      for (const r of linkedRows) {
-        if (r.itemId) linkedByItemId.set(r.itemId, Number(r.cnt));
-      }
-    }
+    const rows: { planId: string; cnt: number | string }[] = await mgr.query(
+      `
+      SELECT plan.id AS "planId", COUNT(DISTINCT pp.id)::int AS cnt
+      FROM treatment_plans plan
+      LEFT JOIN performed_procedures pp ON (
+        pp.treatment_plan_id = plan.id
+        OR pp.treatment_plan_item_id IN (
+          SELECT i.id FROM treatment_plan_items i WHERE i.treatment_plan_id = plan.id
+        )
+      )
+      WHERE plan.id = ANY($1::uuid[])
+      GROUP BY plan.id
+      `,
+      [planIds],
+    );
 
-    const patientIds = [...new Set(plans.map((p) => p.patientId))];
-    const unlinkedByPatientTreatment = new Map<string, number>();
-    if (patientIds.length > 0) {
-      const unlinkedRows: { patientId: string; treatmentId: string; cnt: number | string }[] =
-        await mgr.query(
-          `
-          SELECT patient_id AS "patientId", treatment_id AS "treatmentId", COUNT(*)::int AS cnt
-          FROM performed_procedures
-          WHERE patient_id = ANY($1::uuid[])
-            AND treatment_plan_item_id IS NULL
-            AND treatment_plan_id IS NULL
-          GROUP BY patient_id, treatment_id
-          `,
-          [patientIds],
-        );
-      for (const r of unlinkedRows) {
-        unlinkedByPatientTreatment.set(`${r.patientId}:${r.treatmentId}`, Number(r.cnt));
-      }
+    const countByPlanId = new Map<string, number>();
+    for (const r of rows) {
+      if (r.planId) countByPlanId.set(r.planId, Number(r.cnt));
     }
 
     for (const plan of plans) {
-      const directCount = directByPlanId.get(plan.id) ?? 0;
-      let linkedSum = 0;
-      const treatmentIds = new Set<string>();
-      for (const item of plan.items ?? []) {
-        linkedSum += linkedByItemId.get(item.id) ?? 0;
-        treatmentIds.add(item.treatmentId);
-      }
-
-      let unlinkedSum = 0;
-      for (const tid of treatmentIds) {
-        unlinkedSum += unlinkedByPatientTreatment.get(`${plan.patientId}:${tid}`) ?? 0;
-      }
-
       Object.assign(plan, {
-        proceduresPerformedCount: directCount + linkedSum + unlinkedSum,
+        proceduresPerformedCount: countByPlanId.get(plan.id) ?? 0,
       });
     }
   }

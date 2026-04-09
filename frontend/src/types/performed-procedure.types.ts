@@ -1,6 +1,7 @@
 import type { Patient } from './patient.types';
 import type { Doctor } from './doctor.types';
 import type { Treatment } from './treatment.types';
+import type { TreatmentPlan, TreatmentPlanItem } from './treatment-plan.types';
 
 export interface PerformedProcedure {
   id: string;
@@ -12,6 +13,8 @@ export interface PerformedProcedure {
   treatment?: Treatment;
   treatmentPlanItemId?: string;
   treatmentPlanId?: string;
+  treatmentPlanItem?: TreatmentPlanItem;
+  treatmentPlan?: TreatmentPlan;
   tooth?: string;
   description?: string;
   notes?: string;
@@ -22,8 +25,9 @@ export interface CreatePerformedProcedureDto {
   patientId: string;
   doctorId: string;
   treatmentId: string;
-  treatmentPlanItemId?: string;
-  treatmentPlanId?: string;
+  /** En edición puede enviarse `null` para desvincular del plan/ítem. */
+  treatmentPlanItemId?: string | null;
+  treatmentPlanId?: string | null;
   /** En alta suele ir `undefined`; en edición puede ir `null` para borrar en el servidor. */
   tooth?: string | null;
   description?: string | null;

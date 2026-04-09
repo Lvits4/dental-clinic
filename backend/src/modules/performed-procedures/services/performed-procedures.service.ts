@@ -10,6 +10,8 @@ import { FilterPerformedProcedureDto } from '../dto/filter-performed-procedure.d
 import { PaginatedResponseDto } from '../../../common/dto/paginated-response.dto';
 import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
 
+type PlanLinkState = { itemId: string | null; planId: string | null };
+
 @Injectable()
 export class PerformedProceduresService {
   constructor(
@@ -21,33 +23,60 @@ export class PerformedProceduresService {
     private readonly planRepository: Repository<TreatmentPlan>,
   ) {}
 
-  async create(createDto: CreatePerformedProcedureDto): Promise<PerformedProcedure> {
-    if (createDto.treatmentPlanItemId && createDto.treatmentPlanId) {
+  private resolvePlanLinksFromUpdate(current: PlanLinkState, dto: UpdatePerformedProcedureDto): PlanLinkState {
+    let { itemId, planId } = current;
+
+    if (dto.treatmentPlanItemId !== undefined) {
+      itemId = dto.treatmentPlanItemId;
+      if (itemId) planId = null;
+    }
+    if (dto.treatmentPlanId !== undefined) {
+      planId = dto.treatmentPlanId;
+      if (planId) itemId = null;
+    }
+
+    if (itemId && planId) {
+      throw new BadRequestException('No puede vincular a un plan y a un ítem a la vez');
+    }
+    return { itemId, planId };
+  }
+
+  private async validatePlanLinks(
+    patientId: string,
+    treatmentId: string,
+    itemId: string | null,
+    planId: string | null,
+    opts?: { allowCompletedItemId?: string | null },
+  ): Promise<{ linkedItem: TreatmentPlanItem | null; linkedPlan: TreatmentPlan | null }> {
+    const hasItem = !!itemId;
+    const hasPlan = !!planId;
+    if (hasItem && hasPlan) {
       throw new BadRequestException('No puede vincular a un plan y a un ítem a la vez');
     }
 
     let linkedItem: TreatmentPlanItem | null = null;
     let linkedPlan: TreatmentPlan | null = null;
 
-    if (createDto.treatmentPlanItemId) {
+    if (hasItem) {
       linkedItem = await this.planItemRepository.findOne({
-        where: { id: createDto.treatmentPlanItemId },
+        where: { id: itemId! },
         relations: ['treatmentPlan'],
       });
       if (!linkedItem) {
         throw new BadRequestException('El ítem del plan indicado no existe');
       }
-      if (linkedItem.treatmentId !== createDto.treatmentId) {
+      if (linkedItem.treatmentId !== treatmentId) {
         throw new BadRequestException(
           'El tratamiento no coincide con el ítem del plan seleccionado',
         );
       }
-      if (!linkedItem.treatmentPlan || linkedItem.treatmentPlan.patientId !== createDto.patientId) {
+      if (!linkedItem.treatmentPlan || linkedItem.treatmentPlan.patientId !== patientId) {
         throw new BadRequestException('El plan no corresponde al paciente del procedimiento');
       }
+      const allowCompleted = opts?.allowCompletedItemId === linkedItem.id;
       if (
         linkedItem.status === TreatmentPlanStatus.CANCELLED ||
-        linkedItem.status === TreatmentPlanStatus.COMPLETED
+        (linkedItem.status === TreatmentPlanStatus.COMPLETED && !allowCompleted)
       ) {
         throw new BadRequestException(
           'No se puede vincular a un ítem cancelado o ya completado',
@@ -55,14 +84,14 @@ export class PerformedProceduresService {
       }
     }
 
-    if (createDto.treatmentPlanId) {
+    if (hasPlan) {
       linkedPlan = await this.planRepository.findOne({
-        where: { id: createDto.treatmentPlanId },
+        where: { id: planId! },
       });
       if (!linkedPlan) {
         throw new BadRequestException('El plan de tratamiento indicado no existe');
       }
-      if (linkedPlan.patientId !== createDto.patientId) {
+      if (linkedPlan.patientId !== patientId) {
         throw new BadRequestException('El plan no corresponde al paciente del procedimiento');
       }
       if (linkedPlan.status === TreatmentPlanStatus.CANCELLED) {
@@ -70,42 +99,82 @@ export class PerformedProceduresService {
       }
     }
 
-    const procedure = this.procedureRepository.create(createDto);
+    return { linkedItem, linkedPlan };
+  }
+
+  private async applyItemLinkSideEffects(linkedItem: TreatmentPlanItem): Promise<void> {
+    await this.planItemRepository.update(linkedItem.id, {
+      status: TreatmentPlanStatus.COMPLETED,
+    });
+
+    const allItems = await this.planItemRepository.find({
+      where: { treatmentPlanId: linkedItem.treatmentPlanId },
+    });
+
+    const activeItems = allItems.filter((i) => i.status !== TreatmentPlanStatus.CANCELLED);
+    const linkedId = linkedItem.id;
+    const allDone = activeItems.every(
+      (i) => i.id === linkedId || i.status === TreatmentPlanStatus.COMPLETED,
+    );
+
+    const plan = await this.planRepository.findOne({
+      where: { id: linkedItem.treatmentPlanId },
+    });
+
+    if (plan && plan.status !== TreatmentPlanStatus.CANCELLED) {
+      const newPlanStatus = allDone
+        ? TreatmentPlanStatus.COMPLETED
+        : TreatmentPlanStatus.IN_PROGRESS;
+      await this.planRepository.update(plan.id, { status: newPlanStatus });
+    }
+  }
+
+  private async applyPlanOnlySideEffects(linkedPlan: TreatmentPlan): Promise<void> {
+    if (linkedPlan.status === TreatmentPlanStatus.PENDING) {
+      await this.planRepository.update(linkedPlan.id, {
+        status: TreatmentPlanStatus.IN_PROGRESS,
+      });
+    }
+  }
+
+  /** Si ningún procedimiento queda enlazado al ítem, revierte COMPLETED → IN_PROGRESS y el plan si aplica. */
+  private async maybeRevertItemAfterUnlink(itemId: string): Promise<void> {
+    const n = await this.procedureRepository.count({ where: { treatmentPlanItemId: itemId } });
+    if (n > 0) return;
+
+    const item = await this.planItemRepository.findOne({ where: { id: itemId } });
+    if (!item || item.status !== TreatmentPlanStatus.COMPLETED) return;
+
+    await this.planItemRepository.update(itemId, { status: TreatmentPlanStatus.IN_PROGRESS });
+
+    const plan = await this.planRepository.findOne({ where: { id: item.treatmentPlanId } });
+    if (plan && plan.status === TreatmentPlanStatus.COMPLETED) {
+      await this.planRepository.update(plan.id, { status: TreatmentPlanStatus.IN_PROGRESS });
+    }
+  }
+
+  async create(createDto: CreatePerformedProcedureDto): Promise<PerformedProcedure> {
+    const itemId = createDto.treatmentPlanItemId ?? null;
+    const planId = createDto.treatmentPlanId ?? null;
+
+    const { linkedItem, linkedPlan } = await this.validatePlanLinks(
+      createDto.patientId,
+      createDto.treatmentId,
+      itemId,
+      planId,
+    );
+
+    const procedure = this.procedureRepository.create({
+      ...createDto,
+      treatmentPlanItemId: itemId,
+      treatmentPlanId: planId,
+    });
     const saved = await this.procedureRepository.save(procedure);
 
-    if (createDto.treatmentPlanItemId && linkedItem) {
-      await this.planItemRepository.update(linkedItem.id, {
-        status: TreatmentPlanStatus.COMPLETED,
-      });
-
-      const allItems = await this.planItemRepository.find({
-        where: { treatmentPlanId: linkedItem.treatmentPlanId },
-      });
-
-      const activeItems = allItems.filter(
-        (i) => i.status !== TreatmentPlanStatus.CANCELLED,
-      );
-      const linkedId = linkedItem.id;
-      const allDone = activeItems.every(
-        (i) => i.id === linkedId || i.status === TreatmentPlanStatus.COMPLETED,
-      );
-
-      const plan = await this.planRepository.findOne({
-        where: { id: linkedItem.treatmentPlanId },
-      });
-
-      if (plan && plan.status !== TreatmentPlanStatus.CANCELLED) {
-        const newPlanStatus = allDone
-          ? TreatmentPlanStatus.COMPLETED
-          : TreatmentPlanStatus.IN_PROGRESS;
-        await this.planRepository.update(plan.id, { status: newPlanStatus });
-      }
-    } else if (createDto.treatmentPlanId && linkedPlan) {
-      if (linkedPlan.status === TreatmentPlanStatus.PENDING) {
-        await this.planRepository.update(linkedPlan.id, {
-          status: TreatmentPlanStatus.IN_PROGRESS,
-        });
-      }
+    if (itemId && linkedItem) {
+      await this.applyItemLinkSideEffects(linkedItem);
+    } else if (planId && linkedPlan) {
+      await this.applyPlanOnlySideEffects(linkedPlan);
     }
 
     return saved;
@@ -113,9 +182,11 @@ export class PerformedProceduresService {
 
   async update(id: string, updateDto: UpdatePerformedProcedureDto): Promise<PerformedProcedure> {
     const procedure = await this.findOne(id);
+
     const {
-      treatmentPlanItemId: _ignoredItem,
-      treatmentPlanId: _ignoredPlan,
+      treatmentPlanItemId: dtoItem,
+      treatmentPlanId: dtoPlan,
+      treatmentId: dtoTreatmentId,
       performedAt,
       ...rest
     } = updateDto;
@@ -128,8 +199,49 @@ export class PerformedProceduresService {
     if (performedAt !== undefined) {
       procedure.performedAt = new Date(performedAt);
     }
+    if (dtoTreatmentId !== undefined) {
+      procedure.treatmentId = dtoTreatmentId;
+    }
+
+    const oldItemId = procedure.treatmentPlanItemId;
+    const oldPlanId = procedure.treatmentPlanId;
+
+    const { itemId: newItemId, planId: newPlanId } = this.resolvePlanLinksFromUpdate(
+      { itemId: oldItemId, planId: oldPlanId },
+      { treatmentPlanItemId: dtoItem, treatmentPlanId: dtoPlan },
+    );
+
+    await this.validatePlanLinks(procedure.patientId, procedure.treatmentId, newItemId, newPlanId, {
+      allowCompletedItemId:
+        newItemId && oldItemId && newItemId === oldItemId ? oldItemId : undefined,
+    });
+
+    procedure.treatmentPlanItemId = newItemId;
+    procedure.treatmentPlanId = newPlanId;
 
     await this.procedureRepository.save(procedure);
+
+    if (oldItemId && oldItemId !== newItemId) {
+      await this.maybeRevertItemAfterUnlink(oldItemId);
+    }
+
+    if (newItemId && newItemId !== oldItemId) {
+      const linkedItem = await this.planItemRepository.findOne({
+        where: { id: newItemId },
+        relations: ['treatmentPlan'],
+      });
+      if (linkedItem) {
+        await this.applyItemLinkSideEffects(linkedItem);
+      }
+    }
+
+    if (newPlanId && newPlanId !== oldPlanId && !newItemId) {
+      const linkedPlan = await this.planRepository.findOne({ where: { id: newPlanId } });
+      if (linkedPlan) {
+        await this.applyPlanOnlySideEffects(linkedPlan);
+      }
+    }
+
     return this.findOne(id);
   }
 
@@ -140,7 +252,9 @@ export class PerformedProceduresService {
       .createQueryBuilder('procedure')
       .leftJoinAndSelect('procedure.patient', 'patient')
       .leftJoinAndSelect('procedure.doctor', 'doctor')
-      .leftJoinAndSelect('procedure.treatment', 'treatment');
+      .leftJoinAndSelect('procedure.treatment', 'treatment')
+      .leftJoinAndSelect('procedure.treatmentPlanItem', 'treatmentPlanItem')
+      .leftJoinAndSelect('procedure.treatmentPlan', 'treatmentPlan');
 
     if (patientId) {
       query.andWhere('procedure.patientId = :patientId', { patientId });
@@ -216,6 +330,10 @@ export class PerformedProceduresService {
     if (!procedure) {
       throw new NotFoundException(`Performed procedure with ID ${id} not found`);
     }
+    const itemId = procedure.treatmentPlanItemId;
     await this.procedureRepository.remove(procedure);
+    if (itemId) {
+      await this.maybeRevertItemAfterUnlink(itemId);
+    }
   }
 }

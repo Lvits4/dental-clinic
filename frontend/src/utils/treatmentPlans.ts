@@ -16,8 +16,8 @@ export function getPlanSelectLabel(plan: TreatmentPlan): string {
 
 /**
  * Procedimientos realizados asociados al plan en la lista.
- * Prioriza `proceduresPerformedCount` del backend (vinculados a ítems + no vinculados del mismo
- * paciente con tratamiento que figura en el plan). Si no viene, suma `performedProcedures` por ítem.
+ * Prioriza `proceduresPerformedCount` del API (vínculo explícito al plan o a un ítem del plan).
+ * Si no viene, suma `performedProcedures` por ítem.
  */
 export function countPerformedProceduresOnPlan(p: TreatmentPlan): number {
   if (typeof p.proceduresPerformedCount === 'number') {

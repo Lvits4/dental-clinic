@@ -153,23 +153,48 @@ function performedProcedureDay(iso: string | Date | undefined): string {
   return '';
 }
 
+function normalizeProcedurePlanLink(proc: PerformedProcedure): {
+  itemId: string | null;
+  planId: string | null;
+} {
+  const item = proc.treatmentPlanItemId ?? null;
+  const plan = proc.treatmentPlanId ?? null;
+  return { itemId: item, planId: item ? null : plan };
+}
+
+function normalizeSubmittedPlanLink(submitted: CreatePerformedProcedureDto): {
+  itemId: string | null;
+  planId: string | null;
+} {
+  const item = submitted.treatmentPlanItemId ?? null;
+  const plan = submitted.treatmentPlanId ?? null;
+  if (item) return { itemId: item, planId: null };
+  if (plan) return { itemId: null, planId: plan };
+  return { itemId: null, planId: null };
+}
+
 /** true si el procedimiento enviado coincide con el registro cargado (fecha por día calendario). */
 export function performedProcedureEditUnchanged(
   proc: PerformedProcedure,
   submitted: CreatePerformedProcedureDto,
 ): boolean {
   const procPatient = proc.patientId ?? proc.patient?.id ?? '';
+  const procDoctor = proc.doctorId ?? proc.doctor?.id ?? '';
   const procTreatment = proc.treatmentId ?? proc.treatment?.id ?? '';
   const procDay = performedProcedureDay(proc.performedAt);
   const subDay = performedProcedureDay(submitted.performedAt);
+  const procLink = normalizeProcedurePlanLink(proc);
+  const subLink = normalizeSubmittedPlanLink(submitted);
   return (
     procPatient === submitted.patientId &&
-    proc.doctorId === submitted.doctorId &&
+    procDoctor === submitted.doctorId &&
     procTreatment === submitted.treatmentId &&
     procDay === subDay &&
     optTrim(proc.tooth) === optTrim(submitted.tooth) &&
     optTrim(proc.description) === optTrim(submitted.description) &&
-    optTrim(proc.notes) === optTrim(submitted.notes)
+    optTrim(proc.notes) === optTrim(submitted.notes) &&
+    procLink.itemId === subLink.itemId &&
+    procLink.planId === subLink.planId
   );
 }
 

@@ -33,6 +33,14 @@ export const useDeleteClinicalFile = () => {
       queryClient.invalidateQueries({ queryKey: ['clinical-files'] });
       toast.success('Archivo eliminado');
     },
-    onError: () => toast.error('Error al eliminar archivo'),
+    onError: (error: Error) => {
+      queryClient.invalidateQueries({ queryKey: ['clinical-files'] });
+      if (error instanceof HttpError) {
+        const msg = Array.isArray(error.details) ? error.details[0] : error.details || error.message;
+        toast.error(msg);
+      } else {
+        toast.error('Error al eliminar archivo');
+      }
+    },
   });
 };

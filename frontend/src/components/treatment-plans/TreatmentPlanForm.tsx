@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useState, useMemo, type FormEvent, type ReactNode } from 'react';
 import { Select, Textarea, Button, FormSection, FormActionBar } from '../ui';
 import type { CreateTreatmentPlanDto, Patient, Doctor } from '../../types';
 import { treatmentPlanObservationsUnchanged } from '../../utils/editUnchangedCompare';
@@ -64,6 +64,16 @@ const TreatmentPlanForm = ({
   const patientOptions = patients.map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
   const doctorOptions = doctors.map((d) => ({ value: d.id, label: `Dr. ${d.firstName} ${d.lastName}` }));
 
+  const patientReadOnlyLabel = useMemo(() => {
+    const p = patients.find((x) => x.id === patientId);
+    return p ? `${p.firstName} ${p.lastName}` : '—';
+  }, [patients, patientId]);
+
+  const doctorReadOnlyLabel = useMemo(() => {
+    const d = doctors.find((x) => x.id === doctorId);
+    return d ? `Dr. ${d.firstName} ${d.lastName}` : '—';
+  }, [doctors, doctorId]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const data: CreateTreatmentPlanDto = {
@@ -94,24 +104,51 @@ const TreatmentPlanForm = ({
 
   const fields = (
     <>
-      <FormSection title="Plan de Tratamiento" icon={<IconPlan />} description="Seleccione el paciente y doctor responsable">
+      <FormSection
+        title="Plan de Tratamiento"
+        icon={<IconPlan />}
+        description={
+          editObservationsOnly
+            ? 'Paciente y doctor no se editan aquí; solo observaciones.'
+            : 'Seleccione el paciente y doctor responsable'
+        }
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Select
-            label="Paciente *"
-            options={patientOptions}
-            value={patientId}
-            onChange={(e) => { setPatientId(e.target.value); setErrors((p) => ({ ...p, patientId: undefined })); }}
-            error={errors.patientId}
-            placeholder="Seleccionar paciente..."
-          />
-          <Select
-            label="Doctor *"
-            options={doctorOptions}
-            value={doctorId}
-            onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctorId: undefined })); }}
-            error={errors.doctorId}
-            placeholder="Seleccionar doctor..."
-          />
+          {editObservationsOnly ? (
+            <>
+              <div>
+                <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  Paciente
+                </span>
+                <p className="text-sm text-slate-900 dark:text-slate-100">{patientReadOnlyLabel}</p>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  Doctor
+                </span>
+                <p className="text-sm text-slate-900 dark:text-slate-100">{doctorReadOnlyLabel}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <Select
+                label="Paciente *"
+                options={patientOptions}
+                value={patientId}
+                onChange={(e) => { setPatientId(e.target.value); setErrors((p) => ({ ...p, patientId: undefined })); }}
+                error={errors.patientId}
+                placeholder="Seleccionar paciente..."
+              />
+              <Select
+                label="Doctor *"
+                options={doctorOptions}
+                value={doctorId}
+                onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctorId: undefined })); }}
+                error={errors.doctorId}
+                placeholder="Seleccionar doctor..."
+              />
+            </>
+          )}
         </div>
         <div className="mt-4">
           <Textarea

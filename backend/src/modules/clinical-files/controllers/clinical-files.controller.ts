@@ -88,7 +88,10 @@ export class ClinicalFilesController {
   @Delete(':id')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a clinical file' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.filesService.remove(id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    console.log('🗑️ Delete request for file:', id);
+    const result = await this.filesService.remove(id);
+    console.log('✅ File deleted successfully:', id);
+    return result;
   }
 }

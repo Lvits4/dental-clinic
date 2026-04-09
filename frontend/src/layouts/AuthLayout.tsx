@@ -28,43 +28,82 @@ const AuthLayout = () => {
   const { isDark, toggleTheme } = useTheme();
 
   return (
-    <div className="relative flex min-h-dvh flex-col bg-slate-50 dark:bg-slate-950">
-      {/* Fondo decorativo sutil */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -top-40 right-0 h-96 w-96 rounded-md bg-emerald-50/60 blur-3xl dark:bg-emerald-950/20" />
-        <div className="absolute bottom-0 -left-20 h-72 w-72 rounded-md bg-teal-50/40 blur-3xl dark:bg-teal-950/10" />
-      </div>
-
-      {/* Tema: flotante para no consumir una franja vertical */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        className="absolute right-3 top-3 z-20 rounded-md border border-transparent p-2 text-slate-400 transition-all duration-200 hover:border-slate-200 hover:bg-white hover:text-slate-600 dark:text-slate-500 dark:hover:border-slate-700 dark:hover:bg-slate-800/60 dark:hover:text-slate-300 sm:right-4 sm:top-4"
-        aria-label="Cambiar tema"
+    <div className="relative min-h-dvh bg-slate-100 dark:bg-slate-950 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,560px)]">
+      {/* Panel de marca — solo escritorio */}
+      <aside
+        className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:p-10 xl:p-14"
+        aria-label="Marca SmileCare"
       >
-        {isDark ? <SunIcon /> : <MoonIcon />}
-      </button>
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-24 top-1/4 h-[28rem] w-[28rem] rounded-full bg-emerald-500/15 blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-teal-400/10 blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          aria-hidden="true"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
+        />
 
-      {/* Contenido centrado en altura; scroll solo si el viewport es muy bajo (p. ej. teclado movil) */}
-      <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain">
-        <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:px-6 sm:py-5">
-          <div className="animate-fade-in-up w-full max-w-[420px]">
-            <div className="mb-3 text-center sm:mb-4">
+        <div className="relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur-md">
               <img
                 src={logoInicio}
-                alt="SmileCare"
-                className="mx-auto h-11 w-auto max-w-[min(100%,220px)] object-contain sm:h-12"
+                alt=""
+                className="h-10 w-auto max-w-[2.5rem] object-contain"
               />
             </div>
-
-            <Outlet />
-
-            <p className="mt-3 text-center text-[10px] text-slate-400 dark:text-slate-600 sm:text-[11px]">
-              &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
-            </p>
+            <div>
+              <p className="text-2xl font-bold tracking-tight text-white xl:text-3xl">SmileCare</p>
+              <p className="mt-0.5 text-sm text-emerald-100/75">Software para clinicas dentales</p>
+            </div>
           </div>
+          <p className="mt-10 max-w-md text-lg leading-relaxed text-slate-300 xl:text-xl">
+            Agenda, historias clinicas y planes de tratamiento en una experiencia clara y rapida.
+          </p>
         </div>
-      </main>
+
+        <p className="relative z-10 text-xs text-slate-500">
+          &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
+        </p>
+      </aside>
+
+      {/* Columna del formulario */}
+      <div className="relative flex min-h-dvh flex-col">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden lg:hidden" aria-hidden="true">
+          <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-emerald-400/25 blur-3xl dark:bg-emerald-900/20" />
+          <div className="absolute bottom-0 -left-16 h-64 w-64 rounded-full bg-teal-300/20 blur-3xl dark:bg-teal-950/15" />
+        </div>
+
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="absolute right-3 top-3 z-20 rounded-xl border border-slate-200/80 bg-white/80 p-2.5 text-slate-500 shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-slate-300 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-200 sm:right-4 sm:top-4"
+          aria-label="Cambiar tema"
+        >
+          {isDark ? <SunIcon /> : <MoonIcon />}
+        </button>
+
+        <main className="relative z-10 flex min-h-0 flex-1 flex-col justify-center overflow-y-auto overscroll-y-contain px-4 py-10 sm:px-8 sm:py-12 lg:px-10 lg:py-14 xl:px-16">
+          <div className="animate-fade-in-up w-full">
+            <Outlet />
+          </div>
+        </main>
+
+        <p className="relative z-10 pb-6 text-center text-[10px] text-slate-400 dark:text-slate-600 sm:text-[11px] lg:hidden">
+          &copy; {new Date().getFullYear()} SmileCare. Todos los derechos reservados.
+        </p>
+      </div>
     </div>
   );
 };

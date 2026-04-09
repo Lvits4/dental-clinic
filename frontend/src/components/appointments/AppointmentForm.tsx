@@ -1,4 +1,4 @@
-import { useState, useCallback, type FormEventHandler, type ReactNode } from 'react';
+import { useState, useCallback, useRef, type FormEventHandler, type ReactNode } from 'react';
 import {
   TimePicker,
   Select,
@@ -7,7 +7,7 @@ import {
   FormSection,
   MultiStepForm,
 } from '../ui';
-import type { Step } from '../ui';
+import type { MultiStepFormHandle, Step } from '../ui';
 import type {
   CreateAppointmentDto,
   AppointmentFormErrors,
@@ -46,6 +46,13 @@ function validateAppointment(data: CreateAppointmentDto): AppointmentFormErrors 
 
   return errors;
 }
+
+const APPOINTMENT_FIELD_ORDER: (keyof AppointmentFormErrors)[] = [
+  'patientId',
+  'doctorId',
+  'dateTime',
+  'durationMinutes',
+];
 
 interface AppointmentFormProps {
   patients: Patient[];
@@ -109,6 +116,8 @@ const AppointmentForm = ({
   const [reason, setReason] = useState(initialValues.reason ?? '');
   const [notes, setNotes] = useState(initialValues.notes ?? '');
   const [errors, setErrors] = useState<AppointmentFormErrors>({});
+  const multiStepRef = useRef<MultiStepFormHandle>(null);
+  const skipClearErrorsOnNextStepChange = useRef(false);
 
   const clearError = (field: keyof AppointmentFormErrors) => {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -128,12 +137,25 @@ const AppointmentForm = ({
     const stepErrors: AppointmentFormErrors = {};
     if (!patientId) stepErrors.patientId = 'Debe seleccionar un paciente';
     if (!doctorId) stepErrors.doctorId = 'Debe seleccionar un doctor';
-    if (!date) stepErrors.dateTime = 'La fecha es obligatoria';
-    if (!time) stepErrors.dateTime = stepErrors.dateTime ?? 'La hora es obligatoria';
+    if (!date) {
+      stepErrors.dateTime = 'La fecha es obligatoria';
+    } else if (!time) {
+      stepErrors.dateTime = 'La hora es obligatoria';
+    } else {
+      const combined = `${date}T${time}:00`;
+      const parsed = new Date(combined);
+      if (Number.isNaN(parsed.getTime())) {
+        stepErrors.dateTime = 'Fecha inválida';
+      }
+    }
+    const dur = Number(durationMinutes);
+    if (!Number.isFinite(dur) || dur < 15) {
+      stepErrors.durationMinutes = 'La duración mínima es 15 minutos';
+    }
 
     setErrors((prev) => ({ ...prev, ...stepErrors }));
     return Object.keys(stepErrors).length === 0;
-  }, [patientId, doctorId, date, time]);
+  }, [patientId, doctorId, date, time, durationMinutes]);
 
   const handleSubmit: FormEventHandler = () => {
     const dateTime = date && time ? `${date}T${time}:00` : '';
@@ -148,8 +170,11 @@ const AppointmentForm = ({
     };
 
     const validationErrors = validateAppointment(data);
-    if (Object.keys(validationErrors).length > 0) {
+    const firstErrorKey = APPOINTMENT_FIELD_ORDER.find((k) => validationErrors[k]);
+    if (firstErrorKey) {
       setErrors(validationErrors);
+      skipClearErrorsOnNextStepChange.current = true;
+      multiStepRef.current?.goToStep(0);
       return;
     }
 
@@ -214,7 +239,10 @@ const AppointmentForm = ({
               label="Duración"
               options={DURATION_OPTIONS}
               value={durationMinutes}
-              onChange={(e) => setDurationMinutes(e.target.value)}
+              onChange={(e) => {
+                setDurationMinutes(e.target.value);
+                clearError('durationMinutes');
+              }}
               error={errors.durationMinutes}
             />
           </div>
@@ -248,13 +276,20 @@ const AppointmentForm = ({
 
   return (
     <MultiStepForm
+      ref={multiStepRef}
       steps={steps}
       onSubmit={handleSubmit}
       submitLabel={submitLabel}
       loading={loading}
       beforeButtons={footerContent}
       onCancel={onCancel}
-      onStepChange={() => setErrors({})}
+      onStepChange={() => {
+        if (skipClearErrorsOnNextStepChange.current) {
+          skipClearErrorsOnNextStepChange.current = false;
+          return;
+        }
+        setErrors({});
+      }}
       fillParent={fillParent}
       stepBodyClassName={fillParent ? '' : 'min-h-[min(22rem,48dvh)]'}
     />

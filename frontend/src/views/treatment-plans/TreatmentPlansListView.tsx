@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { TOAST_NO_UPDATES } from '../../constants/userFeedback';
@@ -16,8 +16,9 @@ import { useDoctorsForSelect } from '../../querys/doctors/queryDoctors';
 import TreatmentPlanForm from '../../components/treatment-plans/TreatmentPlanForm';
 import TreatmentPlanFilters, { type PlanStatusFilter } from '../../components/treatment-plans/TreatmentPlanFilters';
 import TreatmentPlansTable from '../../components/treatment-plans/TreatmentPlansTable';
-import type { Doctor, PaginatedResponse, TreatmentPlan, TreatmentPlanSortBy, TreatmentPlanSortOrder } from '../../types';
+import type { Doctor, PaginatedResponse, Patient, TreatmentPlan, TreatmentPlanSortBy, TreatmentPlanSortOrder } from '../../types';
 import { PLAN_STATUS_CONFIG } from '../../types';
+import { countPerformedProceduresOnPlan } from '../../utils/treatmentPlans';
 import { TreatmentPlanStatus } from '../../enums';
 import { totalPagesFromMeta } from '../../utils/pagination';
 import { DEFAULT_LIST_PAGE_SIZE, LIST_PAGE_SIZE_MAX } from '../../constants/pagination';
@@ -115,6 +116,19 @@ const TreatmentPlansListView = () => {
   const { data: doctorsList, isLoading: doctorsLoading } = useDoctorsForSelect();
   const allPatients = patientsData?.data ?? [];
   const activePatients = allPatients.filter((p) => p.isActive);
+  const patientsForPlanEdit = useMemo((): Patient[] => {
+    if (!editTarget) return activePatients;
+    const map = new Map<string, Patient>();
+    for (const p of activePatients) map.set(p.id, p);
+    const pid = editTarget.patientId;
+    if (pid && !map.has(pid)) {
+      const fromList = allPatients.find((x) => x.id === pid);
+      if (fromList) map.set(fromList.id, fromList);
+      else if (editTarget.patient) map.set(editTarget.patient.id, editTarget.patient);
+    }
+    return Array.from(map.values());
+  }, [activePatients, allPatients, editTarget]);
+
   const doctorsForForm: Doctor[] = Array.isArray(doctorsList)
     ? doctorsList
     : doctorsList &&
@@ -124,6 +138,19 @@ const TreatmentPlansListView = () => {
       ? (doctorsList as PaginatedResponse<Doctor>).data
       : [];
   const activeDoctors = doctorsForForm.filter((d) => d.isActive);
+  const doctorsForPlanEdit = useMemo((): Doctor[] => {
+    if (!editTarget) return activeDoctors;
+    const map = new Map<string, Doctor>();
+    for (const d of activeDoctors) map.set(d.id, d);
+    const did = editTarget.doctorId;
+    if (did && !map.has(did)) {
+      const fromList = doctorsForForm.find((x) => x.id === did);
+      if (fromList) map.set(fromList.id, fromList);
+      else if (editTarget.doctor) map.set(editTarget.doctor.id, editTarget.doctor);
+    }
+    return Array.from(map.values());
+  }, [activeDoctors, doctorsForForm, editTarget]);
+
   const createModalLoading = patientsLoading || doctorsLoading;
 
   const allStatusesExceptCurrent = editTarget
@@ -284,7 +311,14 @@ const TreatmentPlansListView = () => {
               }
             />
             <PlanDetailRow label="Observaciones" value={viewTarget.observations || '—'} />
-            <PlanDetailRow label="Procedimientos" value={`${viewTarget.items?.length || 0}`} />
+            <PlanDetailRow
+              label="Ítems del plan"
+              value={`${viewTarget.items?.length || 0}`}
+            />
+            <PlanDetailRow
+              label="Procedimientos realizados"
+              value={`${countPerformedProceduresOnPlan(viewTarget)}`}
+            />
             <div className="flex items-center gap-2 pt-1">
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 w-28 shrink-0">Estado</span>
               {(() => {
@@ -371,8 +405,8 @@ const TreatmentPlansListView = () => {
             <TreatmentPlanForm
               key={editTarget.id}
               fillParent
-              patients={activePatients}
-              doctors={activeDoctors}
+              patients={patientsForPlanEdit}
+              doctors={doctorsForPlanEdit}
               initialPatientId={editTarget.patientId}
               initialDoctorId={editTarget.doctorId}
               initialObservations={editTarget.observations}

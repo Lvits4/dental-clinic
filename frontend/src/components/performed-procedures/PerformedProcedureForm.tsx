@@ -1,13 +1,18 @@
-import { useState, useCallback, useMemo, useEffect, type FormEventHandler } from 'react';
+import { useState, useCallback, useMemo, type FormEventHandler } from 'react';
 import { Input, Select, Textarea, Spinner, DatePicker, FormSection, MultiStepForm } from '../ui';
 import type { Step } from '../ui';
 import type { CreatePerformedProcedureDto, Patient, Doctor, Treatment, PerformedProcedure } from '../../types';
+import { PLAN_STATUS_CONFIG } from '../../types';
+import { TreatmentPlanStatus } from '../../enums';
 import { performedProcedureEditUnchanged } from '../../utils/editUnchangedCompare';
+import { getPlanSelectLabel } from '../../utils/treatmentPlans';
+import { useTreatmentPlansByPatient } from '../../querys/treatment-plans/queryTreatmentPlans';
 
 interface ProcedureFormErrors {
   patientId?: string;
   doctorId?: string;
   treatmentId?: string;
+  planLink?: string;
 }
 
 interface PerformedProcedureFormProps {
@@ -23,7 +28,21 @@ interface PerformedProcedureFormProps {
   onCancel?: () => void;
 }
 
-/** En edición conserva la hora/zona del registro; solo cambia el día del calendario. */
+function initialPlanLink(proc?: PerformedProcedure): { planId: string; itemId: string } {
+  if (!proc) return { planId: '', itemId: '' };
+  if (proc.treatmentPlanItemId) {
+    return {
+      planId: proc.treatmentPlanItem?.treatmentPlanId ?? '',
+      itemId: proc.treatmentPlanItemId,
+    };
+  }
+  if (proc.treatmentPlanId) {
+    return { planId: proc.treatmentPlanId, itemId: '' };
+  }
+  return { planId: '', itemId: '' };
+}
+
+/** En edición conserva la hora del registro; solo cambia el día del calendario. */
 function buildPerformedAtIso(
   mode: 'create' | 'edit',
   dateInput: string,
@@ -35,6 +54,12 @@ function buildPerformedAtIso(
     const tIdx = origStr.indexOf('T');
     if (tIdx !== -1) {
       return `${dateInput}${origStr.slice(tIdx)}`;
+    }
+    const parsed = new Date(origStr);
+    if (!Number.isNaN(parsed.getTime())) {
+      const iso = parsed.toISOString();
+      const t = iso.indexOf('T');
+      if (t !== -1) return `${dateInput}${iso.slice(t)}`;
     }
   }
   return `${dateInput}T00:00:00.000Z`;
@@ -62,30 +87,47 @@ const PerformedProcedureForm = ({
   onUnchanged,
   onCancel,
 }: PerformedProcedureFormProps) => {
-  const [patientId, setPatientId] = useState('');
-  const [doctorId, setDoctorId] = useState('');
-  const [treatmentId, setTreatmentId] = useState('');
-  const [tooth, setTooth] = useState('');
-  const [description, setDescription] = useState('');
-  const [notes, setNotes] = useState('');
-  const [performedAt, setPerformedAt] = useState(new Date().toISOString().split('T')[0]);
+  const [patientId, setPatientId] = useState(
+    () =>
+      mode === 'edit' && initialProcedure
+        ? (initialProcedure.patientId ?? initialProcedure.patient?.id ?? '')
+        : '',
+  );
+  const [doctorId, setDoctorId] = useState(
+    () =>
+      mode === 'edit' && initialProcedure
+        ? (initialProcedure.doctorId ?? initialProcedure.doctor?.id ?? '')
+        : '',
+  );
+  const [treatmentId, setTreatmentId] = useState(
+    () =>
+      mode === 'edit' && initialProcedure
+        ? (initialProcedure.treatmentId ?? initialProcedure.treatment?.id ?? '')
+        : '',
+  );
+  const [linkPlanId, setLinkPlanId] = useState(() => initialPlanLink(initialProcedure).planId);
+  const [linkItemId, setLinkItemId] = useState(() => initialPlanLink(initialProcedure).itemId);
+  const [tooth, setTooth] = useState(
+    () => (mode === 'edit' && initialProcedure ? (initialProcedure.tooth ?? '') : ''),
+  );
+  const [description, setDescription] = useState(
+    () => (mode === 'edit' && initialProcedure ? (initialProcedure.description ?? '') : ''),
+  );
+  const [notes, setNotes] = useState(
+    () => (mode === 'edit' && initialProcedure ? (initialProcedure.notes ?? '') : ''),
+  );
+  const [performedAt, setPerformedAt] = useState(() => {
+    if (mode === 'edit' && initialProcedure) {
+      const pa = initialProcedure.performedAt;
+      return typeof pa === 'string'
+        ? pa.slice(0, 10)
+        : new Date(pa).toISOString().slice(0, 10);
+    }
+    return new Date().toISOString().split('T')[0];
+  });
   const [errors, setErrors] = useState<ProcedureFormErrors>({});
 
-  useEffect(() => {
-    if (mode !== 'edit' || !initialProcedure) return;
-    setPatientId(initialProcedure.patientId ?? initialProcedure.patient?.id ?? '');
-    setDoctorId(initialProcedure.doctorId ?? initialProcedure.doctor?.id ?? '');
-    setTreatmentId(initialProcedure.treatmentId ?? initialProcedure.treatment?.id ?? '');
-    setTooth(initialProcedure.tooth ?? '');
-    setDescription(initialProcedure.description ?? '');
-    setNotes(initialProcedure.notes ?? '');
-    setPerformedAt(
-      typeof initialProcedure.performedAt === 'string'
-        ? initialProcedure.performedAt.slice(0, 10)
-        : new Date(initialProcedure.performedAt).toISOString().slice(0, 10),
-    );
-    setErrors({});
-  }, [mode, initialProcedure?.id]);
+  const { data: patientPlans = [], isFetching: plansLoading } = useTreatmentPlansByPatient(patientId);
 
   const patientOptions = useMemo(() => patients
     .map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` })), [patients]);
@@ -113,9 +155,62 @@ const PerformedProcedureForm = ({
     return active;
   }, [treatments, mode, initialProcedure]);
 
+  const selectedPlan = useMemo(
+    () => patientPlans.find((p) => p.id === linkPlanId),
+    [patientPlans, linkPlanId],
+  );
+
+  const linkablePlanItems = useMemo(() => {
+    if (!selectedPlan || !treatmentId) return [];
+    const items = selectedPlan.items ?? [];
+    return items.filter((it) => {
+      if (it.treatmentId !== treatmentId) return false;
+      if (
+        it.status === TreatmentPlanStatus.PENDING ||
+        it.status === TreatmentPlanStatus.IN_PROGRESS
+      ) {
+        return true;
+      }
+      if (mode === 'edit' && initialProcedure?.treatmentPlanItemId === it.id) return true;
+      return false;
+    });
+  }, [selectedPlan, treatmentId, mode, initialProcedure?.treatmentPlanItemId]);
+
+  const planSelectOptions = useMemo(
+    () => [
+      { value: '', label: 'Sin vínculo al plan' },
+      ...patientPlans.map((p) => ({ value: p.id, label: getPlanSelectLabel(p) })),
+    ],
+    [patientPlans],
+  );
+
+  const itemSelectOptions = useMemo(() => {
+    const base = { value: '', label: 'Solo al plan (sin ítem concreto)' };
+    const rest = linkablePlanItems.map((it) => {
+      const name = it.treatment?.name ?? 'Tratamiento';
+      const st = PLAN_STATUS_CONFIG[it.status as TreatmentPlanStatus]?.label ?? it.status;
+      return { value: it.id, label: `${name} — ${st}` };
+    });
+    return [base, ...rest];
+  }, [linkablePlanItems]);
+
   const handlePatientChange = (id: string) => {
     setPatientId(id);
-    setErrors((p) => ({ ...p, patientId: undefined }));
+    setLinkPlanId('');
+    setLinkItemId('');
+    setErrors((p) => ({ ...p, patientId: undefined, planLink: undefined }));
+  };
+
+  const handleTreatmentChange = (id: string) => {
+    setTreatmentId(id);
+    setLinkItemId('');
+    setErrors((p) => ({ ...p, treatmentId: undefined, planLink: undefined }));
+  };
+
+  const handlePlanChange = (planId: string) => {
+    setLinkPlanId(planId);
+    setLinkItemId('');
+    setErrors((p) => ({ ...p, planLink: undefined }));
   };
 
   const validateStep1 = useCallback(() => {
@@ -123,9 +218,21 @@ const PerformedProcedureForm = ({
     if (!patientId) stepErrors.patientId = 'Debe seleccionar un paciente';
     if (!doctorId) stepErrors.doctorId = 'Debe seleccionar un doctor';
     if (!treatmentId) stepErrors.treatmentId = 'Debe seleccionar un tratamiento';
+
+    if (linkPlanId && !patientPlans.some((p) => p.id === linkPlanId)) {
+      stepErrors.planLink = 'El plan seleccionado ya no está disponible para este paciente';
+    }
+    if (linkItemId) {
+      const ok = linkablePlanItems.some((i) => i.id === linkItemId);
+      if (!ok) {
+        stepErrors.planLink =
+          'El ítem del plan no coincide con el tratamiento o ya no se puede vincular';
+      }
+    }
+
     setErrors(stepErrors);
     return Object.keys(stepErrors).length === 0;
-  }, [patientId, doctorId, treatmentId]);
+  }, [patientId, doctorId, treatmentId, linkPlanId, linkItemId, patientPlans, linkablePlanItems]);
 
   const handleSubmit: FormEventHandler = () => {
     const performedAtIso = buildPerformedAtIso(mode, performedAt, initialProcedure?.performedAt);
@@ -139,10 +246,25 @@ const PerformedProcedureForm = ({
       payload.tooth = tooth.trim() ? tooth.trim() : null;
       payload.description = description.trim() ? description.trim() : null;
       payload.notes = notes.trim() ? notes.trim() : null;
+      if (linkItemId) {
+        payload.treatmentPlanItemId = linkItemId;
+        payload.treatmentPlanId = null;
+      } else if (linkPlanId) {
+        payload.treatmentPlanId = linkPlanId;
+        payload.treatmentPlanItemId = null;
+      } else {
+        payload.treatmentPlanItemId = null;
+        payload.treatmentPlanId = null;
+      }
     } else {
       payload.tooth = tooth.trim() || undefined;
       payload.description = description.trim() || undefined;
       payload.notes = notes.trim() || undefined;
+      if (linkItemId) {
+        payload.treatmentPlanItemId = linkItemId;
+      } else if (linkPlanId) {
+        payload.treatmentPlanId = linkPlanId;
+      }
     }
     if (mode === 'edit' && initialProcedure && performedProcedureEditUnchanged(initialProcedure, payload)) {
       onUnchanged?.();
@@ -167,7 +289,7 @@ const PerformedProcedureForm = ({
         <FormSection
           title="Datos del Procedimiento"
           icon={<IconProcedure />}
-          description="Paciente, doctor, tratamiento y fecha. En planes de tratamiento, el conteo usa el mismo paciente y el tratamiento elegido (cuando coincide con ítems del plan)."
+          description="Opcionalmente vincule el registro a un plan del mismo paciente: solo al plan o a un ítem concreto (mismo tratamiento)."
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Select
@@ -190,10 +312,7 @@ const PerformedProcedureForm = ({
               label="Tratamiento *"
               options={treatmentOptions}
               value={treatmentId}
-              onChange={(e) => {
-                setTreatmentId(e.target.value);
-                setErrors((p) => ({ ...p, treatmentId: undefined }));
-              }}
+              onChange={(e) => handleTreatmentChange(e.target.value)}
               placeholder="Seleccionar..."
               error={errors.treatmentId}
             />
@@ -209,6 +328,43 @@ const PerformedProcedureForm = ({
               onChange={(e) => setTooth(e.target.value)}
               className="sm:col-span-2"
             />
+            {patientId ? (
+              <div className="sm:col-span-2 space-y-3 pt-1 border-t border-slate-200/80 dark:border-slate-700/80">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  Plan de tratamiento (opcional)
+                </p>
+                {plansLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <Spinner />
+                    <span>Cargando planes…</span>
+                  </div>
+                ) : (
+                  <>
+                    <Select
+                      label="Plan"
+                      options={planSelectOptions}
+                      value={linkPlanId}
+                      onChange={(e) => handlePlanChange(e.target.value)}
+                      placeholder="Sin vínculo"
+                      error={errors.planLink}
+                    />
+                    {linkPlanId ? (
+                      <Select
+                        label="Ítem del plan"
+                        options={itemSelectOptions}
+                        value={linkItemId}
+                        onChange={(e) => {
+                          setLinkItemId(e.target.value);
+                          setErrors((p) => ({ ...p, planLink: undefined }));
+                        }}
+                        placeholder="Solo al plan o elija ítem"
+                        error={errors.planLink}
+                      />
+                    ) : null}
+                  </>
+                )}
+              </div>
+            ) : null}
           </div>
         </FormSection>
       ),

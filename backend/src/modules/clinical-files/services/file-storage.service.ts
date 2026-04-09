@@ -48,8 +48,12 @@ export class FileStorageService {
 
   async delete(fileKey: string): Promise<void> {
     const filePath = path.join(this.uploadPath, fileKey);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (error) {
+      console.error(`Error deleting file ${filePath}:`, error);
     }
   }
 

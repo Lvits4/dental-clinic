@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThanOrEqual } from 'typeorm';
+import { startOfDay, subDays } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Patient } from '../../patients/entities/patient.entity';
 import { TreatmentPlan } from '../../treatment-plans/entities/treatment-plan.entity';
 import { AppointmentStatus } from '../../../common/enums/appointment-status.enum';
 import { TreatmentPlanStatus } from '../../../common/enums/treatment-plan-status.enum';
+import { getZonedDayRangeUtc } from '../../../common/utils/clinic-day-range';
 
 @Injectable()
 export class DashboardService {
@@ -16,15 +20,22 @@ export class DashboardService {
     private readonly patientRepository: Repository<Patient>,
     @InjectRepository(TreatmentPlan)
     private readonly treatmentPlanRepository: Repository<TreatmentPlan>,
+    private readonly configService: ConfigService,
   ) {}
 
+  private clinicTimeZone(): string {
+    return (
+      this.configService.get<string>('CLINIC_TIMEZONE')?.trim() ||
+      'Europe/Madrid'
+    );
+  }
+
   async getSummary() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const tz = this.clinicTimeZone();
+    const { start: today, end: tomorrow } = getZonedDayRangeUtc(tz);
+    const zonedNow = toZonedTime(new Date(), tz);
+    const zonedStart = startOfDay(zonedNow);
+    const thirtyDaysAgo = fromZonedTime(subDays(zonedStart, 30), tz);
 
     const [
       todayAppointments,
@@ -88,10 +99,8 @@ export class DashboardService {
   }
 
   async getDoctorWorkload() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tz = this.clinicTimeZone();
+    const { start: today, end: tomorrow } = getZonedDayRangeUtc(tz);
 
     const result = await this.appointmentRepository
       .createQueryBuilder('appointment')

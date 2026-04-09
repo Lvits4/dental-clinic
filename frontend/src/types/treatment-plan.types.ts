@@ -28,22 +28,24 @@ export interface TreatmentPlan {
   patient?: Patient;
   doctorId: string;
   doctor?: Doctor;
+  title: string;
   status: TreatmentPlanStatus;
   observations?: string;
   items?: TreatmentPlanItem[];
   createdAt?: string;
-  /** Conteo agregado en API: vinculados a ítems + no vinculados del paciente con tratamiento del plan */
+  /** Conteo agregado en API: procedimientos con `treatment_plan_id` o `treatment_plan_item_id` del plan */
   proceduresPerformedCount?: number;
 }
 
 export interface CreateTreatmentPlanDto {
   patientId: string;
   doctorId: string;
+  title: string;
   observations?: string;
   items?: { treatmentId: string; tooth?: string; notes?: string; order?: number }[];
 }
 
-export type TreatmentPlanSortBy = 'patient' | 'doctor' | 'status' | 'items' | 'createdAt';
+export type TreatmentPlanSortBy = 'title' | 'patient' | 'doctor' | 'status' | 'items' | 'createdAt';
 
 export type TreatmentPlanSortOrder = 'asc' | 'desc';
 

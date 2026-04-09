@@ -359,11 +359,8 @@ const PerformedProceduresListView = () => {
                   setEditTarget(null);
                 }}
                 onSubmit={(payload) => {
-                  const { treatmentPlanItemId, treatmentPlanId, ...data } = payload;
-                  void treatmentPlanItemId;
-                  void treatmentPlanId;
                   updateMutation.mutate(
-                    { id: editTarget.id, data },
+                    { id: editTarget.id, data: payload },
                     { onSettled: () => setEditTarget(null) },
                   );
                 }}

@@ -58,7 +58,7 @@ export class ClinicalFilesService {
       query.andWhere('file.clinicalEvolutionId = :clinicalEvolutionId', { clinicalEvolutionId });
     }
 
-    query.orderBy('file.created_at', 'DESC');
+    query.orderBy('file.createdAt', 'DESC');
     query.skip((page - 1) * limit).take(limit);
 
     const [data, totalItems] = await query.getManyAndCount();
@@ -78,16 +78,24 @@ export class ClinicalFilesService {
 
   async getFilePath(id: string): Promise<{ path: string; fileName: string; mimeType: string }> {
     const file = await this.findOne(id);
+    const filePath = this.fileStorageService.getFilePath(file.fileKey);
+    
+    const fs = await import('fs');
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException(`El archivo físico no existe en el servidor`);
+    }
+    
     return {
-      path: this.fileStorageService.getFilePath(file.fileKey),
+      path: filePath,
       fileName: file.fileName,
       mimeType: file.mimeType,
     };
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<{ message: string }> {
     const file = await this.findOne(id);
     await this.fileStorageService.delete(file.fileKey);
     await this.fileRepository.remove(file);
+    return { message: 'Archivo eliminado exitosamente' };
   }
 }

@@ -43,10 +43,6 @@ export const useTreatmentPlansByPatient = (patientId: string) => {
       return acc;
     },
     enabled: !!patientId,
-    select: (plans) =>
-      plans.filter(
-        (p) =>
-          p.status !== TreatmentPlanStatus.CANCELLED && p.status !== TreatmentPlanStatus.COMPLETED,
-      ),
+    select: (plans) => plans.filter((p) => p.status !== TreatmentPlanStatus.CANCELLED),
   });
 };
