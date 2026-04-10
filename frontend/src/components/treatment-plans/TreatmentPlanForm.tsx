@@ -1,7 +1,7 @@
-import { useState, useMemo, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { Input, Select, Textarea, Button, FormSection, FormActionBar } from '../ui';
 import type { CreateTreatmentPlanDto, Patient, Doctor } from '../../types';
-import { treatmentPlanObservationsUnchanged } from '../../utils/editUnchangedCompare';
+import { treatmentPlanEditUnchanged } from '../../utils/editUnchangedCompare';
 
 interface TreatmentPlanFormErrors {
   patientId?: string;
@@ -27,7 +27,8 @@ interface TreatmentPlanFormProps {
   initialDoctorId?: string;
   initialTitle?: string;
   initialObservations?: string;
-  editObservationsOnly?: boolean;
+  /** En modo edición, proporciona el plan completo para detectar cambios */
+  initialPlan?: { patientId: string; doctorId: string; title: string; observations?: string };
   onUnchanged?: () => void;
   footerContent?: ReactNode;
   onCancel?: () => void;
@@ -51,7 +52,7 @@ const TreatmentPlanForm = ({
   initialDoctorId,
   initialTitle,
   initialObservations,
-  editObservationsOnly = false,
+  initialPlan,
   onUnchanged,
   footerContent,
   onCancel,
@@ -66,16 +67,6 @@ const TreatmentPlanForm = ({
   const patientOptions = patients.map((p) => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }));
   const doctorOptions = doctors.map((d) => ({ value: d.id, label: `Dr. ${d.firstName} ${d.lastName}` }));
 
-  const patientReadOnlyLabel = useMemo(() => {
-    const p = patients.find((x) => x.id === patientId);
-    return p ? `${p.firstName} ${p.lastName}` : '—';
-  }, [patients, patientId]);
-
-  const doctorReadOnlyLabel = useMemo(() => {
-    const d = doctors.find((x) => x.id === doctorId);
-    return d ? `Dr. ${d.firstName} ${d.lastName}` : '—';
-  }, [doctors, doctorId]);
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const data: CreateTreatmentPlanDto = {
@@ -89,10 +80,7 @@ const TreatmentPlanForm = ({
       setErrors(validationErrors);
       return;
     }
-    if (
-      editObservationsOnly &&
-      treatmentPlanObservationsUnchanged(initialObservations, data.observations)
-    ) {
+    if (initialPlan && treatmentPlanEditUnchanged(initialPlan as any, data)) {
       onUnchanged?.();
       return;
     }
@@ -105,35 +93,14 @@ const TreatmentPlanForm = ({
     </svg>
   );
 
-  const fields = (
+const fields = (
     <>
       <FormSection
         title="Plan de Tratamiento"
         icon={<IconPlan />}
-        description={
-          editObservationsOnly
-            ? 'Paciente y doctor no se editan aquí; solo observaciones.'
-            : 'Seleccione el paciente y doctor responsable'
-        }
+        description="Seleccione el paciente y doctor responsable"
       >
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {editObservationsOnly ? (
-        <>
-          <div>
-            <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-              Paciente
-            </span>
-            <p className="text-sm text-slate-900 dark:text-slate-100">{patientReadOnlyLabel}</p>
-          </div>
-          <div>
-            <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-              Doctor
-            </span>
-            <p className="text-sm text-slate-900 dark:text-slate-100">{doctorReadOnlyLabel}</p>
-          </div>
-        </>
-      ) : (
-        <>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Select
             label="Paciente *"
             options={patientOptions}
@@ -150,27 +117,16 @@ const TreatmentPlanForm = ({
             error={errors.doctorId}
             placeholder="Seleccionar doctor..."
           />
-        </>
-      )}
-    </div>
-    <div className="mt-4">
-      {editObservationsOnly ? (
-        <div>
-          <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-            Título
-          </span>
-          <p className="text-sm text-slate-900 dark:text-slate-100">{title || '—'}</p>
         </div>
-      ) : (
-        <Input
-          label="Título *"
-          value={title}
-          onChange={(e) => { setTitle(e.target.value); setErrors((p) => ({ ...p, title: undefined })); }}
-          error={errors.title}
-          placeholder="Ej: Plan de ortodoncia, Blanqueamiento dental..."
-        />
-      )}
-    </div>
+        <div className="mt-4">
+          <Input
+            label="Título *"
+            value={title}
+            onChange={(e) => { setTitle(e.target.value); setErrors((p) => ({ ...p, title: undefined })); }}
+            error={errors.title}
+            placeholder="Ej: Plan de ortodoncia, Blanqueamiento dental..."
+          />
+        </div>
         <div className="mt-4">
           <Textarea
             label="Observaciones"

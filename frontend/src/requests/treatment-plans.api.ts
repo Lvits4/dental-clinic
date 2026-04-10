@@ -23,7 +23,7 @@ export const treatmentPlansApi = {
     return http.post<TreatmentPlan>('/treatment-plans', data);
   },
 
-  update(id: string, data: { status?: TreatmentPlanStatus; observations?: string }): Promise<TreatmentPlan> {
+  update(id: string, data: Partial<CreateTreatmentPlanDto> & { status?: TreatmentPlanStatus }): Promise<TreatmentPlan> {
     return http.patch<TreatmentPlan>(`/treatment-plans/${id}`, data);
   },
 

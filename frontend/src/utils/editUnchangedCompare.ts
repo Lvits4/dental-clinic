@@ -5,10 +5,12 @@ import type {
   CreatePatientDto,
   CreatePerformedProcedureDto,
   CreateTreatmentDto,
+  CreateTreatmentPlanDto,
   Doctor,
   Patient,
   PerformedProcedure,
   Treatment,
+  TreatmentPlan,
   UpdateClinicalRecordDto,
   User,
 } from '../types';
@@ -204,4 +206,17 @@ export function treatmentPlanObservationsUnchanged(
   submitted: string | undefined,
 ): boolean {
   return optTrim(initial) === optTrim(submitted);
+}
+
+/** true si el plan enviado coincide con el plan cargado (edición completa). */
+export function treatmentPlanEditUnchanged(
+  plan: TreatmentPlan,
+  submitted: CreateTreatmentPlanDto,
+): boolean {
+  return (
+    plan.patientId === submitted.patientId &&
+    plan.doctorId === submitted.doctorId &&
+    plan.title.trim() === submitted.title.trim() &&
+    optTrim(plan.observations) === optTrim(submitted.observations)
+  );
 }

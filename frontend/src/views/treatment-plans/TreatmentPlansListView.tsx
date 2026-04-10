@@ -402,23 +402,28 @@ const TreatmentPlansListView = () => {
       >
         {editTarget && (
           <FormModalScrollShell>
-          <TreatmentPlanForm
-            key={editTarget.id}
-            fillParent
-            patients={patientsForPlanEdit}
-            doctors={doctorsForPlanEdit}
-            initialPatientId={editTarget.patientId}
-            initialDoctorId={editTarget.doctorId}
-            initialTitle={editTarget.title}
-            initialObservations={editTarget.observations}
-            editObservationsOnly
+            <TreatmentPlanForm
+              key={editTarget.id}
+              fillParent
+              patients={patientsForPlanEdit}
+              doctors={doctorsForPlanEdit}
+              initialPatientId={editTarget.patientId}
+              initialDoctorId={editTarget.doctorId}
+              initialTitle={editTarget.title}
+              initialObservations={editTarget.observations ?? undefined}
+              initialPlan={{
+                patientId: editTarget.patientId,
+                doctorId: editTarget.doctorId,
+                title: editTarget.title,
+                observations: editTarget.observations ?? undefined,
+              }}
               onUnchanged={() => {
                 toast(TOAST_NO_UPDATES, { duration: 2800 });
                 setEditTarget(null);
               }}
               onSubmit={(data) => {
                 updatePlan.mutate(
-                  { id: editTarget.id, data: { observations: data.observations } },
+                  { id: editTarget.id, data },
                   { onSettled: () => setEditTarget(null) },
                 );
               }}
@@ -426,41 +431,41 @@ const TreatmentPlansListView = () => {
               submitLabel="Guardar cambios"
               onCancel={() => setEditTarget(null)}
               footerContent={
-              <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                    Estado actual
-                  </p>
-                  {(() => {
-                    const cfg = PLAN_STATUS_CONFIG[editTarget.status as TreatmentPlanStatus];
-                    return cfg ? <Badge className={cfg.className}>{cfg.label}</Badge> : null;
-                  })()}
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-5 mt-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                      Estado actual
+                    </p>
+                    {(() => {
+                      const cfg = PLAN_STATUS_CONFIG[editTarget.status as TreatmentPlanStatus];
+                      return cfg ? <Badge className={cfg.className}>{cfg.label}</Badge> : null;
+                    })()}
+                  </div>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Cambiar a:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {allStatusesExceptCurrent.map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        disabled={updateStatus.isPending}
+                        onClick={() =>
+                          updateStatus.mutate(status, {
+                            onSuccess: () => {
+                              setEditTarget((prev) => (prev ? { ...prev, status } : null));
+                            },
+                          })
+                        }
+                        className={[
+                          'px-3 py-1.5 rounded-md border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
+                          PLAN_STATUS_BUTTON_CLASSES[status] ?? 'border-slate-300 text-slate-700 hover:bg-slate-50',
+                        ].join(' ')}
+                      >
+                        {PLAN_STATUS_CONFIG[status]?.label ?? status}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">Cambiar a:</p>
-                <div className="flex flex-wrap gap-2">
-                  {allStatusesExceptCurrent.map((status) => (
-                    <button
-                      key={status}
-                      type="button"
-                      disabled={updateStatus.isPending}
-                      onClick={() =>
-                        updateStatus.mutate(status, {
-                          onSuccess: () => {
-                            setEditTarget((prev) => (prev ? { ...prev, status } : null));
-                          },
-                        })
-                      }
-                      className={[
-                        'px-3 py-1.5 rounded-md border text-xs font-medium transition-all duration-150 disabled:opacity-50 cursor-pointer',
-                        PLAN_STATUS_BUTTON_CLASSES[status] ?? 'border-slate-300 text-slate-700 hover:bg-slate-50',
-                      ].join(' ')}
-                    >
-                      {PLAN_STATUS_CONFIG[status]?.label ?? status}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            }
+              }
             />
           </FormModalScrollShell>
         )}

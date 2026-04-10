@@ -93,12 +93,22 @@ const TreatmentPlansTable = ({
 
   const columns: Column<TreatmentPlan>[] = [
     {
+      key: 'title',
+      header: 'Título',
+      sortKey: 'title',
+      render: (p) => (
+        <span className="font-medium text-slate-900 dark:text-white">
+          {p.title || '—'}
+        </span>
+      ),
+    },
+    {
       key: 'patient',
       header: 'Paciente',
       sortKey: 'patient',
       render: (p) =>
         p.patient ? (
-          <span className="font-medium text-slate-900 dark:text-white">
+          <span className="text-slate-900 dark:text-white">
             {p.patient.firstName} {p.patient.lastName}
           </span>
         ) : (
@@ -156,35 +166,38 @@ const TreatmentPlansTable = ({
             No hay planes de tratamiento
           </div>
         ) : (
-          data.map((p) => {
-            const cfg = PLAN_STATUS_CONFIG[p.status as TreatmentPlanStatus];
-            return (
-              <div
-                key={p.id}
-                className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-4"
-              >
-                <div className="mb-3">
-                  <span className="font-medium text-slate-900 dark:text-white block">
-                    {p.patient ? `${p.patient.firstName} ${p.patient.lastName}` : '—'}
-                  </span>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    {p.doctor ? `Dr. ${p.doctor.firstName} ${p.doctor.lastName}` : '—'}
-                  </p>
-                  {cfg ? (
-                    <div className="mt-2">
-                      <Badge className={cfg.className}>{cfg.label}</Badge>
+              data.map((p) => {
+                const cfg = PLAN_STATUS_CONFIG[p.status as TreatmentPlanStatus];
+                return (
+                  <div
+                    key={p.id}
+                    className="bg-white dark:bg-slate-800 rounded-md border border-slate-200 dark:border-slate-700 p-4"
+                  >
+                    <div className="mb-3">
+                      <span className="font-medium text-slate-900 dark:text-white block">
+                        {p.title || '—'}
+                      </span>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                        {p.patient ? `${p.patient.firstName} ${p.patient.lastName}` : '—'}
+                      </p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        {p.doctor ? `Dr. ${p.doctor.firstName} ${p.doctor.lastName}` : '—'}
+                      </p>
+                      {cfg ? (
+                        <div className="mt-2">
+                          <Badge className={cfg.className}>{cfg.label}</Badge>
+                        </div>
+                      ) : null}
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                        Proc. realizados: {countPerformedProceduresOnPlan(p)}
+                      </p>
                     </div>
-                  ) : null}
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                    Proc. realizados: {countPerformedProceduresOnPlan(p)}
-                  </p>
-                </div>
-                <div className="flex justify-center pt-2 border-t border-slate-100 dark:border-slate-700">
-                  {actionButtons(p)}
-                </div>
-              </div>
-            );
-          })
+                    <div className="flex justify-center pt-2 border-t border-slate-100 dark:border-slate-700">
+                      {actionButtons(p)}
+                    </div>
+                  </div>
+                );
+              })
         )}
       </div>
 
