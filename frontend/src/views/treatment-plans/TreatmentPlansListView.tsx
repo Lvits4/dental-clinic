@@ -402,15 +402,16 @@ const TreatmentPlansListView = () => {
       >
         {editTarget && (
           <FormModalScrollShell>
-            <TreatmentPlanForm
-              key={editTarget.id}
-              fillParent
-              patients={patientsForPlanEdit}
-              doctors={doctorsForPlanEdit}
-              initialPatientId={editTarget.patientId}
-              initialDoctorId={editTarget.doctorId}
-              initialObservations={editTarget.observations}
-              editObservationsOnly
+          <TreatmentPlanForm
+            key={editTarget.id}
+            fillParent
+            patients={patientsForPlanEdit}
+            doctors={doctorsForPlanEdit}
+            initialPatientId={editTarget.patientId}
+            initialDoctorId={editTarget.doctorId}
+            initialTitle={editTarget.title}
+            initialObservations={editTarget.observations}
+            editObservationsOnly
               onUnchanged={() => {
                 toast(TOAST_NO_UPDATES, { duration: 2800 });
                 setEditTarget(null);

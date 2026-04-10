@@ -1,17 +1,19 @@
 import { useState, useMemo, type FormEvent, type ReactNode } from 'react';
-import { Select, Textarea, Button, FormSection, FormActionBar } from '../ui';
+import { Input, Select, Textarea, Button, FormSection, FormActionBar } from '../ui';
 import type { CreateTreatmentPlanDto, Patient, Doctor } from '../../types';
 import { treatmentPlanObservationsUnchanged } from '../../utils/editUnchangedCompare';
 
 interface TreatmentPlanFormErrors {
   patientId?: string;
   doctorId?: string;
+  title?: string;
 }
 
 function validatePlan(data: CreateTreatmentPlanDto): TreatmentPlanFormErrors {
   const errors: TreatmentPlanFormErrors = {};
   if (!data.patientId) errors.patientId = 'Debe seleccionar un paciente';
   if (!data.doctorId) errors.doctorId = 'Debe seleccionar un doctor';
+  if (!data.title?.trim()) errors.title = 'El título es requerido';
   return errors;
 }
 
@@ -23,14 +25,12 @@ interface TreatmentPlanFormProps {
   submitLabel?: string;
   initialPatientId?: string;
   initialDoctorId?: string;
+  initialTitle?: string;
   initialObservations?: string;
-  /** En edición de plan solo persisten observaciones; evita PATCH si no cambiaron. */
   editObservationsOnly?: boolean;
   onUnchanged?: () => void;
-  /** Contenido extra que aparece entre el formulario y el botón de guardar (e.g. sección de estado) */
   footerContent?: ReactNode;
   onCancel?: () => void;
-  /** true en modal con altura acotada: scroll solo en el cuerpo; barra de acciones fija */
   fillParent?: boolean;
 }
 
@@ -49,6 +49,7 @@ const TreatmentPlanForm = ({
   submitLabel = 'Crear Plan',
   initialPatientId,
   initialDoctorId,
+  initialTitle,
   initialObservations,
   editObservationsOnly = false,
   onUnchanged,
@@ -58,6 +59,7 @@ const TreatmentPlanForm = ({
 }: TreatmentPlanFormProps) => {
   const [patientId, setPatientId] = useState(initialPatientId ?? '');
   const [doctorId, setDoctorId] = useState(initialDoctorId ?? '');
+  const [title, setTitle] = useState(initialTitle ?? '');
   const [observations, setObservations] = useState(initialObservations ?? '');
   const [errors, setErrors] = useState<TreatmentPlanFormErrors>({});
 
@@ -79,6 +81,7 @@ const TreatmentPlanForm = ({
     const data: CreateTreatmentPlanDto = {
       patientId,
       doctorId,
+      title: title.trim(),
       observations: observations.trim() || undefined,
     };
     const validationErrors = validatePlan(data);
@@ -113,43 +116,61 @@ const TreatmentPlanForm = ({
             : 'Seleccione el paciente y doctor responsable'
         }
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {editObservationsOnly ? (
-            <>
-              <div>
-                <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-                  Paciente
-                </span>
-                <p className="text-sm text-slate-900 dark:text-slate-100">{patientReadOnlyLabel}</p>
-              </div>
-              <div>
-                <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
-                  Doctor
-                </span>
-                <p className="text-sm text-slate-900 dark:text-slate-100">{doctorReadOnlyLabel}</p>
-              </div>
-            </>
-          ) : (
-            <>
-              <Select
-                label="Paciente *"
-                options={patientOptions}
-                value={patientId}
-                onChange={(e) => { setPatientId(e.target.value); setErrors((p) => ({ ...p, patientId: undefined })); }}
-                error={errors.patientId}
-                placeholder="Seleccionar paciente..."
-              />
-              <Select
-                label="Doctor *"
-                options={doctorOptions}
-                value={doctorId}
-                onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctorId: undefined })); }}
-                error={errors.doctorId}
-                placeholder="Seleccionar doctor..."
-              />
-            </>
-          )}
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {editObservationsOnly ? (
+        <>
+          <div>
+            <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+              Paciente
+            </span>
+            <p className="text-sm text-slate-900 dark:text-slate-100">{patientReadOnlyLabel}</p>
+          </div>
+          <div>
+            <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+              Doctor
+            </span>
+            <p className="text-sm text-slate-900 dark:text-slate-100">{doctorReadOnlyLabel}</p>
+          </div>
+        </>
+      ) : (
+        <>
+          <Select
+            label="Paciente *"
+            options={patientOptions}
+            value={patientId}
+            onChange={(e) => { setPatientId(e.target.value); setErrors((p) => ({ ...p, patientId: undefined })); }}
+            error={errors.patientId}
+            placeholder="Seleccionar paciente..."
+          />
+          <Select
+            label="Doctor *"
+            options={doctorOptions}
+            value={doctorId}
+            onChange={(e) => { setDoctorId(e.target.value); setErrors((p) => ({ ...p, doctorId: undefined })); }}
+            error={errors.doctorId}
+            placeholder="Seleccionar doctor..."
+          />
+        </>
+      )}
+    </div>
+    <div className="mt-4">
+      {editObservationsOnly ? (
+        <div>
+          <span className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+            Título
+          </span>
+          <p className="text-sm text-slate-900 dark:text-slate-100">{title || '—'}</p>
         </div>
+      ) : (
+        <Input
+          label="Título *"
+          value={title}
+          onChange={(e) => { setTitle(e.target.value); setErrors((p) => ({ ...p, title: undefined })); }}
+          error={errors.title}
+          placeholder="Ej: Plan de ortodoncia, Blanqueamiento dental..."
+        />
+      )}
+    </div>
         <div className="mt-4">
           <Textarea
             label="Observaciones"
