@@ -55,17 +55,17 @@ const AuthLayout = () => {
         />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur-md">
+          <div className="flex flex-col items-start gap-5">
+            <div className="flex items-center gap-5">
               <img
                 src={logoInicio}
-                alt=""
-                className="h-10 w-auto max-w-[2.5rem] object-contain"
+                alt="SmileCare"
+                className="h-14 w-auto max-w-[5rem] object-contain drop-shadow-lg"
               />
-            </div>
-            <div>
-              <p className="text-2xl font-bold tracking-tight text-white xl:text-3xl">SmileCare</p>
-              <p className="mt-0.5 text-sm text-emerald-100/75">Software para clinicas dentales</p>
+              <div>
+                <p className="text-2xl font-bold tracking-tight text-white xl:text-3xl">SmileCare</p>
+                <p className="mt-0.5 text-sm text-emerald-100/75">Software para clinicas dentales</p>
+              </div>
             </div>
           </div>
           <p className="mt-10 max-w-md text-lg leading-relaxed text-slate-300 xl:text-xl">
