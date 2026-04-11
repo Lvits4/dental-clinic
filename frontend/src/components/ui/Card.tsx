@@ -49,7 +49,8 @@ const Card = ({
   return (
     <div
       className={[
-        `${r} overflow-visible transition-shadow duration-200`,
+        `${r} overflow-visible transition-all duration-200`,
+        'hover:shadow-md hover:scale-[1.005]',
         variantClasses[variant],
         className,
       ]

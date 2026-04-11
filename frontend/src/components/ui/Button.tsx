@@ -58,9 +58,10 @@ const Button = ({
       disabled={disabled || loading}
       className={[
         'inline-flex items-center justify-center rounded-md font-semibold',
-        'transition-all duration-200',
+        'transition-all duration-200 ease-out',
+        'hover:scale-[1.02] active:scale-[0.98]',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:scale-100',
         variantClasses[variant],
         sizeClasses[size],
         fullWidth ? 'w-full' : '',
@@ -73,10 +74,10 @@ const Button = ({
       {loading ? (
         <SpinnerIcon />
       ) : leftIcon ? (
-        <span className="shrink-0">{leftIcon}</span>
+        <span className="shrink-0 transition-transform duration-200">{leftIcon}</span>
       ) : null}
       <span className="inline-flex items-center">{children}</span>
-      {!loading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
+      {!loading && rightIcon && <span className="shrink-0 transition-transform duration-200">{rightIcon}</span>}
     </button>
   );
 };

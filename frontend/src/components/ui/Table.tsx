@@ -314,20 +314,22 @@ const Table = <T,>({
                   </td>
                 </tr>
               ) : (
-                data.map((item, idx) => (
-                  <tr
-                    key={keyExtractor(item)}
-                    onClick={() => onRowClick?.(item)}
-                    className={[
-                      /* Sin transition-colors: con divide/bordes evita parpadeos al repintar al ordenar. */
-                      onRowClick
-                        ? 'cursor-pointer hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10'
-                        : '',
-                      idx % 2 === 1 ? 'bg-slate-25 dark:bg-slate-800/20' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
+data.map((item, idx) => (
+              <tr
+                key={keyExtractor(item)}
+                onClick={() => onRowClick?.(item)}
+                className={[
+                /* Sin transition-colors: con divide/bordes evita parpadeos al repintar al ordenar. */
+                onRowClick
+                ? 'cursor-pointer hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10'
+                : '',
+                'animate-[staggerFadeIn_0.25s_ease-out_both]',
+                idx % 2 === 1 ? 'bg-slate-25 dark:bg-slate-800/20' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+                style={{ animationDelay: `${idx * 30}ms` }}
+              >
                     {columns.map((col) => (
                       <td
                         key={col.key}
@@ -351,27 +353,28 @@ const Table = <T,>({
         {desktopFooter}
       </div>
 
-      <div className={fillHeight ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-3' : 'md:hidden space-y-3'}>
-        {isEmpty ? (
-          <div className="py-14 text-center">
-            {emptySlot ?? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">{emptyMessage}</p>
-            )}
-          </div>
-        ) : (
-          data.map((item) => (
-            <div
-              key={keyExtractor(item)}
-              onClick={() => onRowClick?.(item)}
-              className={[
-                `bg-white dark:bg-slate-900 ${r} border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200`,
-                onRowClick
-                  ? 'cursor-pointer active:scale-[0.98] active:shadow-none'
-                  : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
+<div className={fillHeight ? 'md:hidden flex-1 min-h-0 overflow-y-auto space-y-3' : 'md:hidden space-y-3'}>
+      {isEmpty ? (
+        <div className="py-14 text-center">
+          {emptySlot ?? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">{emptyMessage}</p>
+          )}
+        </div>
+      ) : (
+        data.map((item, idx) => (
+          <div
+            key={keyExtractor(item)}
+            onClick={() => onRowClick?.(item)}
+            className={[
+            `bg-white dark:bg-slate-900 ${r} border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 shadow-sm transition-all duration-200 animate-[staggerFadeIn_0.3s_ease-out_both]`,
+            onRowClick
+            ? 'cursor-pointer active:scale-[0.98] active:shadow-none'
+            : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+            style={{ animationDelay: `${idx * 50}ms` }}
+          >
               {visibleColumns.map((col) => (
                 <div key={col.key} className="flex justify-between items-start gap-3">
                   <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 shrink-0 min-w-[80px] uppercase tracking-wider">

@@ -39,7 +39,7 @@ const PageHeader = ({
   const showTitleBlock = !hideTitle && (title != null || subtitle || action);
 
   return (
-    <div className={rootMb}>
+    <div className={`${rootMb} animate-view-enter`}>
       {/* Breadcrumb */}
       {breadcrumb && breadcrumb.length > 0 && (
         <nav aria-label="Migas de pan" className={navMb}>

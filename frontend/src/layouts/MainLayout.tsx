@@ -170,15 +170,15 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
       [
         'relative flex items-center font-medium transition-all duration-200 group cursor-pointer',
         collapsed
-          ? isActive
-            ? 'mx-auto size-10 shrink-0 justify-center rounded-full p-0'
-            : 'justify-center rounded-md px-0 py-1.5'
-          : isActive
-            ? 'gap-3 rounded-md px-3 py-2'
-            : 'gap-3 rounded-md px-3 py-2',
+        ? isActive
+        ? 'mx-auto size-10 shrink-0 justify-center rounded-full p-0'
+        : 'justify-center rounded-md px-0 py-1.5'
+        : isActive
+        ? 'gap-3 rounded-md px-3 py-2'
+        : 'gap-3 rounded-md px-3 py-2',
         isActive
-          ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
-          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
+        ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 shadow-sm'
+        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
       ].join(' ')
     }
   >
@@ -188,15 +188,15 @@ const SidebarNavLink = ({ item, collapsed }: SidebarNavLinkProps) => (
         {isActive && !collapsed && (
           <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-md bg-emerald-500 dark:bg-emerald-400" />
         )}
-        <span className={`transition-colors duration-200 ${
+        <span className={`transition-all duration-200 ${
           isActive
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+          ? 'text-emerald-600 dark:text-emerald-400'
+          : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'
         }`}>
           {item.icon}
         </span>
         {!collapsed && (
-          <span className="text-sm tracking-tight whitespace-nowrap overflow-hidden">{item.label}</span>
+          <span className="text-sm tracking-tight whitespace-nowrap overflow-hidden transition-all duration-200">{item.label}</span>
         )}
       </>
     )}
@@ -285,15 +285,21 @@ const MainLayout = () => {
           )}
         </div>
 
-        {/* Navegacion */}
-        <nav className={`flex-1 overflow-y-auto py-4 space-y-0 ${collapsed ? 'px-2' : 'px-3'}`}>
-          {visibleNavItems.map((item) => (
-            <SidebarNavLink key={item.to} item={item} collapsed={collapsed} />
-          ))}
-        </nav>
+{/* Navegacion */}
+<nav className={`flex-1 overflow-y-auto py-4 space-y-0 ${collapsed ? 'px-2' : 'px-3'}`}>
+  {visibleNavItems.map((item, index) => (
+    <div
+      key={item.to}
+      className="animate-[staggerFadeIn_0.3s_ease-out_both]"
+      style={{ animationDelay: `${index * 40}ms` }}
+    >
+      <SidebarNavLink item={item} collapsed={collapsed} />
+    </div>
+  ))}
+</nav>
 
-        {/* Footer del sidebar */}
-        <div className={`py-2.5 border-t border-slate-100 dark:border-slate-800/80 space-y-0 ${collapsed ? 'px-2' : 'px-3'}`}>
+{/* Footer del sidebar */}
+<div className={`py-2.5 border-t border-slate-100 dark:border-slate-800/80 space-y-0 transition-all duration-300 ${collapsed ? 'px-2' : 'px-3'}`}>
           {/* Toggle tema */}
           <button
             onClick={toggleTheme}
@@ -486,53 +492,54 @@ const MainLayout = () => {
         </div>
       </header>
 
-      {/* ── CONTENIDO PRINCIPAL ── */}
-      <style>{`
-        @media (min-width: 768px) {
-          .main-content { margin-left: ${sidebarWidth}px; }
-        }
-      `}</style>
-      <main className="main-content pb-20 md:pb-0 min-h-screen md:min-h-0 md:h-dvh flex flex-col md:overflow-y-auto transition-all duration-300">
-        <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-10 max-w-7xl mx-auto w-full flex-1 flex flex-col min-h-0 min-w-0">
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
-        </div>
-      </main>
+{/* ── CONTENIDO PRINCIPAL ── */}
+<style>{`
+@media (min-width: 768px) {
+  .main-content { margin-left: ${sidebarWidth}px; }
+}
+`}</style>
+<main className="main-content pb-20 md:pb-0 min-h-screen md:min-h-0 md:h-dvh flex flex-col md:overflow-y-auto transition-all duration-300 ease-out">
+  <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-10 max-w-7xl mx-auto w-full flex-1 flex flex-col min-h-0 min-w-0 animate-view-enter">
+    <ErrorBoundary>
+      <Outlet />
+    </ErrorBoundary>
+  </div>
+</main>
 
-      {/* ── BOTTOM NAV MOBILE (< md) ── */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200/60 dark:border-slate-800/60 flex items-stretch h-16 safe-area-pb">
-        {mobileBottomNavItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            viewTransition
-            className={({ isActive }) =>
-              `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-all duration-200 min-h-[44px] ${
-                isActive
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-slate-400 dark:text-slate-500'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <span className={`transition-all duration-200 ${
-                  isActive
-                    ? 'text-emerald-600 dark:text-emerald-400 scale-110'
-                    : 'text-slate-400 dark:text-slate-500'
-                }`}>
-                  {item.icon}
-                </span>
-                <span className="leading-none">{item.label}</span>
-                {isActive && (
-                  <span className="absolute top-0 w-8 h-0.5 rounded-md bg-emerald-500 dark:bg-emerald-400" />
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
+{/* ── BOTTOM NAV MOBILE (< md) ── */}
+<nav className="md:hidden fixed bottom-0 inset-x-0 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200/60 dark:border-slate-800/60 flex items-stretch h-16 safe-area-pb">
+  {mobileBottomNavItems.map((item, index) => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      end={item.end}
+      viewTransition
+      className={({ isActive }) =>
+        `relative flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-all duration-200 min-h-[44px] ${
+        isActive
+        ? 'text-emerald-600 dark:text-emerald-400'
+        : 'text-slate-400 dark:text-slate-500'
+        }`
+      }
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      {({ isActive }) => (
+        <div className="flex flex-col items-center justify-center gap-0.5 animate-[staggerFadeIn_0.25s_ease-out_both]" style={{ animationDelay: `${index * 50}ms` }}>
+          <span className={`transition-all duration-200 ${
+            isActive
+            ? 'text-emerald-600 dark:text-emerald-400 scale-110'
+            : 'text-slate-400 dark:text-slate-500'
+          }`}>
+            {item.icon}
+          </span>
+          <span className="leading-none">{item.label}</span>
+          {isActive && (
+            <span className="absolute top-0 w-8 h-0.5 rounded-md bg-emerald-500 dark:bg-emerald-400 transition-all duration-200" />
+          )}
+        </div>
+      )}
+    </NavLink>
+  ))}
 
         {mobileMoreNavItems.length > 0 && (
           <button
